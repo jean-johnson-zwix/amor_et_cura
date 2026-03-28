@@ -1,7 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient as createSupabaseClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/supabase/session'
 import { can } from '@/lib/auth/permissions'
 
@@ -31,7 +31,7 @@ export async function createClient(
   const session = await getSession()
   if (!can.createClient(session?.profile?.role)) return { error: 'Not authorized.' }
 
-  const supabase = await createClient()
+  const supabase = await createSupabaseClient()
   const { error } = await supabase.from('clients').insert({
     first_name: firstName,
     last_name: lastName,
