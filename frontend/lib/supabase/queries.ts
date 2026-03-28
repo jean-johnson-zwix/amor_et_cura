@@ -3,6 +3,23 @@ import { createClient } from './server'
 import type { Profile } from '@/types/database'
 
 /**
+ * Returns all profiles. Requires admin role (enforced by RLS: profiles: admin read all).
+ */
+export async function getAllProfiles(): Promise<Profile[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .order('created_at', { ascending: true })
+
+  if (error) {
+    console.error('[getAllProfiles]', error.code, error.message)
+    return []
+  }
+  return data
+}
+
+/**
  * Returns the profile for the given user ID.
  * If no row exists (e.g. user was created before the trigger was applied),
  * upserts one so the dashboard always has a valid profile.
