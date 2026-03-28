@@ -1,0 +1,60 @@
+'use server'
+
+export type ImportRow = {
+  row: number
+  first_name: string
+  last_name: string
+  dob: string | null
+  phone: string | null
+  email: string | null
+  address: string | null
+  program: string | null
+}
+
+export type ImportRowResult = {
+  row: number
+  name: string
+  status: 'success' | 'error'
+  error?: string
+}
+
+export type ImportResult = {
+  results: ImportRowResult[]
+  successCount: number
+  errorCount: number
+}
+
+export async function importClients(rows: ImportRow[]): Promise<ImportResult> {
+  const results: ImportRowResult[] = []
+
+  for (const row of rows) {
+    const name = `${row.first_name} ${row.last_name}`
+
+    // TODO(#6): replace with Supabase insert once auth (#1) is wired up
+    // const supabase = await createClient()
+    // const { error } = await supabase.from('clients').insert({
+    //   first_name: row.first_name,
+    //   last_name: row.last_name,
+    //   dob: row.dob,
+    //   phone: row.phone,
+    //   email: row.email,
+    //   address: row.address,
+    //   program: row.program,
+    //   created_by: user.id,
+    // })
+    // if (error) {
+    //   results.push({ row: row.row, name, status: 'error', error: error.message })
+    //   continue
+    // }
+
+    // Stub: simulate success
+    console.log('importClients stub — row', row.row, name)
+    results.push({ row: row.row, name, status: 'success' })
+  }
+
+  return {
+    results,
+    successCount: results.filter((r) => r.status === 'success').length,
+    errorCount: results.filter((r) => r.status === 'error').length,
+  }
+}
