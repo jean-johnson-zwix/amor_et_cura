@@ -1,5 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
-import { getProfile } from '@/lib/supabase/queries'
+import { getSession } from '@/lib/supabase/session'
 import { NavBar } from '@/components/nav-bar'
 
 export default async function DashboardLayout({
@@ -7,15 +6,12 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
   // proxy.ts guarantees user is authenticated before this layout runs
-  const profile = user ? await getProfile(user.id) : null
+  const session = await getSession()
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavBar profile={profile} />
+      <NavBar profile={session?.profile ?? null} />
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">{children}</main>
     </div>
   )

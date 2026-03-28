@@ -1,10 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
-import { getProfile } from '@/lib/supabase/queries'
+import { getSession } from '@/lib/supabase/session'
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const profile = user ? await getProfile(user.id) : null
+  const session = await getSession()
+  const profile = session?.profile
 
   return (
     <div className="space-y-6">
