@@ -4,10 +4,17 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
+import { clientsToCsv, downloadCsv } from '@/lib/csv'
 import type { Client } from '@/lib/types'
 
 export default function ClientsTable({ clients }: { clients: Client[] }) {
   const [query, setQuery] = useState('')
+
+  function handleExport() {
+    const csv = clientsToCsv(clients)
+    const date = new Date().toISOString().split('T')[0]
+    downloadCsv(csv, `clients-${date}.csv`)
+  }
 
   const filtered = clients.filter((c) => {
     if (!query.trim()) return true
@@ -20,12 +27,20 @@ export default function ClientsTable({ clients }: { clients: Client[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="max-w-sm">
-        <Input
-          placeholder="Search by name or ID…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
+      <div className="flex items-center gap-3">
+        <div className="max-w-sm flex-1">
+          <Input
+            placeholder="Search by name or ID…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+        <button
+          onClick={handleExport}
+          className="inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-input bg-background px-2.5 text-sm font-medium transition-colors hover:bg-muted"
+        >
+          Export CSV
+        </button>
       </div>
 
       <p className="text-sm text-muted-foreground">
