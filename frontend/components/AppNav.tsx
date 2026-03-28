@@ -3,12 +3,13 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { Users, LayoutDashboard, ClipboardList, Settings } from 'lucide-react'
+import { Users, LayoutDashboard, ClipboardList, CalendarDays, Settings } from 'lucide-react'
 
 const navItems = [
   { href: '/clients', label: 'Clients', icon: Users },
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/visits', label: 'Visits', icon: ClipboardList },
+  { href: '/schedule', label: 'Schedule', icon: CalendarDays },
   { href: '/settings', label: 'Settings', icon: Settings },
 ]
 
