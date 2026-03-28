@@ -46,10 +46,11 @@ Amor et Cura solves that problem once, for everyone.
 
 ## Tech Stack
 
-- **Frontend:** Next.js 14+ (App Router), TypeScript, Tailwind CSS, shadcn/ui
-- **Backend:** Next.js Server Actions + API Routes
+- **Frontend:** Next.js 16 (App Router), TypeScript, Tailwind CSS, shadcn/ui
+- **Backend:** Next.js Server Actions + API Routes (FastAPI microservice planned for AI features)
 - **Database, Auth & Storage:** Supabase (PostgreSQL + Auth + Storage)
 - **Hosting:** Vercel
+- **CI:** GitHub Actions (lint + type-check on every PR)
 
 ---
 
@@ -75,17 +76,21 @@ All work is tracked on the [ohack_dev GitHub Project board](https://github.com/u
 git clone https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management.git
 cd nonprofit_client_and_case_management
 
-# Install dependencies
+# Install frontend dependencies
+cd frontend
 npm install
 
 # Copy env template and fill in your Supabase credentials
-cp .env.example .env.local
+cp ../.env.example .env.local
+# Then edit .env.local and add your NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 # Run locally
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+> See [DEVELOPER_NOTES.md](./DEVELOPER_NOTES.md) for a full breakdown of what's already built and where to start.
 
 ---
 

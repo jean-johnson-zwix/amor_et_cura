@@ -2,9 +2,9 @@
 .claude
 
 # Dependencies
+frontend/node_modules
+backend/node_modules
 node_modules
-.pnp
-.pnp.js
 
 # Environment variables - NEVER commit these
 .env
@@ -12,18 +12,22 @@ node_modules
 .env.*.local
 .env.development
 .env.production
+frontend/.env.local
+frontend/.env.*.local
+backend/.env
+backend/.env.local
 
 # Next.js
-.next
-out
-build
+frontend/.next
+frontend/out
+frontend/build
+frontend/next-env.d.ts
 
 # Vercel
 .vercel
 
 # TypeScript
 *.tsbuildinfo
-next-env.d.ts
 
 # Misc
 .DS_Store
