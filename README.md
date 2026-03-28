@@ -1,4 +1,5 @@
-# Nonprofit Client & Case Management Platform
+# Amor et Cura
+### *Case management built for nonprofits that care*
 
 A lightweight, open-source client and case management web application that any nonprofit can deploy for under $30/month.
 
@@ -12,7 +13,7 @@ Built for the [ASU WiCS x OHack Hackathon](https://www.ohack.dev) — March 28�
 
 > "We need to register clients, record what we do for them, and report on it."
 
-This project solves that problem once, for everyone.
+Amor et Cura solves that problem once, for everyone.
 
 ---
 
@@ -45,12 +46,9 @@ This project solves that problem once, for everyone.
 
 ## Tech Stack
 
-> Stack is being finalized — see [issue #18](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/18).
-
-**Recommended:**
 - **Frontend:** Next.js 14+ (App Router), TypeScript, Tailwind CSS, shadcn/ui
-- **Backend:** Next.js Server Actions / API routes
-- **Database & Auth:** Supabase (PostgreSQL + Auth + Storage)
+- **Backend:** Next.js Server Actions + API Routes
+- **Database, Auth & Storage:** Supabase (PostgreSQL + Auth + Storage)
 - **Hosting:** Vercel
 
 ---
@@ -61,23 +59,16 @@ All work is tracked on the [ohack_dev GitHub Project board](https://github.com/u
 
 | Label | Meaning |
 |-------|---------|
-| `setup` | Pre-implementation decisions (issues #18–#26) |
+| `setup` | Pre-implementation decisions |
 | `P0` | Must ship for a working demo |
 | `P1` | Demo-worthy features |
 | `P2` | AI stretch goals |
-
-Start with the `setup` issues — tech stack, schema, and infra decisions must be resolved before writing feature code.
 
 ---
 
 ## Getting Started
 
-> Setup instructions will be added once the repo is scaffolded (see [issue #22](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/22)).
-
-**Prerequisites (expected):**
-- Node.js 20+
-- A Supabase account (free tier)
-- A Vercel account (free tier)
+**Prerequisites:** Node.js 20+, a Supabase account, a Vercel account.
 
 ```bash
 # Clone the repo
@@ -94,6 +85,8 @@ cp .env.example .env.local
 npm run dev
 ```
 
+Open [http://localhost:3000](http://localhost:3000).
+
 ---
 
 ## Contributing
@@ -103,13 +96,6 @@ npm run dev
 3. Open a PR — CI will run lint and type-check automatically
 
 See [functional_requirements.md](./functional_requirements.md) for full feature specs.
-
----
-
-## Documentation
-
-- [Functional Requirements](./functional_requirements.md)
-- [Reference Docs](./reference_docs/)
 
 ---
 
