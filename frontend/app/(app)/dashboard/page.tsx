@@ -4,6 +4,7 @@ import ServiceBreakdownChart from '@/components/dashboard/ServiceBreakdownChart'
 import VisitTrendChart from '@/components/dashboard/VisitTrendChart'
 import { getDashboardStats } from '@/lib/dashboard'
 import { STUB_APPOINTMENTS, appointmentsForDate, formatTime } from '@/lib/appointments'
+import PrintButton from './PrintButton'
 
 const TODAY = '2026-03-28'
 
@@ -27,12 +28,7 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Dashboard</h1>
-        <button
-          onClick={() => window.print()}
-          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg border border-input bg-background px-2.5 text-sm font-medium transition-colors hover:bg-muted print:hidden"
-        >
-          Print / Save PDF
-        </button>
+        <PrintButton />
       </div>
 
       {/* Stats row */}
