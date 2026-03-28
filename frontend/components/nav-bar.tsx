@@ -12,13 +12,21 @@ const ROLE_LABELS: Record<string, string> = {
   read_only: 'Read Only',
 }
 
-const NAV_LINKS = [
+const BASE_NAV_LINKS = [
   { href: '/', label: 'Dashboard' },
   { href: '/clients', label: 'Clients' },
 ]
 
+const ADMIN_NAV_LINKS = [
+  { href: '/admin/users', label: 'Users' },
+  { href: '/admin/settings', label: 'Settings' },
+  { href: '/admin/audit-log', label: 'Audit Log' },
+]
+
 export function NavBar({ profile }: { profile: Profile | null }) {
   const pathname = usePathname()
+  const isAdmin = profile?.role === 'admin'
+  const navLinks = isAdmin ? [...BASE_NAV_LINKS, ...ADMIN_NAV_LINKS] : BASE_NAV_LINKS
 
   return (
     <nav className="border-b bg-white shadow-sm">
@@ -26,7 +34,7 @@ export function NavBar({ profile }: { profile: Profile | null }) {
         <div className="flex items-center gap-8">
           <span className="text-lg font-semibold text-gray-900">Amor et Cura</span>
           <div className="hidden items-center gap-1 sm:flex">
-            {NAV_LINKS.map(({ href, label }) => (
+            {navLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
@@ -44,7 +52,9 @@ export function NavBar({ profile }: { profile: Profile | null }) {
         <div className="flex items-center gap-3">
           <div className="hidden text-right sm:block">
             <p className="text-sm font-medium text-gray-900">{profile?.full_name ?? '—'}</p>
-            <p className="text-xs text-gray-500">{profile ? (ROLE_LABELS[profile.role] ?? profile.role) : ''}</p>
+            <p className="text-xs text-gray-500">
+              {profile ? (ROLE_LABELS[profile.role] ?? profile.role) : ''}
+            </p>
           </div>
           <form action={signOut}>
             <Button type="submit" variant="outline" size="sm">

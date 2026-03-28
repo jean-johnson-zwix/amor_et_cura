@@ -22,7 +22,7 @@ export async function signIn(
 }
 
 export async function signUp(
-  _prevState: { error: string } | null,
+  _prevState: { error: string } | { success: true } | null,
   formData: FormData
 ): Promise<{ error: string } | { success: true }> {
   const supabase = await createClient()
