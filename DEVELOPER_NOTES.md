@@ -79,46 +79,62 @@ nonprofit_client_and_case_management/
 | Database schema | ✅ Done | Migration in `supabase/migrations/` — see schema section below |
 | GitHub Actions CI | ✅ Done | Runs `lint` + `type-check` on every PR targeting `main` |
 
+### Auth (P0 — Done)
+| Item | Notes |
+|------|-------|
+| Login page | `/login` — email/password + Google SSO |
+| Signup page | `/signup` — email/password + Google SSO |
+| Google OAuth | `GoogleSignInButton` → `/auth/callback` route handler → session established |
+| Proxy (auth guard) | `frontend/proxy.ts` — validates session on every request; redirects unauthenticated users to `/login` |
+| Profile auto-creation | `handle_new_user` trigger creates a profile row on signup; `getProfile()` upserts on-demand for pre-trigger accounts |
+| Server actions | `signIn`, `signUp`, `signOut`, `exchangeOAuthCode` in `app/login/actions.ts` |
+| Data fetchers | `getProfile(userId)` in `lib/supabase/queries.ts` |
+
 ### P0 UI — All screens built (Supabase not yet wired)
 | Feature | Status | Files |
 |---------|--------|-------|
 | App shell + sidebar nav | ✅ Done | `(app)/layout.tsx`, `components/AppNav.tsx` |
-| Login page | ✅ Done (UI only) | `app/login/page.tsx` — auth disabled, wired in #1 |
-| Root redirect | ✅ Done | `app/page.tsx` → `/clients` |
+| Login page | ✅ Done | `app/login/page.tsx` — real auth via `LoginForm` + `OAuthRedirect` |
 | Client list + search | ✅ Done | `clients/page.tsx` + `ClientsTable.tsx` — live search works |
 | Client registration form | ✅ Done (stub) | `clients/new/` — validates, Server Action ready for Supabase |
 | Client profile view | ✅ Done | `clients/[id]/page.tsx` — demographics + visit history |
 | Visit log form | ✅ Done (stub) | `visits/new/` — validates, Server Action ready for Supabase |
+| CSV import/export | ✅ Done | `clients/import/`, `lib/csv.ts` — Papa Parse import, CSV export |
+| Reporting dashboard | ✅ Done | `dashboard/page.tsx` — stat cards + Recharts charts |
+| Schedule / calendar | ✅ Done | `schedule/page.tsx` — week view + appointment form |
 | 404 pages | ✅ Done | `app/not-found.tsx` + `(app)/not-found.tsx` |
 | Seed data | ✅ Done | `supabase/seed.sql` — 12 clients, 32 visits, 4 staff |
 
-### Database Schema (migration not yet run on Supabase)
-The migration file `supabase/migrations/20260328000001_init.sql` defines:
+### Database Schema
 
-| Table | Purpose |
-|-------|---------|
-| `profiles` | Extends Supabase `auth.users` — stores `full_name` and `role` |
-| `clients` | Client records with auto-generated `CLT-XXXXX` IDs and `custom_fields` (jsonb) |
-| `visits` | Service/visit log entries linked to a client and case worker |
-| `service_types` | Admin-configurable dropdown values for visit service types |
-| `audit_log` | Tracks create/update/delete actions (field names only, no PII values) |
+**Known limitation:** Roles exist in the DB and are enforced by RLS, but role-gated UI (hiding admin-only actions from case workers) is not yet implemented. Track in issue [#1](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/1).
 
-RLS policies are defined for all tables. Seed data for 10 default service types is included.
+### Database Schema
+Applied. The migration files in `supabase/migrations/` define:
 
-> **Action needed:** Run the migration SQL in your Supabase project dashboard → SQL Editor before starting feature development. Then run `seed.sql` for demo data.
+| Migration | Purpose |
+|-----------|---------|
+| `20260328000001_init.sql` | Full schema: `profiles`, `clients`, `visits`, `service_types`, `audit_log` + all RLS policies + service type seed data |
+| `20260328000002_profile_trigger.sql` | `handle_new_user` trigger — auto-creates a profile row when a user signs up |
+| `20260328000003_profiles_self_insert.sql` | INSERT policy on `profiles` — allows authenticated users to self-insert (for accounts created before the trigger) |
+| `20260328000004_fix_profiles_rls_recursion.sql` | Fixes `42P17` infinite recursion in `profiles: admin read all` via a `security definer` helper function `is_admin()` |
+
+All migrations have been applied to the Supabase project. RLS is active on all tables. 10 default service types are seeded.
 
 ---
 
 ## What's NOT Built Yet
 
-### P0 — Last step: wire Supabase
-| Issue | Feature | What's needed |
-|-------|---------|---------------|
-| [#1](https://github.com/jean-johnson-zwix/amor_et_cura/issues/1) | Auth + RBAC | Build login page Supabase calls; add Google SSO; enforce role guards on routes |
-| [#2](https://github.com/jean-johnson-zwix/amor_et_cura/issues/2) | Client Registration | Uncomment Supabase insert in `clients/new/actions.ts`; swap stub data in `clients/page.tsx` |
-| [#3](https://github.com/jean-johnson-zwix/amor_et_cura/issues/3) | Service/Visit Logging | Uncomment Supabase insert in `visits/new/actions.ts`; load real visits in `clients/[id]/page.tsx` |
-| [#4](https://github.com/jean-johnson-zwix/amor_et_cura/issues/4) | Client Profile View | Swap stub data with Supabase query in `clients/[id]/page.tsx` |
-| [#5](https://github.com/jean-johnson-zwix/amor_et_cura/issues/5) | Deploy + Seed Data | Set up Vercel deploy; run migration + seed on Supabase |
+Everything below is tracked on the [ohack_dev project board](https://github.com/users/jean-johnson-zwix/projects/3).
+
+### P0 — Start here
+| Issue | Feature | Status | Notes |
+|-------|---------|--------|-------|
+| [#1](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/1) | Auth + RBAC | ✅ Done | Auth done. Role-gated UI pending. |
+| [#2](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/2) | Client Registration | UI done (stub) | Wire Supabase: uncomment insert in `clients/new/actions.ts` |
+| [#3](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/3) | Service/Visit Logging | UI done (stub) | Wire Supabase: uncomment insert in `visits/new/actions.ts` |
+| [#4](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/4) | Client Profile View | UI done (stub) | Wire Supabase: swap stubs in `clients/[id]/page.tsx` |
+| [#5](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/5) | Deploy + Seed Data | Not started | Vercel deploy, seed 10+ clients and 30+ visits |
 
 ### P1 — After P0 is live
 Issues [#6](https://github.com/jean-johnson-zwix/amor_et_cura/issues/6) – [#10](https://github.com/jean-johnson-zwix/amor_et_cura/issues/10): CSV Import/Export, Reporting Dashboard, Scheduling, Configurable Fields, Audit Log
@@ -209,6 +225,8 @@ Copy `.env.example` to `frontend/.env.local` and fill in:
 
 - **`proxy.ts` not `middleware.ts`** — Next.js 16 renamed middleware to "proxy". The file is `frontend/proxy.ts` and the export is `export async function proxy(...)`. Do not create a `middleware.ts` file.
 - **RLS is on** — All Supabase tables have Row Level Security enabled. If a query returns empty unexpectedly, check the RLS policies in the migration file.
-- **`custom_fields` is jsonb** — Client custom fields are stored as `jsonb` on the `clients` table. Admin-configurable field definitions will be added in issue [#9](https://github.com/jean-johnson-zwix/amor_et_cura/issues/9) (P1).
-- **Stub data in 3 places** — When wiring Supabase, replace stubs in: `clients/page.tsx`, `clients/[id]/page.tsx`, and `visits/new/page.tsx`.
+- **`custom_fields` is jsonb** — Client custom fields are stored as `jsonb` on the `clients` table. Admin-configurable field definitions will be added in issue [#9](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/9) (P1).
+- **`proxy.ts` owns the auth redirect** — Do not add `redirect('/login')` in layouts or pages. The proxy handles unauthenticated users. Layouts call `getUser()` once and call `getProfile(user.id)` to get the profile. If profile is null but user exists, `getProfile` upserts automatically.
+- **`getProfile(userId)` requires a user ID** — It no longer calls `getUser()` internally. Get the user from `createClient().auth.getUser()` in the layout/page, then pass `user.id` to `getProfile`.
+- **Stub data in multiple places** — When wiring Supabase, replace stubs in: `clients/page.tsx`, `clients/[id]/page.tsx`, `visits/new/page.tsx`, `dashboard/page.tsx`, `schedule/page.tsx`.
 - **`useActionState` not `useFormState`** — React 19 renamed this hook. Use `useActionState` from `react`.
