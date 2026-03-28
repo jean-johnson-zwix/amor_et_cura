@@ -3,6 +3,7 @@
 **Client:** Chandler CARE Center (primary); generalizable to 8+ OHack nonprofits
 **Event:** ASU WiCS Hackathon — March 28–29, 2026
 **Last Updated:** 2026-03-28
+**Auth (P0 #1):** ✅ Complete — see DEVELOPER_NOTES.md for implementation details.
 
 ---
 
@@ -47,12 +48,12 @@ The following architectural decisions must be resolved before feature developmen
 
 Requirements are prioritized: **P0** (must ship), **P1** (demo-worthy), **P2** (post-hackathon).
 
-### 4.1 Authentication & Access Control (P0)
+### 4.1 Authentication & Access Control (P0) ✅ Complete
 
-- FR-AUTH-1: Users shall be able to sign in via Google SSO or email/password.
-- FR-AUTH-2: The system shall enforce role-based access control with Admin, Case Worker, and Read-Only roles.
-- FR-AUTH-3: Unauthenticated users shall be redirected to the login page.
-- FR-AUTH-4: Admins shall be able to assign and change user roles.
+- FR-AUTH-1: ✅ Users shall be able to sign in via Google SSO or email/password.
+- FR-AUTH-2: ✅ The system shall enforce role-based access control with Admin, Case Worker, and Read-Only roles.
+- FR-AUTH-3: ✅ Unauthenticated users shall be redirected to the login page.
+- FR-AUTH-4: ✅ Admins shall be able to assign and change user roles.
 
 ### 4.2 Client Registration (P0)
 
