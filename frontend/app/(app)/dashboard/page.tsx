@@ -96,11 +96,11 @@ export default async function DashboardPage() {
     duration_minutes: a.duration_minutes,
     status: a.status as string,
     client_name: (() => {
-      const c = a.clients as { first_name: string; last_name: string } | null
+      const c = (a.clients as unknown as { first_name: string; last_name: string } | null)
       return c ? `${c.first_name} ${c.last_name}` : '—'
     })(),
-    service_type_name: (a.service_types as { name: string } | null)?.name ?? '—',
-    case_worker_name: (a.profiles as { full_name: string } | null)?.full_name ?? '—',
+    service_type_name: (a.service_types as unknown as { name: string } | null)?.name ?? '—',
+    case_worker_name: (a.profiles as unknown as { full_name: string } | null)?.full_name ?? '—',
   }))
 
   const stats = computeDashboardStats(visits, activeClients ?? 0)
