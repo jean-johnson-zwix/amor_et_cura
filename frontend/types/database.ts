@@ -19,6 +19,7 @@ export interface Client {
   address: string | null
   programs: string[]
   is_active: boolean
+  household_id: string | null
   custom_fields: Record<string, unknown>
   created_by: string | null
   created_at: string
@@ -40,9 +41,22 @@ export interface Visit {
   visit_date: string
   duration_minutes: number | null
   notes: string | null
+  case_notes: string | null
+  referral_to: string | null
   custom_fields: Record<string, unknown>
   created_at: string
   updated_at: string
+}
+
+export interface Document {
+  id: string
+  client_id: string
+  file_name: string
+  file_path: string
+  file_size: number | null
+  mime_type: string | null
+  uploaded_by: string | null
+  created_at: string
 }
 
 export interface Appointment {

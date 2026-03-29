@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useActionState } from 'react'
 import { createVisit, type NewVisitFormState } from './actions'
 import type { FieldDefinition } from '@/types/database'
@@ -10,6 +11,8 @@ const inputCls =
   'h-9 w-full rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] text-navy outline-none transition-all focus:border-teal focus:ring-2 focus:ring-teal/20 placeholder:text-[#9ca3af]'
 const selectCls =
   'h-9 w-full rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] text-navy outline-none transition-all focus:border-teal focus:ring-2 focus:ring-teal/20'
+const textareaCls =
+  'w-full rounded-lg border border-[#e2e8f0] bg-white px-3 py-2 text-[13px] text-navy outline-none transition-all placeholder:text-[#9ca3af] focus:border-teal focus:ring-2 focus:ring-teal/20 resize-y'
 const labelCls = 'mb-1 block text-[11px] font-medium text-[#6b7280]'
 
 function CustomFieldInput({ field }: { field: FieldDefinition }) {
@@ -73,10 +76,11 @@ export default function VisitLogForm({
   customFields: FieldDefinition[]
 }) {
   const [state, action, isPending] = useActionState(createVisit, initialState)
+  const [referralMade, setReferralMade] = useState(false)
 
   if (state.success) {
     return (
-      <div className="mx-auto max-w-xl rounded-[14px] border border-[#e2e8f0] bg-white p-8 text-center">
+      <div className="mx-auto max-w-2xl rounded-[14px] border border-[#e2e8f0] bg-white p-8 text-center">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-light mx-auto mb-3">
           <svg className="size-5 text-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -100,14 +104,14 @@ export default function VisitLogForm({
   }
 
   return (
-    <form action={action} className="mx-auto max-w-xl flex flex-col gap-4">
-      {/* pre-fill client_id if provided */}
+    <form action={action} className="mx-auto max-w-2xl flex flex-col gap-4">
       {clientId && <input type="hidden" name="client_id" value={clientId} />}
 
       {state.error && (
         <div className="rounded-lg bg-red-50 px-3 py-2.5 text-[12px] text-red-700">{state.error}</div>
       )}
 
+      {/* ── Visit basics ─────────────────────────────────────── */}
       <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
         <div className="mb-4 border-b border-[#e2e8f0] pb-3">
           <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">
@@ -115,7 +119,6 @@ export default function VisitLogForm({
           </p>
         </div>
         <div className="flex flex-col gap-4">
-          {/* Client selector — only shown when not pre-filled */}
           {!clientId && (
             <div>
               <label htmlFor="client_id" className={labelCls}>Client *</label>
@@ -154,27 +157,80 @@ export default function VisitLogForm({
               ))}
             </select>
           </div>
+        </div>
+      </div>
 
+      {/* ── Case narrative ───────────────────────────────────── */}
+      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+        <div className="mb-4 border-b border-[#e2e8f0] pb-3">
+          <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Case Narrative</p>
+          <p className="mt-0.5 text-[11px] text-[#6b7280]">Detailed observations, interventions, and client progress</p>
+        </div>
+        <div className="flex flex-col gap-4">
           <div>
-            <label htmlFor="notes" className={labelCls}>Notes</label>
-            <textarea id="notes" name="notes" rows={4}
-              placeholder="Describe the services provided, client status, follow-up actions…"
-              className="w-full rounded-lg border border-[#e2e8f0] bg-white px-3 py-2 text-[13px] text-navy outline-none transition-all placeholder:text-[#9ca3af] focus:border-teal focus:ring-2 focus:ring-teal/20 resize-y"
+            <label htmlFor="case_notes" className={labelCls}>Case narrative / Observations</label>
+            <textarea
+              id="case_notes"
+              name="case_notes"
+              rows={6}
+              placeholder="Describe the client's status, services provided, notable observations, barriers encountered, and next steps…"
+              className={textareaCls}
             />
           </div>
 
-          {customFields.length > 0 && (
-            <div className="border-t border-[#e2e8f0] pt-4">
-              <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-[#6b7280]">
-                Additional Information
-              </p>
-              <div className="flex flex-col gap-4">
-                {customFields.map((field) => <CustomFieldInput key={field.id} field={field} />)}
-              </div>
+          <div>
+            <label htmlFor="notes" className={labelCls}>Brief summary / internal notes</label>
+            <textarea
+              id="notes"
+              name="notes"
+              rows={2}
+              placeholder="Short summary visible in visit lists…"
+              className={textareaCls}
+            />
+          </div>
+
+          {/* Referral section */}
+          <div className="rounded-lg border border-[#e2e8f0] bg-[#f8fafc] p-3">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="referral_made"
+                checked={referralMade}
+                onChange={(e) => setReferralMade(e.target.checked)}
+                className="size-4 rounded border-[#e2e8f0] accent-teal"
+              />
+              <label htmlFor="referral_made" className="text-[13px] font-medium text-navy">
+                Referral made during this visit
+              </label>
             </div>
-          )}
+            {referralMade && (
+              <div className="mt-3">
+                <label htmlFor="referral_to" className={labelCls}>Referred to *</label>
+                <input
+                  id="referral_to"
+                  name="referral_to"
+                  type="text"
+                  required
+                  placeholder="e.g. Mental Health Services, Housing Authority…"
+                  className={inputCls}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* ── Custom fields ────────────────────────────────────── */}
+      {customFields.length > 0 && (
+        <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+          <div className="mb-4 border-b border-[#e2e8f0] pb-3">
+            <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Additional Information</p>
+          </div>
+          <div className="flex flex-col gap-4">
+            {customFields.map((field) => <CustomFieldInput key={field.id} field={field} />)}
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center justify-between">
         <button type="button" onClick={() => window.history.back()}

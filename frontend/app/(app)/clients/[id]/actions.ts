@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/supabase/session'
 import { can } from '@/lib/auth/permissions'
 import { logAudit } from '@/lib/audit'
+import { randomUUID } from 'crypto'
 
 // ── Deactivate / Reactivate ───────────────────────────────────
 
@@ -96,4 +97,46 @@ export async function updateClient(
   })
 
   redirect(`/clients/${clientId}`)
+}
+
+// ── Household / Family linking ────────────────────────────────
+
+export async function linkFamilyMember(
+  clientId: string,
+  memberId: string
+): Promise<{ error?: string }> {
+  const session = await getSession()
+  if (!can.editClient(session?.profile?.role)) return { error: 'Not authorized.' }
+
+  const supabase = await createClient()
+
+  // Fetch both clients' current household_id
+  const { data: clients, error: fetchError } = await supabase
+    .from('clients')
+    .select('id, household_id')
+    .in('id', [clientId, memberId])
+
+  if (fetchError || !clients || clients.length < 2) {
+    return { error: 'Could not find both clients.' }
+  }
+
+  const current = clients.find((c) => c.id === clientId)
+  const member = clients.find((c) => c.id === memberId)
+
+  if (!current || !member) return { error: 'Could not find both clients.' }
+
+  // Use existing household_id if either client already belongs to one,
+  // otherwise create a new shared UUID.
+  const householdId = current.household_id ?? member.household_id ?? randomUUID()
+
+  const { error: updateError } = await supabase
+    .from('clients')
+    .update({ household_id: householdId, updated_at: new Date().toISOString() })
+    .in('id', [clientId, memberId])
+
+  if (updateError) return { error: updateError.message }
+
+  revalidatePath(`/clients/${clientId}`)
+  revalidatePath(`/clients/${memberId}`)
+  return {}
 }
