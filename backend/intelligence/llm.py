@@ -52,6 +52,11 @@ class LLMClient:
                     system_prompt, user_prompt, model, response_format,
                     max_tokens, temperature, image_bytes, image_mime_type or "image/jpeg",
                 )
+            if provider == "openrouter":
+                return self._call_openrouter_vision(
+                    system_prompt, user_prompt, model,
+                    max_tokens, temperature, image_bytes, image_mime_type or "image/jpeg",
+                )
             raise ValueError(f"Vision input not supported for provider '{provider}'")
 
         if provider == "gemini":
@@ -122,10 +127,16 @@ class LLMClient:
 
             except Exception as e:
                 errors.append(f"{current_provider}/{current_model}: {repr(e)}")
+                is_rate_limit = (
+                    isinstance(e, httpx.HTTPStatusError)
+                    and e.response.status_code == 429
+                )
                 logger.warning(
                     "LLM attempt failed [%s/%s]: %s — trying next fallback if available",
                     current_provider, current_model, repr(e),
                 )
+                if is_rate_limit:
+                    time.sleep(1.5)
 
         raise RuntimeError(
             "All LLM providers/models failed. Attempts: " + " | ".join(errors)
@@ -340,6 +351,58 @@ class LLMClient:
             "Content-Type": "application/json",
         }
 
+        timeout = PROVIDER_TIMEOUTS.get("openrouter", self.timeout)
+        r = httpx.post(url, json=payload, headers=headers, timeout=timeout)
+        r.raise_for_status()
+        data = r.json()
+        usage = data.get("usage", {})
+        self._last_usage = {
+            "prompt_tokens":     usage.get("prompt_tokens", 0),
+            "completion_tokens": usage.get("completion_tokens", 0),
+            "total_tokens":      usage.get("total_tokens", 0),
+        }
+        content = data["choices"][0]["message"]["content"]
+        if not content:
+            raise ValueError(f"Empty response content from {model}")
+        return content
+
+    def _call_openrouter_vision(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        model: str,
+        max_tokens: int,
+        temperature: float,
+        image_bytes: bytes,
+        image_mime_type: str,
+    ) -> str:
+        if not self.openrouter_api_key:
+            raise ValueError("OPENROUTER_API_KEY not set")
+
+        image_b64 = base64.b64encode(image_bytes).decode("utf-8")
+        url = "https://openrouter.ai/api/v1/chat/completions"
+        payload: Dict[str, Any] = {
+            "model": model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:{image_mime_type};base64,{image_b64}"},
+                        },
+                        {"type": "text", "text": user_prompt},
+                    ],
+                },
+            ],
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+        }
+        headers = {
+            "Authorization": f"Bearer {self.openrouter_api_key}",
+            "Content-Type": "application/json",
+        }
         timeout = PROVIDER_TIMEOUTS.get("openrouter", self.timeout)
         r = httpx.post(url, json=payload, headers=headers, timeout=timeout)
         r.raise_for_status()

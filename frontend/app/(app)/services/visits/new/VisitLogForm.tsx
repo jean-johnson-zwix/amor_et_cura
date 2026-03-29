@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useActionState } from 'react'
 import { createVisit, type NewVisitFormState } from './actions'
 import type { FieldDefinition } from '@/types/database'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Mic, Square, Upload, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
+
+const AI_API_URL = process.env.NEXT_PUBLIC_AI_API_URL ?? 'http://localhost:8000'
 
 const initialState: NewVisitFormState = {}
 
@@ -78,6 +80,74 @@ export default function VisitLogForm({
 }) {
   const [state, action, isPending] = useActionState(createVisit, initialState)
   const [referralMade, setReferralMade] = useState(false)
+  const [caseNotes, setCaseNotes] = useState('')
+
+  const [transcribeStatus, setTranscribeStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
+  const [transcribeError, setTranscribeError] = useState<string | null>(null)
+  const [recordingState, setRecordingState] = useState<'idle' | 'recording'>('idle')
+  const [recordingSeconds, setRecordingSeconds] = useState(0)
+  const audioInputRef = useRef<HTMLInputElement>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const chunksRef = useRef<Blob[]>([])
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  function formatTime(s: number) {
+    const m = Math.floor(s / 60).toString().padStart(2, '0')
+    const sec = (s % 60).toString().padStart(2, '0')
+    return `${m}:${sec}`
+  }
+
+  async function startRecording() {
+    setTranscribeError(null)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const mr = new MediaRecorder(stream)
+      chunksRef.current = []
+      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data) }
+      mr.onstop = () => {
+        stream.getTracks().forEach((t) => t.stop())
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
+        const file = new File([blob], 'recording.webm', { type: 'audio/webm' })
+        handleTranscribe(file)
+      }
+      mr.start()
+      mediaRecorderRef.current = mr
+      setRecordingState('recording')
+      setRecordingSeconds(0)
+      timerRef.current = setInterval(() => setRecordingSeconds((s) => s + 1), 1000)
+    } catch {
+      setTranscribeError('Microphone access denied. Check browser permissions.')
+    }
+  }
+
+  function stopRecording() {
+    if (timerRef.current) clearInterval(timerRef.current)
+    mediaRecorderRef.current?.stop()
+    setRecordingState('idle')
+  }
+
+  async function handleTranscribe(file: File) {
+    setTranscribeStatus('loading')
+    setTranscribeError(null)
+    const formData = new FormData()
+    formData.append('file', file)
+    try {
+      const res = await fetch(`${AI_API_URL}/ai/voice-to-note`, { method: 'POST', body: formData })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: `Server error ${res.status}` }))
+        throw new Error(err.detail ?? `Server error ${res.status}`)
+      }
+      const data = await res.json()
+      const note: string = data.structured_note ?? ''
+      setCaseNotes(note)
+      setTranscribeStatus('done')
+    } catch (err) {
+      setTranscribeError(err instanceof Error ? err.message : 'Unknown error')
+      setTranscribeStatus('error')
+    } finally {
+      if (audioInputRef.current) audioInputRef.current.value = ''
+    }
+  }
 
   if (state.success) {
     return (
@@ -164,10 +234,85 @@ export default function VisitLogForm({
 
       {/* ── Case narrative ───────────────────────────────────── */}
       <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
-        <div className="mb-4 border-b border-[#e2e8f0] pb-3">
-          <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Case Narrative</p>
-          <p className="mt-0.5 text-[11px] text-[#6b7280]">Detailed observations, interventions, and client progress</p>
+        <div className="mb-4 border-b border-[#e2e8f0] pb-3 flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Case Narrative</p>
+            <p className="mt-0.5 text-[11px] text-[#6b7280]">Detailed observations, interventions, and client progress</p>
+          </div>
+          {transcribeStatus === 'done' && (
+            <span className="flex shrink-0 items-center gap-1 rounded-full bg-teal/10 px-2.5 py-1 text-[11px] font-medium text-teal">
+              <CheckCircle2 className="size-3.5" /> Note transcribed
+            </span>
+          )}
         </div>
+
+        {/* Voice note */}
+        <div className="mb-4 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] p-3">
+          <p className="mb-2 text-[12px] font-medium text-navy">Transcribe voice note</p>
+          <p className="mb-2.5 text-[11px] text-[#6b7280]">Record live or upload an audio file — it will be transcribed and structured into a case note automatically.</p>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Live record button */}
+            {recordingState === 'idle' ? (
+              <button
+                type="button"
+                disabled={transcribeStatus === 'loading'}
+                onClick={startRecording}
+                className="flex items-center gap-2 rounded-lg border border-[#e2e8f0] bg-white px-3 h-9 text-[13px] font-medium text-navy transition-colors hover:bg-teal-tint disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <Mic className="size-4 text-teal" /> Record
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={stopRecording}
+                className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 h-9 text-[13px] font-medium text-red-700 transition-colors hover:bg-red-100"
+              >
+                <span className="size-2 rounded-full bg-red-500 animate-pulse" />
+                <Square className="size-3.5 fill-red-600 text-red-600" />
+                Stop — {formatTime(recordingSeconds)}
+              </button>
+            )}
+
+            {/* Upload button */}
+            <label className={`flex cursor-pointer items-center gap-2 rounded-lg border border-[#e2e8f0] bg-white px-3 h-9 text-[13px] font-medium text-navy transition-colors ${transcribeStatus === 'loading' || recordingState === 'recording' ? 'opacity-60 cursor-not-allowed' : 'hover:bg-teal-tint'}`}>
+              {transcribeStatus === 'loading'
+                ? <Loader2 className="size-4 animate-spin text-teal" />
+                : <Upload className="size-4 text-teal" />}
+              {transcribeStatus === 'loading' ? 'Transcribing…' : 'Upload file'}
+              <input
+                ref={audioInputRef}
+                type="file"
+                accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/webm,audio/mp4"
+                className="sr-only"
+                disabled={transcribeStatus === 'loading' || recordingState === 'recording'}
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) handleTranscribe(file)
+                }}
+              />
+            </label>
+
+            {transcribeError && (
+              <div className="mt-2 w-full rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="mt-0.5 size-4 shrink-0 text-amber-600" />
+                  <div className="flex-1">
+                    <p className="text-[12px] font-medium text-amber-800">Transcription didn't complete</p>
+                    <p className="mt-0.5 text-[12px] text-amber-700">{transcribeError}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => audioInputRef.current?.click()}
+                    className="shrink-0 rounded-md border border-amber-300 bg-white px-2.5 py-1 text-[11px] font-medium text-amber-800 hover:bg-amber-50"
+                  >
+                    Try again
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         <div className="flex flex-col gap-4">
           <div>
             <label htmlFor="case_notes" className={labelCls}>Case narrative / Observations</label>
@@ -176,6 +321,8 @@ export default function VisitLogForm({
               name="case_notes"
               rows={6}
               placeholder="Describe the client's status, services provided, notable observations, barriers encountered, and next steps…"
+              value={caseNotes}
+              onChange={(e) => setCaseNotes(e.target.value)}
               className={textareaCls}
             />
           </div>

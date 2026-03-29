@@ -2,7 +2,8 @@ import json
 import logging
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-
+from dotenv import load_dotenv
+load_dotenv()
 from intelligence.llm import call_llm, call_llm_vision, transcribe_audio
 from intelligence.llm_config import PHOTO_INTAKE_EXTRACTION, NOTE_STRUCTURING, MULTILINGUAL_INTAKE
 from intelligence.prompts import (
@@ -28,6 +29,33 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def _ai_error_message(exc: Exception) -> str:
+    """Return a caseworker-friendly error message based on the exception."""
+    msg = str(exc)
+    if "429" in msg or "Too Many Requests" in msg:
+        return (
+            "The AI service is temporarily over capacity. "
+            "Please wait about 30 seconds and try again. "
+            "If this keeps happening, try uploading a clearer photo or contact your supervisor."
+        )
+    if "OPENROUTER_API_KEY" in msg or "GEMINI_API_KEY" in msg:
+        return (
+            "The AI feature is not configured yet. "
+            "Please ask your system administrator to set up the AI service."
+        )
+    if "404" in msg or "Not Found" in msg:
+        return (
+            "The AI service is temporarily unavailable due to a configuration issue. "
+            "Please contact your supervisor."
+        )
+    return (
+        "The AI service is temporarily unavailable. "
+        "Please try again in a moment. "
+        "If the problem persists, you can fill in the form manually."
+    )
+
 
 # ── Health check ──────────────────────────────────────────────────────────────
 @app.get("/health")
@@ -65,7 +93,7 @@ async def photo_to_intake(file: UploadFile = File(...)):
         )
     except Exception as e:
         logger.error("photo-to-intake: AI call failed: %s", repr(e))
-        raise HTTPException(status_code=503, detail="AI service unavailable. Please try again.")
+        raise HTTPException(status_code=503, detail=_ai_error_message(e))
 
     try:
         intake_data = json.loads(raw_text)
@@ -111,7 +139,7 @@ async def voice_to_note(file: UploadFile = File(...)):
         )
     except Exception as e:
         logger.error("voice-to-note: transcription failed: %s", repr(e))
-        raise HTTPException(status_code=503, detail="Transcription service unavailable. Please try again.")
+        raise HTTPException(status_code=503, detail=_ai_error_message(e))
 
     logger.info("voice-to-note: transcription complete | char_count=%d", len(transcript))
 
@@ -123,7 +151,7 @@ async def voice_to_note(file: UploadFile = File(...)):
         )
     except Exception as e:
         logger.error("voice-to-note: note structuring failed: %s", repr(e))
-        raise HTTPException(status_code=503, detail="Note structuring service unavailable. Please try again.")
+        raise HTTPException(status_code=503, detail=_ai_error_message(e))
 
     logger.info("voice-to-note: note generated | char_count=%d", len(structured_note))
 
@@ -158,7 +186,7 @@ async def multilingual_intake(file: UploadFile = File(...)):
         )
     except Exception as e:
         logger.error("multilingual-intake: AI call failed: %s", repr(e))
-        raise HTTPException(status_code=503, detail="AI service unavailable. Please try again.")
+        raise HTTPException(status_code=503, detail=_ai_error_message(e))
 
     try:
         intake_data = json.loads(raw_text)
