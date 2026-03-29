@@ -42,8 +42,8 @@ const MAIN_NAV = [
 ]
 
 const SERVICES_NAV = [
-  { href: '/services/schedule', label: 'Calendar',   icon: CalendarDays },
-  { href: '/services/visits',   label: 'All Visits', icon: ClipboardList },
+  { href: '/services/schedule', label: 'Upcoming Appointments', icon: CalendarDays },
+  { href: '/services/visits',   label: 'Past Visits',           icon: ClipboardList },
 ]
 
 const ADMIN_NAV = [

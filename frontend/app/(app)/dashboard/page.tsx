@@ -1,5 +1,7 @@
 import Link from 'next/link'
-import { Users, CalendarDays, Clock, Monitor, TrendingUp, ClipboardList, UserPlus, CalendarPlus } from 'lucide-react'
+import { Users, CalendarDays, Clock, Monitor, TrendingUp, ClipboardList, UserPlus, CalendarPlus, Sun, ChevronRight } from 'lucide-react'
+
+const ORG_NAME = process.env.NEXT_PUBLIC_ORG_NAME ?? 'our organization'
 import ServiceBreakdownChart from '@/components/dashboard/ServiceBreakdownChart'
 import VisitTrendChart from '@/components/dashboard/VisitTrendChart'
 import { computeDashboardStats } from '@/lib/dashboard'
@@ -116,9 +118,12 @@ export default async function DashboardPage() {
     <div className="flex flex-col gap-6 p-6">
       {/* Greeting */}
       <div>
-        <h1 className="text-2xl font-bold text-navy">Good morning, {firstName} 👋</h1>
+        <h1 className="text-2xl font-bold text-navy flex items-center gap-2">
+          <Sun className="size-6 text-amber-400 shrink-0" />
+          Good morning, {firstName}
+        </h1>
         <p className="mt-1 text-base text-[#6b7280]">
-          Today is {dayName}. Here&apos;s a summary for Chandler CARE Center.
+          {dayName} &mdash; {ORG_NAME}
         </p>
       </div>
 
@@ -225,8 +230,8 @@ export default async function DashboardPage() {
         <div className="rounded-2xl border border-[#e2e8f0] bg-white">
           <div className="flex items-center justify-between border-b border-[#e2e8f0] px-5 py-4">
             <p className="text-base font-bold text-navy">Recently added clients</p>
-            <Link href="/clients" className="text-sm font-medium text-teal hover:underline">
-              View all →
+            <Link href="/clients" className="inline-flex items-center gap-1 text-sm font-medium text-teal hover:underline">
+              View all <ChevronRight className="size-4" />
             </Link>
           </div>
           {(recentClients ?? []).length === 0 ? (

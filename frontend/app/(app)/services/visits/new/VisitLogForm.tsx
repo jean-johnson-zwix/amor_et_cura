@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useActionState } from 'react'
 import { createVisit, type NewVisitFormState } from './actions'
 import type { FieldDefinition } from '@/types/database'
+import { ChevronLeft } from 'lucide-react'
 
 const initialState: NewVisitFormState = {}
 
@@ -91,8 +92,8 @@ export default function VisitLogForm({
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           {clientId && (
             <a href={`/clients/${clientId}`}
-              className="inline-flex h-12 items-center justify-center rounded-xl bg-teal px-6 text-base font-semibold text-white hover:bg-[#009e77]">
-              ← Back to {clientName}
+              className="inline-flex h-12 items-center justify-center gap-1.5 rounded-xl bg-teal px-6 text-base font-semibold text-white hover:bg-[#009e77]">
+              <ChevronLeft className="size-4" /> Back to {clientName}
             </a>
           )}
           <button onClick={() => window.location.reload()}

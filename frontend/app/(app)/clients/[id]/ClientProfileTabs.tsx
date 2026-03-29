@@ -13,9 +13,11 @@ import {
   ClipboardList,
   ChevronDown,
   ChevronUp,
+  ChevronRight,
   Download,
   Paperclip,
   UserPlus,
+  ArrowRight,
   X,
 } from 'lucide-react'
 
@@ -411,9 +413,9 @@ export default function ClientProfileTabs({
                       </div>
                       <a
                         href={`/clients/${m.id}`}
-                        className="text-[11px] text-teal hover:underline"
+                        className="inline-flex items-center gap-0.5 text-[11px] text-teal hover:underline"
                       >
-                        View →
+                        View <ChevronRight className="size-3" />
                       </a>
                     </div>
                   ))}
@@ -488,7 +490,7 @@ export default function ClientProfileTabs({
                         {/* Referral badge */}
                         {visit.referral_to && (
                           <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700 border border-amber-200">
-                            Referred → {visit.referral_to}
+                            Referred <ArrowRight className="size-3" /> {visit.referral_to}
                           </span>
                         )}
 

@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { cancelAppointment, rescheduleAppointment } from './actions'
-import { X, Clock, CheckCircle } from 'lucide-react'
+import { X, Clock, CheckCircle, ChevronRight } from 'lucide-react'
 
 type Appointment = {
   id: string
@@ -51,8 +51,8 @@ export default function DashboardAppointments({ appointments }: { appointments: 
       <div className="rounded-2xl border border-[#e2e8f0] bg-white">
         <div className="flex items-center justify-between border-b border-[#e2e8f0] px-5 py-4">
           <p className="text-base font-bold text-navy">Today&apos;s appointments</p>
-          <Link href="/services/schedule" className="text-sm font-medium text-teal hover:underline">
-            Full calendar →
+          <Link href="/services/schedule" className="inline-flex items-center gap-1 text-sm font-medium text-teal hover:underline">
+            Full calendar <ChevronRight className="size-4" />
           </Link>
         </div>
 
