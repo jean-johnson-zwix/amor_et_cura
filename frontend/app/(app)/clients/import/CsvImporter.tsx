@@ -16,7 +16,8 @@ const COLUMN_MAP: Record<string, keyof ImportRow | null> = {
   'phone':       'phone',
   'email':       'email',
   'address':     'address',
-  'program':     'program',
+  'program':     'programs',
+  'programs':    'programs',
   'row':         null,
 }
 
