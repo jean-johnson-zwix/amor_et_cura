@@ -1,12 +1,13 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { Topbar } from '@/components/Topbar'
 
 const PAGE_SIZE = 50
 
-const ACTION_BADGE: Record<string, string> = {
-  CREATE: 'bg-green-100 text-green-800',
-  UPDATE: 'bg-amber-100 text-amber-800',
-  DELETE: 'bg-red-100 text-red-800',
+const ACTION_BADGE: Record<string, { bg: string; text: string }> = {
+  CREATE: { bg: '#e0f7f4', text: '#007b58' },
+  UPDATE: { bg: '#e8ecf6', text: '#0a1e52' },
+  DELETE: { bg: '#fce4f0', text: '#eb3690' },
 }
 
 const TABLE_LABELS: Record<string, string> = {
@@ -23,6 +24,12 @@ function formatDateTime(iso: string) {
   })
 }
 
+function getInitials(name: string) {
+  return name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+}
+
+const AVATAR_COLORS = ['#00bd8e', '#eb3690', '#3960a3', '#7b3fa8']
+
 export default async function AuditLogPage({
   searchParams,
 }: {
@@ -34,7 +41,6 @@ export default async function AuditLogPage({
 
   const supabase = await createClient()
 
-  // Build query with optional filters
   let query = supabase
     .from('audit_log')
     .select('*, profiles(full_name)', { count: 'exact' })
@@ -52,7 +58,6 @@ export default async function AuditLogPage({
     actor_name: (r.profiles as { full_name: string } | null)?.full_name ?? 'Unknown',
   }))
 
-  // Fetch actors for the filter dropdown
   const { data: actors } = await supabase
     .from('profiles')
     .select('id, full_name')
@@ -69,143 +74,147 @@ export default async function AuditLogPage({
     return `/admin/audit-log?${params.toString()}`
   }
 
+  const selectClass = 'h-9 rounded-lg border border-[#e2e8f0] bg-white px-2.5 text-[13px] text-[#1f2937] outline-none focus:border-teal'
+
   return (
-    <div className="flex flex-col gap-4">
-      <div>
-        <nav className="text-sm text-muted-foreground mb-1">
-          <Link href="/admin" className="hover:underline">Admin</Link>
-          {' / '}
-          <span>Audit Log</span>
-        </nav>
-        <h1 className="text-xl font-semibold">Audit Log</h1>
-      </div>
+    <>
+      <Topbar crumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Audit log' }]} />
 
-      {/* Filters */}
-      <form method="GET" action="/admin/audit-log" className="flex flex-wrap gap-3">
-        <select
-          name="table"
-          defaultValue={table ?? ''}
-          className="h-8 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring"
+      <div className="p-6 flex flex-col gap-4">
+        {/* Filter bar */}
+        <form method="GET" action="/admin/audit-log"
+          className="flex flex-wrap items-center gap-3 rounded-[14px] border border-[#e2e8f0] bg-white px-4 py-3"
         >
-          <option value="">All tables</option>
-          <option value="clients">Clients</option>
-          <option value="visits">Visits</option>
-          <option value="appointments">Appointments</option>
-          <option value="profiles">Users</option>
-        </select>
-
-        <select
-          name="action"
-          defaultValue={action ?? ''}
-          className="h-8 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring"
-        >
-          <option value="">All actions</option>
-          <option value="CREATE">Create</option>
-          <option value="UPDATE">Update</option>
-          <option value="DELETE">Delete</option>
-        </select>
-
-        <select
-          name="actor"
-          defaultValue={actor ?? ''}
-          className="h-8 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring"
-        >
-          <option value="">All users</option>
-          {(actors ?? []).map((a) => (
-            <option key={a.id} value={a.id}>{a.full_name}</option>
-          ))}
-        </select>
-
-        <button
-          type="submit"
-          className="h-8 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/80"
-        >
-          Filter
-        </button>
-        {(table || action || actor) && (
-          <Link
-            href="/admin/audit-log"
-            className="h-8 inline-flex items-center rounded-lg border px-3 text-sm text-muted-foreground hover:bg-muted"
+          <select name="table" defaultValue={table ?? ''} className={selectClass}>
+            <option value="">All tables</option>
+            <option value="clients">Clients</option>
+            <option value="visits">Visits</option>
+            <option value="appointments">Appointments</option>
+            <option value="profiles">Users</option>
+          </select>
+          <select name="action" defaultValue={action ?? ''} className={selectClass}>
+            <option value="">All actions</option>
+            <option value="CREATE">Create</option>
+            <option value="UPDATE">Update</option>
+            <option value="DELETE">Delete</option>
+          </select>
+          <select name="actor" defaultValue={actor ?? ''} className={selectClass}>
+            <option value="">All users</option>
+            {(actors ?? []).map((a) => (
+              <option key={a.id} value={a.id}>{a.full_name}</option>
+            ))}
+          </select>
+          <button
+            type="submit"
+            className="h-9 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77]"
           >
-            Clear
-          </Link>
-        )}
-      </form>
+            Filter
+          </button>
+          {(table || action || actor) && (
+            <Link
+              href="/admin/audit-log"
+              className="inline-flex h-9 items-center rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#6b7280] hover:bg-teal-tint"
+            >
+              Clear
+            </Link>
+          )}
+        </form>
 
-      {/* Count summary */}
-      <p className="text-sm text-muted-foreground">
-        {count ?? 0} event{count !== 1 ? 's' : ''}
-        {(table || action || actor) ? ' matching filters' : ' total'}
-      </p>
+        <p className="text-[12px] text-[#6b7280]">
+          {count ?? 0} event{count !== 1 ? 's' : ''}
+          {(table || action || actor) ? ' matching filters' : ' total'}
+        </p>
 
-      {/* Table */}
-      <div className="rounded-lg border overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-muted-foreground">
-            <tr>
-              <th className="px-4 py-2.5 text-left font-medium">When</th>
-              <th className="px-4 py-2.5 text-left font-medium">Who</th>
-              <th className="px-4 py-2.5 text-left font-medium">Action</th>
-              <th className="px-4 py-2.5 text-left font-medium">Table</th>
-              <th className="px-4 py-2.5 text-left font-medium">Record</th>
-              <th className="px-4 py-2.5 text-left font-medium">Fields changed</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
-                  No audit events found.
-                </td>
+        {/* Table */}
+        <div className="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-[#e2e8f0]/50 bg-teal-tint text-left">
+                <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-[0.05em] text-[#6b7280]">When</th>
+                <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-[0.05em] text-[#6b7280]">Who</th>
+                <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-[0.05em] text-[#6b7280]">Action</th>
+                <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-[0.05em] text-[#6b7280]">Table</th>
+                <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-[0.05em] text-[#6b7280]">Record</th>
+                <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-[0.05em] text-[#6b7280]">Fields changed</th>
               </tr>
-            ) : (
-              rows.map((row) => (
-                <tr key={row.id} className="hover:bg-muted/30">
-                  <td className="px-4 py-2.5 whitespace-nowrap tabular-nums text-muted-foreground">
-                    {formatDateTime(row.created_at)}
-                  </td>
-                  <td className="px-4 py-2.5">{row.actor_name}</td>
-                  <td className="px-4 py-2.5">
-                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${ACTION_BADGE[row.action] ?? 'bg-zinc-100 text-zinc-600'}`}>
-                      {row.action}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2.5 text-muted-foreground">
-                    {TABLE_LABELS[row.table_name] ?? row.table_name}
-                  </td>
-                  <td className="px-4 py-2.5 font-mono text-xs text-muted-foreground">
-                    {row.record_id.slice(0, 8)}…
-                  </td>
-                  <td className="px-4 py-2.5 text-xs text-muted-foreground">
-                    {row.changed_fields?.join(', ') ?? '—'}
+            </thead>
+            <tbody>
+              {rows.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-[13px] text-[#6b7280]">
+                    No audit events found.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center gap-2 text-sm">
-          {page > 1 ? (
-            <Link href={buildHref({ page: String(page - 1) })} className="rounded-lg border px-3 py-1.5 hover:bg-muted">
-              ← Prev
-            </Link>
-          ) : (
-            <span className="rounded-lg border px-3 py-1.5 text-muted-foreground/50">← Prev</span>
-          )}
-          <span className="text-muted-foreground">Page {page} of {totalPages}</span>
-          {page < totalPages ? (
-            <Link href={buildHref({ page: String(page + 1) })} className="rounded-lg border px-3 py-1.5 hover:bg-muted">
-              Next →
-            </Link>
-          ) : (
-            <span className="rounded-lg border px-3 py-1.5 text-muted-foreground/50">Next →</span>
-          )}
+              ) : (
+                rows.map((row, i) => {
+                  const badge = ACTION_BADGE[row.action] ?? { bg: '#f3f4f6', text: '#6b7280' }
+                  const avatarColor = AVATAR_COLORS[i % AVATAR_COLORS.length]
+                  return (
+                    <tr key={row.id} className="border-b border-[#f1f5f9] last:border-0 transition-colors hover:bg-teal-tint">
+                      <td className="px-4 py-3 whitespace-nowrap text-[12px] text-[#6b7280] tabular-nums">
+                        {formatDateTime(row.created_at)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white"
+                            style={{ background: avatarColor }}
+                          >
+                            {getInitials(row.actor_name)}
+                          </div>
+                          <span className="text-[13px] text-navy">{row.actor_name}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium"
+                          style={{ background: badge.bg, color: badge.text }}
+                        >
+                          {row.action}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-[12px] text-[#6b7280]">
+                        {TABLE_LABELS[row.table_name] ?? row.table_name}
+                      </td>
+                      <td className="px-4 py-3 font-mono text-[11px] text-[#6b7280]">
+                        {row.record_id.slice(0, 8)}…
+                      </td>
+                      <td className="px-4 py-3 text-[12px] text-[#6b7280]">
+                        {row.changed_fields?.join(', ') ?? '—'}
+                      </td>
+                    </tr>
+                  )
+                })
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
-    </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center gap-2">
+            {page > 1 ? (
+              <Link href={buildHref({ page: String(page - 1) })}
+                className="inline-flex h-8 items-center rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#6b7280] hover:bg-teal-tint"
+              >
+                ← Prev
+              </Link>
+            ) : (
+              <span className="inline-flex h-8 items-center rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#6b7280]/40">← Prev</span>
+            )}
+            <span className="text-[12px] text-[#6b7280]">Page {page} of {totalPages}</span>
+            {page < totalPages ? (
+              <Link href={buildHref({ page: String(page + 1) })}
+                className="inline-flex h-8 items-center rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#6b7280] hover:bg-teal-tint"
+              >
+                Next →
+              </Link>
+            ) : (
+              <span className="inline-flex h-8 items-center rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#6b7280]/40">Next →</span>
+            )}
+          </div>
+        )}
+      </div>
+    </>
   )
 }

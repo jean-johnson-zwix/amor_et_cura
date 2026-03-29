@@ -1,4 +1,3 @@
-import AppNav from '@/components/AppNav'
 import { NavBar } from '@/components/nav-bar'
 import { getSession } from '@/lib/supabase/session'
 
@@ -6,12 +5,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const session = await getSession()
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
+    <div className="flex h-screen overflow-hidden">
       <NavBar profile={session?.profile ?? null} />
-      <div className="flex flex-1 overflow-hidden">
-        <AppNav profile={session?.profile ?? null} />
-        <main className="flex-1 overflow-y-auto bg-muted/20 p-6">{children}</main>
-      </div>
+      <main className="flex-1 flex flex-col overflow-y-auto bg-teal-tint">
+        {children}
+      </main>
     </div>
   )
 }

@@ -1,5 +1,5 @@
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { Topbar } from '@/components/Topbar'
 import ClientRegistrationForm from './ClientRegistrationForm'
 
 export default async function NewClientPage() {
@@ -16,16 +16,11 @@ export default async function NewClientPage() {
   ])
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <nav className="text-sm text-muted-foreground mb-1">
-          <Link href="/clients" className="hover:underline">Clients</Link>
-          {' / '}
-          <span>New</span>
-        </nav>
-        <h1 className="text-xl font-semibold">Register new client</h1>
+    <>
+      <Topbar crumbs={[{ label: 'Clients', href: '/clients' }, { label: 'New client' }]} />
+      <div className="p-6">
+        <ClientRegistrationForm serviceTypes={serviceTypes ?? []} customFields={customFields ?? []} />
       </div>
-      <ClientRegistrationForm serviceTypes={serviceTypes ?? []} customFields={customFields ?? []} />
-    </div>
+    </>
   )
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { Topbar } from '@/components/Topbar'
 import VisitsTable from './VisitsTable'
 
 export default async function VisitsPage() {
@@ -29,28 +30,32 @@ export default async function VisitsPage() {
   ).sort()
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">All Visits</h1>
-        <Link
-          href="/services/visits/new"
-          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
-        >
-          + Log Visit
-        </Link>
-      </div>
+    <>
+      <Topbar
+        crumbs={[{ label: 'Services' }, { label: 'Visits' }]}
+        actions={
+          <Link
+            href="/services/visits/new"
+            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77]"
+          >
+            + Log Visit
+          </Link>
+        }
+      />
 
-      {visits.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          No visits recorded yet.{' '}
-          <Link href="/clients" className="text-primary hover:underline">
-            Open a client profile
-          </Link>{' '}
-          to log their first visit.
-        </p>
-      ) : (
-        <VisitsTable visits={visits} serviceTypes={serviceTypes} caseWorkers={caseWorkers} />
-      )}
-    </div>
+      <div className="p-6">
+        {visits.length === 0 ? (
+          <p className="text-[13px] text-[#6b7280]">
+            No visits recorded yet.{' '}
+            <Link href="/clients" className="text-teal hover:underline">
+              Open a client profile
+            </Link>{' '}
+            to log their first visit.
+          </p>
+        ) : (
+          <VisitsTable visits={visits} serviceTypes={serviceTypes} caseWorkers={caseWorkers} />
+        )}
+      </div>
+    </>
   )
 }

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Topbar } from '@/components/Topbar'
 import { createClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/supabase/session'
 import { can } from '@/lib/auth/permissions'
@@ -15,6 +15,19 @@ function formatDob(dob: string | null) {
   const date = new Date(dob + 'T00:00:00')
   const age = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24 * 365.25))
   return `${formatDate(dob)} (age ${age})`
+}
+
+function getInitials(first: string, last: string) {
+  return `${first[0] ?? ''}${last[0] ?? ''}`.toUpperCase()
+}
+
+function LabelValue({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-0.5 py-3 border-b border-[#f1f5f9] last:border-0">
+      <dt className="text-[12px] text-[#6b7280]">{label}</dt>
+      <dd className="text-[13px] font-semibold text-navy">{value}</dd>
+    </div>
+  )
 }
 
 export default async function ClientProfilePage({
@@ -58,128 +71,122 @@ export default async function ClientProfilePage({
     case_worker_name: (v.profiles as { full_name: string } | null)?.full_name ?? '—',
   }))
 
+  const clientName = `${client.first_name} ${client.last_name}`
+
   return (
-    <div className="flex flex-col gap-6 max-w-3xl">
-      {/* Breadcrumb */}
-      <div>
-        <nav className="text-sm text-muted-foreground mb-1">
-          <Link href="/clients" className="hover:underline">Clients</Link>
-          {' / '}
-          <span>{client.first_name} {client.last_name}</span>
-        </nav>
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-semibold">
-              {client.first_name} {client.last_name}
-            </h1>
-            {client.is_active ? (
-              <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">Active</span>
-            ) : (
-              <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">Inactive</span>
-            )}
-          </div>
+    <>
+      <Topbar
+        crumbs={[{ label: 'Clients', href: '/clients' }, { label: clientName }]}
+        actions={
           <ClientActions
             clientId={client.id}
             isActive={client.is_active}
             canEdit={can.editClient(session?.profile?.role)}
             canDeactivate={can.deactivateClient(session?.profile?.role)}
           />
+        }
+      />
+
+      <div className="p-6">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {/* Left column (2/3) */}
+          <div className="flex flex-col gap-4 lg:col-span-2">
+            {/* Profile header card */}
+            <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+              <div className="flex items-center gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-teal text-[18px] font-semibold text-white">
+                  {getInitials(client.first_name, client.last_name)}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <h1 className="text-[20px] font-semibold text-navy">{clientName}</h1>
+                    {client.is_active ? (
+                      <span className="rounded-full bg-teal-light px-2 py-0.5 text-[10px] font-medium text-[#007b58]">Active</span>
+                    ) : (
+                      <span className="rounded-full bg-[#f3f4f6] px-2 py-0.5 text-[10px] font-medium text-[#6b7280]">Inactive</span>
+                    )}
+                  </div>
+                  {client.dob && (
+                    <p className="mt-0.5 text-[12px] text-[#6b7280]">{formatDob(client.dob)}</p>
+                  )}
+                  {(client.programs ?? []).length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {(client.programs ?? []).map((p: string) => (
+                        <span key={p} className="rounded bg-teal-light px-1.5 py-0.5 text-[10px] font-medium text-[#007b58]" style={{ borderRadius: 4 }}>
+                          {p}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Demographics card */}
+            <div className="rounded-[14px] border border-[#e2e8f0] bg-white px-5 pt-4 pb-1">
+              <p className="mb-1 text-[13px] font-semibold text-navy">Demographics</p>
+              <dl>
+                <LabelValue label="Date of birth" value={formatDob(client.dob)} />
+                <LabelValue label="Phone" value={client.phone ?? '—'} />
+                <LabelValue label="Email" value={client.email ?? '—'} />
+                <LabelValue label="Address" value={client.address ?? '—'} />
+                <LabelValue label="Registered" value={formatDate(client.created_at)} />
+              </dl>
+            </div>
+
+            {/* Custom fields card */}
+            {activeCustomFields.length > 0 && (
+              <div className="rounded-[14px] border border-[#e2e8f0] bg-white px-5 pt-4 pb-1">
+                <p className="mb-1 text-[13px] font-semibold text-navy">Additional information</p>
+                <dl>
+                  {activeCustomFields.map((field) => {
+                    const raw = (client.custom_fields as Record<string, unknown>)[field.name]
+                    const display = Array.isArray(raw) ? raw.join(', ') : String(raw ?? '—')
+                    return <LabelValue key={field.id} label={field.label} value={display || '—'} />
+                  })}
+                </dl>
+              </div>
+            )}
+          </div>
+
+          {/* Right column (1/3) */}
+          <div className="flex flex-col gap-4">
+            {/* Visit history */}
+            <div className="rounded-[14px] border border-[#e2e8f0] bg-white">
+              <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
+                <p className="text-[13px] font-semibold text-navy">Visit history</p>
+                <Link
+                  href={`/services/visits/new?client_id=${client.id}`}
+                  className="text-[11px] text-teal hover:underline"
+                >
+                  Log new visit →
+                </Link>
+              </div>
+              {visits.length === 0 ? (
+                <p className="px-4 py-6 text-center text-[12px] text-[#6b7280]">No visits recorded yet.</p>
+              ) : (
+                <div className="divide-y divide-[#f1f5f9]">
+                  {visits.map((visit) => (
+                    <div key={visit.id} className="flex items-start gap-3 px-4 py-3">
+                      <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-teal" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-semibold text-navy">{visit.service_type_name}</p>
+                        {visit.notes && (
+                          <p className="truncate text-[12px] text-[#6b7280]">{visit.notes}</p>
+                        )}
+                        <p className="mt-0.5 text-[11px] text-[#6b7280]">{visit.case_worker_name}</p>
+                      </div>
+                      <span className="shrink-0 text-[11px] text-[#6b7280] tabular-nums">
+                        {formatDate(visit.visit_date)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Demographics */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Demographics</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <dl className="grid grid-cols-2 gap-x-8 gap-y-4 text-sm">
-            <div>
-              <dt className="text-muted-foreground">Date of birth</dt>
-              <dd className="mt-0.5 font-medium">{formatDob(client.dob)}</dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">Programs</dt>
-              <dd className="mt-0.5 font-medium">{(client.programs ?? []).length > 0 ? (client.programs ?? []).join(', ') : '—'}</dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">Phone</dt>
-              <dd className="mt-0.5 font-medium">{client.phone ?? '—'}</dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">Email</dt>
-              <dd className="mt-0.5 font-medium">{client.email ?? '—'}</dd>
-            </div>
-            <div className="col-span-2">
-              <dt className="text-muted-foreground">Address</dt>
-              <dd className="mt-0.5 font-medium">{client.address ?? '—'}</dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">Registered</dt>
-              <dd className="mt-0.5 font-medium">{formatDate(client.created_at)}</dd>
-            </div>
-
-            {activeCustomFields.map((field) => {
-              const raw = (client.custom_fields as Record<string, unknown>)[field.name]
-              const display = Array.isArray(raw) ? raw.join(', ') : String(raw ?? '—')
-              return (
-                <div key={field.id}>
-                  <dt className="text-muted-foreground">{field.label}</dt>
-                  <dd className="mt-0.5 font-medium">{display || '—'}</dd>
-                </div>
-              )
-            })}
-          </dl>
-        </CardContent>
-      </Card>
-
-      {/* Visit History */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Visit History</CardTitle>
-            <Link
-              href={`/services/visits/new?client_id=${client.id}`}
-              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
-            >
-              + Log Visit
-            </Link>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          {visits.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-muted-foreground">
-              No visits recorded yet.
-            </p>
-          ) : (
-            <div className="divide-y">
-              {visits.map((visit) => (
-                <div key={visit.id} className="px-4 py-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{visit.service_type_name}</span>
-                        {visit.duration_minutes && (
-                          <span className="text-xs text-muted-foreground">{visit.duration_minutes} min</span>
-                        )}
-                      </div>
-                      {visit.notes && (
-                        <p className="text-sm text-muted-foreground leading-relaxed">{visit.notes}</p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {visit.case_worker_name}
-                      </p>
-                    </div>
-                    <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-                      {formatDate(visit.visit_date)}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+    </>
   )
 }
