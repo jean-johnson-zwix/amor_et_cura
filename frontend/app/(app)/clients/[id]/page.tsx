@@ -116,12 +116,20 @@ export default async function ClientProfilePage({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Visit History</CardTitle>
-            <Link
-              href={`/visits/new?client_id=${client.id}`}
-              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
-            >
-              + Log Visit
-            </Link>
+            <div className="flex gap-2">
+              <Link
+                href={`/clients/${client.id}/handoff`}
+                className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg border border-input bg-background px-2.5 text-sm font-medium transition-colors hover:bg-muted"
+              >
+                Handoff Summary
+              </Link>
+              <Link
+                href={`/visits/new?client_id=${client.id}`}
+                className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
+              >
+                + Log Visit
+              </Link>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
