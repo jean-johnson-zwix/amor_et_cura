@@ -20,6 +20,8 @@ export async function createVisit(
   const serviceTypeId = (formData.get('service_type_id') as string | null)?.trim() || null
   const durationMinutes = formData.get('duration_minutes')
   const notes = (formData.get('notes') as string | null)?.trim() || null
+  const caseNotes = (formData.get('case_notes') as string | null)?.trim() || null
+  const referralTo = (formData.get('referral_to') as string | null)?.trim() || null
 
   const customFields: Record<string, unknown> = {}
   for (const [key, value] of formData.entries()) {
@@ -52,6 +54,8 @@ export async function createVisit(
     visit_date: visitDate,
     duration_minutes: duration,
     notes,
+    case_notes: caseNotes,
+    referral_to: referralTo,
     custom_fields: customFields,
   }).select('id').single()
 

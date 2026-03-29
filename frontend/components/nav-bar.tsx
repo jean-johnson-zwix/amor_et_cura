@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from '@/app/login/actions'
@@ -16,6 +17,7 @@ import {
   Settings,
   FileText,
   LogOut,
+  ChevronDown,
 } from 'lucide-react'
 
 const ROLE_LABELS: Record<string, string> = {
@@ -37,25 +39,27 @@ function getInitials(name: string | null | undefined): string {
 const MAIN_NAV = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/clients',   label: 'Clients',   icon: Users },
-  { href: '/services',  label: 'Services',  icon: Activity },
 ]
 
-const SERVICES_SUB_NAV = [
+const SERVICES_NAV = [
   { href: '/services/schedule', label: 'Calendar',   icon: CalendarDays },
   { href: '/services/visits',   label: 'All Visits', icon: ClipboardList },
 ]
 
 const ADMIN_NAV = [
-  { href: '/admin',             label: 'Overview',    icon: ShieldCheck },
-  { href: '/admin/users',       label: 'Users',       icon: UserCog },
-  { href: '/admin/settings',    label: 'Settings',    icon: Settings },
-  { href: '/admin/audit-log',   label: 'Audit Log',   icon: FileText },
+  { href: '/admin',             label: 'Overview',  icon: ShieldCheck },
+  { href: '/admin/users',       label: 'Users',     icon: UserCog },
+  { href: '/admin/settings',    label: 'Settings',  icon: Settings },
+  { href: '/admin/audit-log',   label: 'Audit Log', icon: FileText },
 ]
 
 export function NavBar({ profile }: { profile: Profile | null }) {
   const pathname = usePathname()
   const isAdmin = profile?.role === 'admin'
   const inServices = pathname.startsWith('/services')
+  const inAdmin = pathname.startsWith('/admin')
+
+  const [adminOpen, setAdminOpen] = useState(inAdmin)
 
   return (
     <aside className="flex h-screen w-52 shrink-0 flex-col bg-[#0a1e52] overflow-hidden">
@@ -84,9 +88,7 @@ export function NavBar({ profile }: { profile: Profile | null }) {
         <div className="flex flex-col gap-0.5">
           {MAIN_NAV.map(({ href, label, icon: Icon }) => {
             const active =
-              href === '/services'
-                ? pathname.startsWith('/services')
-                : href === '/clients'
+              href === '/clients'
                 ? pathname.startsWith('/clients')
                 : pathname === '/dashboard' || pathname === '/'
             return (
@@ -107,60 +109,77 @@ export function NavBar({ profile }: { profile: Profile | null }) {
           })}
         </div>
 
-        {/* Services sub-nav */}
-        {inServices && (
-          <div className="mt-1 ml-4 flex flex-col gap-0.5 border-l border-[#1f3e80] pl-2">
-            {SERVICES_SUB_NAV.map(({ href, label, icon: Icon }) => {
-              const active = pathname === href || pathname.startsWith(href + '/')
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={cn(
-                    'flex items-center gap-2 rounded-lg px-2 py-1.5 text-[12px] font-medium transition-colors',
-                    active
-                      ? 'bg-[#00bd8e] text-white'
-                      : 'text-[#c5d0e4] hover:bg-[#1f3e80] hover:text-white'
-                  )}
-                >
-                  <Icon className="size-3.5 shrink-0" />
-                  {label}
-                </Link>
-              )
-            })}
-          </div>
-        )}
+        {/* Clinical / Services section */}
+        <div className="mb-1 mt-4 px-2">
+          <span className="text-[9px] font-semibold uppercase tracking-widest text-[#4a62a0]">Clinical / Service</span>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          {SERVICES_NAV.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href || pathname.startsWith(href + '/')
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  'flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] font-medium transition-colors',
+                  active
+                    ? 'bg-[#00bd8e] text-white'
+                    : 'text-[#c5d0e4] hover:bg-[#1f3e80] hover:text-white'
+                )}
+              >
+                <Icon className="size-4 shrink-0" />
+                {label}
+              </Link>
+            )
+          })}
+        </div>
 
-        {/* Admin section */}
+        {/* Admin panel — collapsible, admin only */}
         {isAdmin && (
-          <>
-            <div className="mb-1 mt-4 px-2">
-              <span className="text-[9px] font-semibold uppercase tracking-widest text-[#4a62a0]">Admin</span>
-            </div>
-            <div className="flex flex-col gap-0.5">
-              {ADMIN_NAV.map(({ href, label, icon: Icon }) => {
-                const active =
-                  href === '/admin'
-                    ? pathname === '/admin'
-                    : pathname.startsWith(href)
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={cn(
-                      'flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] font-medium transition-colors',
-                      active
-                        ? 'bg-[#00bd8e] text-white'
-                        : 'text-[#c5d0e4] hover:bg-[#1f3e80] hover:text-white'
-                    )}
-                  >
-                    <Icon className="size-4 shrink-0" />
-                    {label}
-                  </Link>
-                )
-              })}
-            </div>
-          </>
+          <div className="mt-4">
+            <button
+              onClick={() => setAdminOpen((v) => !v)}
+              className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-[13px] font-medium text-[#c5d0e4] transition-colors hover:bg-[#1f3e80] hover:text-white"
+              aria-expanded={adminOpen}
+            >
+              <span className="flex items-center gap-2.5">
+                <ShieldCheck className="size-4 shrink-0" />
+                Admin Panel
+              </span>
+              <ChevronDown
+                className={cn(
+                  'size-3.5 transition-transform duration-200',
+                  adminOpen && 'rotate-180'
+                )}
+              />
+            </button>
+
+            {adminOpen && (
+              <div className="mt-0.5 ml-4 flex flex-col gap-0.5 border-l border-[#1f3e80] pl-2">
+                {ADMIN_NAV.map(({ href, label, icon: Icon }) => {
+                  const active =
+                    href === '/admin'
+                      ? pathname === '/admin'
+                      : pathname.startsWith(href)
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      className={cn(
+                        'flex items-center gap-2 rounded-lg px-2 py-1.5 text-[12px] font-medium transition-colors',
+                        active
+                          ? 'bg-[#00bd8e] text-white'
+                          : 'text-[#c5d0e4] hover:bg-[#1f3e80] hover:text-white'
+                      )}
+                    >
+                      <Icon className="size-3.5 shrink-0" />
+                      {label}
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
+          </div>
         )}
       </nav>
 
