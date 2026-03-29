@@ -3,7 +3,6 @@
 import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Pencil, PowerOff, Power } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { setClientActive } from './actions'
 
 export default function ClientActions({
@@ -23,19 +22,16 @@ export default function ClientActions({
   return (
     <div className="flex items-center gap-2">
       {canEdit && (
-        <Button
-          variant="outline"
-          size="sm"
+        <button
           onClick={() => router.push(`/clients/${clientId}/edit`)}
+          className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] font-medium text-[#1f2937] transition-colors hover:bg-teal-tint"
         >
-          <Pencil className="size-3.5 mr-1.5" />
+          <Pencil className="size-3.5" />
           Edit
-        </Button>
+        </button>
       )}
       {canDeactivate && (
-        <Button
-          variant="outline"
-          size="sm"
+        <button
           disabled={isPending}
           onClick={() => {
             if (
@@ -48,14 +44,14 @@ export default function ClientActions({
               startTransition(() => setClientActive(clientId, !isActive))
             }
           }}
-          className={isActive ? 'text-destructive hover:text-destructive' : ''}
+          className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-pink-light px-3 text-[13px] font-medium text-pink-accent transition-colors hover:bg-pink-200 disabled:opacity-50"
         >
           {isActive ? (
-            <><PowerOff className="size-3.5 mr-1.5" />Deactivate</>
+            <><PowerOff className="size-3.5" />Deactivate</>
           ) : (
-            <><Power className="size-3.5 mr-1.5" />Reactivate</>
+            <><Power className="size-3.5" />Reactivate</>
           )}
-        </Button>
+        </button>
       )}
     </div>
   )

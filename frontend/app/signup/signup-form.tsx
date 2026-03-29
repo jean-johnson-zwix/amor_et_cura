@@ -4,106 +4,101 @@ import { useActionState } from 'react'
 import Link from 'next/link'
 import { signUp } from '@/app/login/actions'
 import { GoogleSignInButton } from '@/components/google-sign-in-button'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+
+const inputClass =
+  'h-9 w-full rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] text-navy outline-none transition-all focus:border-teal focus:ring-2 focus:ring-teal/20'
+const labelClass = 'mb-1 block text-[11px] text-[#6b7280]'
 
 export function SignupForm() {
   const [state, action, pending] = useActionState(signUp, null)
 
   if (state && 'success' in state) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Check your email</CardTitle>
-          <CardDescription>
-            We sent a confirmation link to your inbox. Click it to activate your account.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-center text-sm text-muted-foreground">
-            <Link href="/login" className="font-medium text-foreground underline-offset-4 hover:underline">
-              Back to sign in
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
+      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-8 text-center">
+        <h2 className="text-[20px] font-semibold text-navy">Check your email</h2>
+        <p className="mt-2 text-[13px] text-[#6b7280]">
+          We sent a confirmation link to your inbox. Click it to activate your account.
+        </p>
+        <Link href="/login" className="mt-4 inline-block text-[13px] font-medium text-teal hover:underline">
+          Back to sign in
+        </Link>
+      </div>
     )
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Create account</CardTitle>
-        <CardDescription>Sign up to start managing your cases</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <GoogleSignInButton />
+    <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-8">
+      <h2 className="text-[20px] font-semibold text-navy">Create your account</h2>
+      <p className="mt-0.5 text-[13px] text-[#6b7280]">Join your team on Amor Et Cura</p>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs text-muted-foreground">
-              <span className="bg-card px-2">or</span>
-            </div>
-          </div>
+      <div className="mt-6 space-y-4">
+        <GoogleSignInButton />
 
-          <form action={action} className="space-y-4">
-            {state?.error && (
-              <div className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
-                {state.error}
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="full_name">Full name</Label>
-              <Input
-                id="full_name"
-                name="full_name"
-                type="text"
-                autoComplete="name"
-                required
-                placeholder="Jane Smith"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                placeholder="you@example.com"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                placeholder="••••••••"
-                minLength={8}
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={pending}>
-              {pending ? 'Creating account…' : 'Create account'}
-            </Button>
-          </form>
-
-          <p className="text-center text-sm text-muted-foreground">
-            Already have an account?{' '}
-            <Link href="/login" className="font-medium text-foreground underline-offset-4 hover:underline">
-              Sign in
-            </Link>
-          </p>
+        <div className="relative flex items-center gap-3">
+          <div className="flex-1 border-t border-[#e2e8f0]" />
+          <span className="text-[12px] text-[#6b7280]">or</span>
+          <div className="flex-1 border-t border-[#e2e8f0]" />
         </div>
-      </CardContent>
-    </Card>
+
+        <form action={action} className="space-y-4">
+          {state?.error && (
+            <div className="rounded-lg bg-red-50 px-3 py-2.5 text-[12px] text-red-700">
+              {state.error}
+            </div>
+          )}
+          <div>
+            <label htmlFor="full_name" className={labelClass}>Full name</label>
+            <input
+              id="full_name"
+              name="full_name"
+              type="text"
+              autoComplete="name"
+              required
+              placeholder="Jane Smith"
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label htmlFor="email" className={labelClass}>Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              placeholder="you@example.com"
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label htmlFor="password" className={labelClass}>Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              required
+              placeholder="••••••••"
+              minLength={8}
+              className={inputClass}
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={pending}
+            className="h-9 w-full rounded-lg bg-teal text-[13px] font-medium text-white transition-colors hover:bg-[#009e77] disabled:opacity-60"
+          >
+            {pending ? 'Creating account…' : 'Create account'}
+          </button>
+        </form>
+
+        <p className="text-center text-[13px] text-[#6b7280]">
+          Already have an account?{' '}
+          <Link href="/login" className="font-medium text-teal hover:underline">
+            Sign in
+          </Link>
+        </p>
+      </div>
+    </div>
   )
 }

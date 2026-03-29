@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Card, CardContent } from '@/components/ui/card'
+import { Topbar } from '@/components/Topbar'
 import { createClient } from '@/lib/supabase/server'
 import {
   getWeekDays,
@@ -11,20 +11,39 @@ import {
   type AppointmentWithDetails,
 } from '@/lib/appointments'
 
+const SERVICE_COLORS: Record<string, { bg: string; text: string }> = {
+  'Food Assistance': { bg: '#e0f7f4', text: '#007b58' },
+  'Case Management': { bg: '#fce4f0', text: '#eb3690' },
+  'Counseling':      { bg: '#e8ecf6', text: '#0a1e52' },
+}
+
+function getServiceColor(name: string) {
+  return SERVICE_COLORS[name] ?? { bg: '#f3f4f6', text: '#6b7280' }
+}
+
 function AppointmentChip({ appt }: { appt: AppointmentWithDetails }) {
+  const { bg, text } = getServiceColor(appt.service_type_name)
   return (
-    <div className="rounded-lg border border-primary/20 bg-primary/5 px-2.5 py-2 text-xs flex flex-col gap-0.5 hover:bg-primary/10 transition-colors">
-      <div className="flex items-center justify-between gap-2">
-        <span className="font-medium text-foreground">{formatTime(appt.scheduled_at)}</span>
+    <div
+      className="rounded-lg px-2 py-1.5 text-xs flex flex-col gap-0.5 transition-opacity hover:opacity-90"
+      style={{ background: bg }}
+    >
+      <div className="flex items-center justify-between gap-1">
+        <span className="font-medium tabular-nums" style={{ color: text }}>{formatTime(appt.scheduled_at)}</span>
         {appt.duration_minutes && (
-          <span className="text-muted-foreground">{appt.duration_minutes}m</span>
+          <span className="text-[10px]" style={{ color: text }}>{appt.duration_minutes}m</span>
         )}
       </div>
-      <Link href={`/clients/${appt.client_id}`} className="font-medium text-primary hover:underline truncate">
+      <Link
+        href={`/clients/${appt.client_id}`}
+        className="font-semibold truncate hover:underline"
+        style={{ color: text, fontSize: 11 }}
+      >
         {appt.client_name}
       </Link>
-      <span className="text-muted-foreground truncate">{appt.service_type_name}</span>
-      <span className="text-muted-foreground truncate">{appt.case_worker_name}</span>
+      <span className="truncate text-[10px]" style={{ color: text, opacity: 0.8 }}>
+        {appt.service_type_name}
+      </span>
     </div>
   )
 }
@@ -37,7 +56,7 @@ export default async function SchedulePage({
   const { week } = await searchParams
   const today = new Date().toISOString().split('T')[0]
   const monday = week ?? getMondayOfWeek(new Date())
-  const nextMonday = addDays(monday, 7)  // used for prev/next nav and query upper bound
+  const nextMonday = addDays(monday, 7)
   const prevMonday = addDays(monday, -7)
   const weekDays = getWeekDays(monday)
 
@@ -65,95 +84,89 @@ export default async function SchedulePage({
     }
   })
 
-  const todayAppts = appointmentsForDate(appointments, today)
+  const weekLabel = `${formatDateHeading(weekDays[0])} – ${formatDateHeading(weekDays[6])}`
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold">Calendar</h1>
-          <p className="text-sm text-muted-foreground">Week of {formatDateHeading(weekDays[0])}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href={`/services/schedule?week=${prevMonday}`}
-            className="inline-flex h-8 items-center justify-center rounded-lg border border-input bg-background px-2.5 text-sm font-medium transition-colors hover:bg-muted"
-          >
-            ← Prev
-          </Link>
-          <Link
-            href="/services/schedule"
-            className="inline-flex h-8 items-center justify-center rounded-lg border border-input bg-background px-2.5 text-sm font-medium transition-colors hover:bg-muted"
-          >
-            Today
-          </Link>
-          <Link
-            href={`/services/schedule?week=${nextMonday}`}
-            className="inline-flex h-8 items-center justify-center rounded-lg border border-input bg-background px-2.5 text-sm font-medium transition-colors hover:bg-muted"
-          >
-            Next →
-          </Link>
-          <Link
-            href="/services/schedule/new"
-            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
-          >
-            + New Appointment
-          </Link>
-        </div>
-      </div>
-
-      {monday === getMondayOfWeek(new Date()) && todayAppts.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Today</h2>
-          <div className="flex flex-col gap-2">
-            {todayAppts.map((appt) => (
-              <div key={appt.id} className="flex items-center gap-4 rounded-lg border bg-card px-4 py-3 text-sm">
-                <span className="w-20 shrink-0 font-medium tabular-nums">{formatTime(appt.scheduled_at)}</span>
-                <Link href={`/clients/${appt.client_id}`} className="min-w-0 truncate font-medium hover:underline">
-                  {appt.client_name}
-                </Link>
-                <span className="hidden min-w-0 truncate text-muted-foreground sm:block">{appt.service_type_name}</span>
-                {appt.duration_minutes && (
-                  <span className="ml-auto shrink-0 text-xs text-muted-foreground">{appt.duration_minutes} min</span>
-                )}
-              </div>
-            ))}
+    <>
+      <Topbar
+        crumbs={[{ label: 'Services' }, { label: 'Schedule' }]}
+        actions={
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/services/schedule?week=${prevMonday}`}
+              className="inline-flex h-8 items-center justify-center rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] font-medium text-[#1f2937] transition-colors hover:bg-teal-tint"
+            >
+              ← Prev week
+            </Link>
+            <span className="text-[13px] font-semibold text-navy hidden sm:block">{weekLabel}</span>
+            <Link
+              href={`/services/schedule?week=${nextMonday}`}
+              className="inline-flex h-8 items-center justify-center rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] font-medium text-[#1f2937] transition-colors hover:bg-teal-tint"
+            >
+              Next week →
+            </Link>
+            <Link
+              href="/services/schedule/new"
+              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77]"
+            >
+              + New appointment
+            </Link>
           </div>
-        </div>
-      )}
+        }
+      />
 
-      <div>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">This Week</h2>
-        <div className="grid grid-cols-7 gap-3">
-          {weekDays.map((date) => {
-            const appts = appointmentsForDate(appointments, date)
-            const isToday = date === today
-            return (
-              <div key={date} className="flex flex-col gap-2">
-                <div className={`border-b pb-1 text-xs font-medium ${isToday ? 'border-primary text-primary' : 'border-border text-muted-foreground'}`}>
+      <div className="p-6 flex flex-col gap-4">
+        {/* Week label on mobile */}
+        <p className="text-[13px] font-semibold text-navy sm:hidden">{weekLabel}</p>
+
+        {/* Calendar grid */}
+        <div className="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
+          {/* Day headers */}
+          <div className="grid grid-cols-7 border-b border-[#e2e8f0]">
+            {weekDays.map((date) => {
+              const isToday = date === today
+              return (
+                <div
+                  key={date}
+                  className="px-2 py-2.5 text-center text-[11px] font-medium text-[#6b7280]"
+                  style={isToday ? { background: '#e0f7f4' } : {}}
+                >
                   {formatDateHeading(date)}
                 </div>
-                {appts.length === 0 ? (
-                  <p className="text-xs italic text-muted-foreground">No appointments</p>
-                ) : (
-                  appts.map((appt) => <AppointmentChip key={appt.id} appt={appt} />)
-                )}
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
+          {/* Day columns */}
+          <div className="grid grid-cols-7 divide-x divide-[#f1f5f9] min-h-[240px]">
+            {weekDays.map((date) => {
+              const appts = appointmentsForDate(appointments, date)
+              const isToday = date === today
+              return (
+                <div
+                  key={date}
+                  className="flex flex-col gap-1.5 p-2"
+                  style={isToday ? { background: '#f4fbf9' } : {}}
+                >
+                  {appts.length === 0 ? (
+                    <p className="text-[11px] italic text-[#9ca3af]">No appointments</p>
+                  ) : (
+                    appts.map((appt) => <AppointmentChip key={appt.id} appt={appt} />)
+                  )}
+                </div>
+              )
+            })}
+          </div>
         </div>
-      </div>
 
-      {appointments.length === 0 && (
-        <Card>
-          <CardContent className="py-6 text-center text-sm text-muted-foreground">
+        {appointments.length === 0 && (
+          <p className="text-center text-[13px] text-[#6b7280]">
             No appointments this week.{' '}
-            <Link href="/services/schedule/new" className="text-primary hover:underline">
+            <Link href="/services/schedule/new" className="text-teal hover:underline">
               Schedule one →
             </Link>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+          </p>
+        )}
+      </div>
+    </>
   )
 }

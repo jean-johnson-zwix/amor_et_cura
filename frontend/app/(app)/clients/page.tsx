@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import ClientsTable from './ClientsTable'
+import { Topbar } from '@/components/Topbar'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function ClientsPage() {
@@ -10,28 +11,31 @@ export default async function ClientsPage() {
     .eq('is_active', true)
     .order('last_name')
 
-
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Clients</h1>
-        <div className="flex gap-2">
-          <Link
-            href="/clients/import"
-            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg border border-input bg-background px-2.5 text-sm font-medium transition-colors hover:bg-muted"
-          >
-            Import CSV
-          </Link>
-          <Link
-            href="/clients/new"
-            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
-          >
-            + New Client
-          </Link>
-        </div>
-      </div>
+    <>
+      <Topbar
+        crumbs={[{ label: 'Clients', href: '/clients' }, { label: 'All clients' }]}
+        actions={
+          <>
+            <Link
+              href="/clients/import"
+              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-pink-light px-3 text-[13px] font-medium text-pink-accent transition-colors hover:bg-pink-100"
+            >
+              + Import CSV
+            </Link>
+            <Link
+              href="/clients/new"
+              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77]"
+            >
+              + New Client
+            </Link>
+          </>
+        }
+      />
 
-      <ClientsTable clients={clients ?? []} />
-    </div>
+      <div className="p-6">
+        <ClientsTable clients={clients ?? []} />
+      </div>
+    </>
   )
 }
