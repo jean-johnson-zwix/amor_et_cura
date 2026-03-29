@@ -20,7 +20,7 @@ export default function VisitTrendChart({ data }: { data: { date: string; visits
         <Tooltip
           contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }}
           labelStyle={{ color: '#0a1e52', fontWeight: 600 }}
-          formatter={(value: number) => [value, 'Visits']}
+          formatter={(value) => [value, 'Visits']}
         />
         <Line
           type="monotone"
