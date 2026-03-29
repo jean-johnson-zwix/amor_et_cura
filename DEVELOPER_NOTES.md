@@ -1,7 +1,7 @@
 # Developer Notes
 *Last updated: 2026-03-29*
 
-A running log of what's built, what's not, and where to start. Keep this updated as features are completed.
+A running log of what's built, what's not, and where to start next. Keep this updated as features land.
 
 ---
 
@@ -25,7 +25,7 @@ nonprofit_client_and_case_management/
 │   │   │   │   ├── ClientsTable.tsx # Interactive table with CSV export (client)
 │   │   │   │   ├── new/
 │   │   │   │   │   ├── page.tsx
-│   │   │   │   │   ├── ClientRegistrationForm.tsx  # Standard + custom fields, EN/ES toggle
+│   │   │   │   │   ├── ClientRegistrationForm.tsx  # AI photo scan + manual fields + programs
 │   │   │   │   │   └── actions.ts   # createClient — insert + custom_fields + audit log
 │   │   │   │   ├── [id]/
 │   │   │   │   │   ├── page.tsx     # Fetches visits, documents, appointments, household members
@@ -42,242 +42,236 @@ nonprofit_client_and_case_management/
 │   │   │   │   │   ├── page.tsx     # All past visits table (live data)
 │   │   │   │   │   └── new/
 │   │   │   │   │       ├── page.tsx
-│   │   │   │   │       ├── VisitLogForm.tsx  # Service, narrative, referral, custom fields
+│   │   │   │   │       ├── VisitLogForm.tsx  # Visit form + AI voice-to-note (record live or upload)
 │   │   │   │   │       └── actions.ts        # createVisit — returns {success:true}, no redirect
 │   │   │   │   └── schedule/
-│   │   │   │       ├── page.tsx     # Week-view calendar (?week= param), week nav in page content
+│   │   │   │       ├── page.tsx     # Week-view calendar (?week= param)
 │   │   │   │       └── new/
 │   │   │   │           ├── page.tsx
 │   │   │   │           ├── AppointmentForm.tsx
 │   │   │   │           └── actions.ts  # createAppointment — insert + audit log
-│   │   │   └── admin/               # Admin-only pages (/admin/*)
+│   │   │   └── admin/
 │   │   │       ├── layout.tsx       # Role guard: non-admins → /dashboard
 │   │   │       ├── page.tsx         # /admin — stats + section links
-│   │   │       ├── users/
-│   │   │       │   ├── page.tsx
-│   │   │       │   ├── role-form.tsx
-│   │   │       │   └── actions.ts   # updateUserRole — update + audit log
-│   │   │       ├── settings/
-│   │   │       │   ├── page.tsx
-│   │   │       │   ├── FieldManager.tsx  # Form-picker → per-form field CRUD (client)
-│   │   │       │   └── actions.ts   # addFieldDefinition, toggleFieldActive, deleteFieldDefinition, updateFieldDefinition
-│   │   │       └── audit-log/
-│   │   │           └── page.tsx     # Audit log with filters + pagination
+│   │   │       ├── users/           # User role management
+│   │   │       ├── settings/        # Service types + configurable field CRUD
+│   │   │       └── audit-log/       # Audit log viewer — filter + paginate
 │   │   ├── auth/callback/           # OAuth code exchange route handler
-│   │   ├── login/                   # /login — email/password + Google SSO
-│   │   ├── signup/                  # /signup — email/password registration
-│   │   ├── not-found.tsx            # Global 404
+│   │   ├── login/                   # Email/password + Google SSO
+│   │   ├── signup/                  # Email/password registration
 │   │   └── layout.tsx               # Root layout (fonts, metadata)
 │   ├── components/
-│   │   ├── nav-bar.tsx              # Sidebar: Dashboard / Clients / Clinical+Service / Admin (collapsible)
-│   │   ├── AuthLayout.tsx           # Login page shell (brand panel + form panel)
-│   │   ├── Topbar.tsx               # Page header: breadcrumbs + actions slot
-│   │   ├── AppNav.tsx               # Stub (navigation handled by nav-bar.tsx)
+│   │   ├── nav-bar.tsx              # Sidebar navigation
+│   │   ├── AuthLayout.tsx           # Login page shell
+│   │   ├── Topbar.tsx               # Page header + breadcrumbs
 │   │   ├── google-sign-in-button.tsx
 │   │   ├── dashboard/
 │   │   │   ├── ServiceBreakdownChart.tsx   # Recharts PieChart — visits by service type
-│   │   │   └── VisitTrendChart.tsx         # Recharts BarChart — visits by recency period
-│   │   └── ui/                      # shadcn/ui primitives (Button, Input, Label, etc.)
+│   │   │   └── VisitTrendChart.tsx         # Recharts LineChart — visits per week (last 8 weeks)
+│   │   └── ui/                      # Base UI primitives
 │   ├── lib/
 │   │   ├── audit.ts                 # logAudit() — insert into audit_log
-│   │   ├── appointments.ts          # getMondayOfWeek, addDays, getWeekDays, appointmentsForDate, formatTime
+│   │   ├── appointments.ts          # Week helpers, appointmentsForDate, formatTime
 │   │   ├── csv.ts                   # parseCSV (Papa Parse), exportToCSV
-│   │   ├── dashboard.ts             # computeDashboardStats(visits, activeClients)
+│   │   ├── dashboard.ts             # computeDashboardStats() — stats + visitTrend (weekly buckets)
 │   │   ├── utils.ts                 # cn() Tailwind class merger
 │   │   └── supabase/
-│   │       ├── client.ts            # Browser Supabase client (document uploads, OAuth)
-│   │       ├── server.ts            # Server Supabase client (reads cookies)
+│   │       ├── client.ts            # Browser Supabase client
+│   │       ├── server.ts            # Server Supabase client
 │   │       ├── session.ts           # getSession() → { user, profile }
-│   │       └── queries.ts           # getProfile(userId), getAllProfiles()
+│   │       └── queries.ts           # getProfile(), getAllProfiles()
 │   ├── types/database.ts            # Client, Visit, Appointment, Profile, ServiceType, AuditLog, FieldDefinition, Document
+│   ├── next.config.ts               # ignoreBuildErrors: true (TypeScript errors don't block deploy)
 │   └── proxy.ts                     # Next.js 16 proxy: session refresh + auth guard
+│
+├── backend/                         # FastAPI Python AI backend
+│   ├── main.py                      # 3 endpoints + _ai_error_message() helper
+│   ├── intelligence/
+│   │   ├── llm.py                   # LLMClient: multi-provider call_with_fallback, 1.5s 429 back-off
+│   │   ├── llm_config.py            # Task configs: primary model + fallbacks per task
+│   │   └── prompts.py               # System prompts for each AI task
+│   ├── requirements.txt
+│   ├── render.yaml                  # Render deployment config (auto-detected)
+│   └── .env                         # GEMINI_API_KEY, GROQ_API_KEY, SAMBANOVA_API_KEY
+│
 ├── supabase/
-│   ├── migrations/                  # Apply in numbered order (see table below)
-│   ├── seed.sql                     # Original seed (clients + visits only)
-│   └── demo_seed.sql                # Full demo seed: profiles + clients + visits + appointments
+│   ├── migrations/                  # 12 migrations — apply in numbered order
+│   ├── seed.sql                     # Default service types + starter custom fields
+│   └── demo_seed.sql                # 12 clients, 32 visits, 16 appointments, 4 staff
+│
 ├── .github/workflows/ci.yml         # CI: lint + type-check on every PR
-├── .env.example                     # Copy to frontend/.env.local
-├── reference_docs/                  # Original OHack SRD and nonprofit briefs
-└── DEVELOPER_NOTES.md               # This file
+├── .env.example
+├── README.md
+├── DEVELOPER_NOTES.md               # This file
+└── functional_requirements.md
 ```
 
 ---
 
-## What's Already Built
+## What's Built
 
 ### Infrastructure
 | Item | Status | Notes |
 |------|--------|-------|
-| Next.js 16 scaffold | ✅ Done | App Router, TypeScript strict mode, Tailwind CSS |
-| shadcn/ui | ✅ Done | Initialized with neutral theme; Button, Card, Input, Label |
-| ESLint + Prettier | ✅ Done | `frontend/eslint.config.mjs`, `frontend/.prettierrc` |
-| Supabase client helpers | ✅ Done | `lib/supabase/client.ts` (browser) + `server.ts` (server) |
-| TypeScript types | ✅ Done | `types/database.ts` — Client, Visit, Appointment, Profile, ServiceType, AuditLog, FieldDefinition |
-| Auth proxy | ✅ Done | `frontend/proxy.ts` — redirects unauthenticated to `/login` |
-| Database schema | ✅ Done | Migrations 1–8 in `supabase/migrations/` |
-| Demo seed data | ✅ Done | `supabase/demo_seed.sql` — 12 clients, 32 visits, 16 appointments, 4 staff |
-| GitHub Actions CI | ✅ Done | Lint + type-check on every PR targeting `main` |
+| Next.js 16 scaffold | ✅ | App Router, TypeScript, Tailwind CSS 4 |
+| Supabase client helpers | ✅ | `lib/supabase/client.ts` + `server.ts` |
+| TypeScript types | ✅ | `types/database.ts` |
+| Auth proxy | ✅ | `proxy.ts` — redirects unauthenticated to `/login` |
+| Database schema | ✅ | 12 migrations in `supabase/migrations/` |
+| Demo seed data | ✅ | `supabase/demo_seed.sql` |
+| GitHub Actions CI | ✅ | Lint + type-check on every PR |
+| FastAPI AI backend | ✅ | `backend/` — deployed on Render |
+| `next.config.ts` build flags | ✅ | `ignoreBuildErrors: true` — TS errors don't block Vercel deploy |
 
-### P0: Auth + Role-Based Access ✅ Complete (issue #1)
-
-| Item | File(s) | Notes |
-|------|---------|-------|
-| Email/password login | `app/login/` | `signIn` server action |
-| Email/password signup | `app/signup/` | `signUp` server action, email confirmation flow |
-| Google SSO | `components/google-sign-in-button.tsx`, `app/auth/callback/route.ts` | PKCE flow |
-| Sign out | `app/login/actions.ts` → `signOut` | Clears session, redirects to `/login` |
-| Session guard (proxy) | `proxy.ts` | Validates JWT on every request |
-| Profile auto-creation | `supabase/migrations/20260328000002_profile_trigger.sql` | `handle_new_user` trigger |
-| Session + profile helper | `lib/supabase/session.ts` → `getSession()` | Returns `{ user, profile }` — use this everywhere |
-| Role-gated routes | `app/(app)/admin/layout.tsx` | Non-admins redirected for all `/admin/*` |
-| Admin user management | `app/(app)/admin/users/` | Role selector per row, `updateUserRole` server action + audit logged |
-| Permissions helper | `lib/auth/permissions.ts` | `can.createClient(role)`, `can.editVisit(role, ownerId, userId)`, `can.manageUsers(role)` |
-| Role escalation fix | `supabase/migrations/20260328000005_fix_profiles_role_escalation.sql` | Prevents self-promotion |
-
-**First admin bootstrap** (run once in Supabase SQL Editor):
-```sql
-update public.profiles set role = 'admin' where id = '<your-user-id>';
-```
-
-### P0: Client Registration ✅ Complete (issue #2)
-
+### P0: Auth + RBAC ✅ Complete
 | Item | File(s) |
 |------|---------|
-| Client list with search, filter, sort | `clients/page.tsx` + `ClientsTable.tsx` |
-| Row selection + export selected to CSV | `ClientsTable.tsx` — checkbox per row, "Export N selected" button |
-| Filter by program and status | `ClientsTable.tsx` — dropdowns; program list derived from loaded clients |
-| Sortable columns | `ClientsTable.tsx` — Name, DOB, Programs, Status with asc/desc toggle |
-| New client form (multi-program checkboxes) | `clients/new/ClientRegistrationForm.tsx` |
-| Create action + audit log | `clients/new/actions.ts` — `formData.getAll('programs')` |
-| Custom fields on intake form | Fetched from `field_definitions` where `applies_to = 'client'` |
-| Deactivate / Reactivate client | `clients/[id]/ClientActions.tsx` + `clients/[id]/actions.ts#setClientActive` |
-| Edit client demographics | `clients/[id]/edit/page.tsx` + `EditClientForm.tsx` + `actions.ts#updateClient` |
+| Email/password login + signup | `app/login/`, `app/signup/` |
+| Google OAuth (PKCE) | `components/google-sign-in-button.tsx`, `app/auth/callback/route.ts` |
+| Session guard | `proxy.ts` |
+| Profile auto-creation trigger | `migrations/20260328000002_profile_trigger.sql` |
+| Role-gated routes | `app/(app)/admin/layout.tsx` |
+| Admin user management | `admin/users/` |
+| Permissions helper | `lib/auth/permissions.ts` |
+| Role escalation prevention | `migrations/20260328000005_fix_profiles_role_escalation.sql` |
 
-### P0: Service/Visit Logging ✅ Complete (issue #3)
-
-| Item | File(s) |
-|------|---------|
-| Log visit form | `services/visits/new/VisitLogForm.tsx` |
-| Create visit action + audit log | `services/visits/new/actions.ts` |
-| All visits list | `services/visits/page.tsx` |
-
-### P0: Client Profile View ✅ Complete (issue #4)
-
-| Item | File(s) |
-|------|---------|
-| Demographics panel + visit history | `clients/[id]/page.tsx` |
-| Multi-program display | `clients/[id]/page.tsx` — `client.programs.join(', ')` |
-| Custom field values displayed | Reads from `client.custom_fields` jsonb, labels from `field_definitions` |
-| Deactivate/Edit actions (role-gated) | `clients/[id]/ClientActions.tsx` — Admin and Case Worker only |
-
-### P1: CSV Import/Export ✅ Complete (issue #6)
-
-| Item | File(s) |
-|------|---------|
-| CSV upload + row-by-row insert | `clients/import/ImportForm.tsx` + `actions.ts` |
-| Export clients to CSV | `lib/csv.ts` → `exportToCSV()` |
-| Audit log per imported row | `actions.ts` → `logAudit()` per success |
-
-### P1: Reporting Dashboard ✅ Complete (issue #7)
-
-| Item | File(s) |
-|------|---------|
-| Stat cards: active clients, visits week/month/quarter | `dashboard/page.tsx` |
-| Service breakdown bar chart | `components/dashboard/ServiceBreakdownChart.tsx` |
-| Visit trend line chart | `components/dashboard/VisitTrendChart.tsx` |
-| Print button | `dashboard/PrintButton.tsx` |
-
-### P1: Scheduling/Calendar ✅ Complete (issue #8)
-
-| Item | File(s) |
-|------|---------|
-| Week-view calendar (Mon–Sun) | `services/schedule/page.tsx` — 7-day grid |
-| New appointment form | `services/schedule/new/AppointmentForm.tsx` |
-| Create appointment action + audit log | `services/schedule/new/actions.ts` |
-| Appointments DB table + RLS | `supabase/migrations/20260328000007_appointments.sql` |
-| Today's appointments on dashboard | `dashboard/page.tsx` — queries `appointments` table for today, renders list |
-
-### P1: Configurable Fields ✅ Complete (issue #9)
-
-| Item | File(s) |
-|------|---------|
-| `field_definitions` table + RLS + seed | `supabase/migrations/20260328000008_field_definitions.sql` |
-| Admin field CRUD | `admin/settings/FieldManager.tsx` + `actions.ts` |
-| Custom fields on intake form | `clients/new/ClientRegistrationForm.tsx` — renders `cf_*` inputs |
-| Custom field values saved | `clients/new/actions.ts` → collects `cf_*` keys into `custom_fields` jsonb |
-| Custom fields on client profile | `clients/[id]/page.tsx` — shows fields with values present |
-| `FieldDefinition` TypeScript type | `types/database.ts` |
-
-### P1: Audit Log ✅ Complete (issue #10)
-
-| Item | File(s) |
-|------|---------|
-| `audit_log` table + RLS | `supabase/migrations/20260328000001_init.sql` |
-| DB triggers (clients, visits, profiles) | `supabase/migrations/20260328000006_audit_triggers.sql` |
-| `logAudit()` helper | `lib/audit.ts` |
-| Server action logging | All 5 write actions: createClient, importClients, createVisit, createAppointment, updateUserRole |
-| Admin audit log viewer | `admin/audit-log/page.tsx` — filter by table, action, user; 50/page pagination |
-
-### Database Migrations
-Apply in order via Supabase SQL Editor → New Query:
-
-| # | File | Purpose |
-|---|------|---------|
-| 1 | `20260328000001_init.sql` | Full schema (profiles, service_types, clients, visits, audit_log) + RLS + 10 seeded service types |
-| 2 | `20260328000002_profile_trigger.sql` | Auto-create profile row on signup |
-| 3 | `20260328000003_profiles_self_insert.sql` | Allow authenticated users to self-insert profile |
-| 4 | `20260328000004_fix_profiles_rls_recursion.sql` | Fix `42P17` recursion via `is_admin()` security definer |
-| 5 | `20260328000005_fix_profiles_role_escalation.sql` | Prevent role self-promotion; `get_my_role()` + admin update policy |
-| 6 | `20260328000006_audit_triggers.sql` | DB triggers: log INSERT/UPDATE/DELETE on clients, visits, profiles |
-| 7 | `20260328000007_appointments.sql` | Appointments table + RLS |
-| 8 | `20260328000008_field_definitions.sql` | Configurable field definitions table + RLS + 5 starter fields |
-| 9 | `20260328000009_rename_read_only_to_viewer.sql` | Rename `read_only` enum value → `viewer`; UPDATE must run after ALTER TYPE |
-| 10 | `20260328000010_programs_array.sql` | Add `programs text[]`, migrate from single `program text`, drop old column |
-
----
-
-## What's NOT Built Yet
-
-### P0 — Last remaining item
-| Issue | Feature | Status | Notes |
-|-------|---------|--------|-------|
-| [#5](https://github.com/jean-johnson-zwix/amor_et_cura/issues/5) | Deploy + Seed Data | Not started | See deployment steps below |
-
-### P2 — AI stretch goals
-Issues [#11](https://github.com/jean-johnson-zwix/amor_et_cura/issues/11) – [#17](https://github.com/jean-johnson-zwix/amor_et_cura/issues/17): Photo-to-Intake, Semantic Search, Client Handoff Summary, Auto-Generated Funder Reports, Smart Follow-Up Detection, Voice-to-Case Notes, Multilingual Intake
-
----
-
-## Deployment Steps (issue #5)
-
-### 1. Apply all 8 migrations
-Supabase dashboard → SQL Editor → paste each file in numbered order → Run.
-
-### 2. Seed demo data
-Supabase dashboard → SQL Editor → paste `supabase/demo_seed.sql`.
-
-> Before running: create 4 demo auth accounts, copy their UUIDs, and replace the 4 placeholder UUIDs at the top of `demo_seed.sql`.
-
-### 3. Bootstrap first admin
+**First admin bootstrap** (run once in Supabase SQL Editor after signup):
 ```sql
 update public.profiles set role = 'admin' where id = '<your-user-uuid>';
 ```
 
-### 4. Deploy to Vercel
-```bash
-cd frontend
-npx vercel --prod
-```
-Set these in the Vercel dashboard → Project → Settings → Environment Variables:
-| Variable | Where to find it |
-|----------|-----------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Settings → API → Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Settings → API → anon/public |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Settings → API → service_role (server-only) |
+**Auth callback URL** — must be set in Supabase for OAuth to work:
+- Supabase → Authentication → URL Configuration
+- Site URL: `https://your-app.vercel.app`
+- Redirect URLs: `https://your-app.vercel.app/auth/callback`
 
-### 5. Enable Google OAuth (optional)
-Supabase → Auth → Providers → Google → add Client ID + Secret from Google Cloud Console.
-Add `https://<your-vercel-url>/auth/callback` to the Google redirect URIs.
+### P0: Client Registration ✅ Complete
+| Item | File(s) |
+|------|---------|
+| Client list — search, filter, sort | `clients/page.tsx` + `ClientsTable.tsx` |
+| New client form + custom fields | `clients/new/ClientRegistrationForm.tsx` |
+| **AI photo scan (English)** | `ClientRegistrationForm.tsx` → `POST /ai/photo-to-intake` |
+| **AI photo scan (multilingual)** | `ClientRegistrationForm.tsx` → `POST /ai/multilingual-intake` |
+| Create action + audit | `clients/new/actions.ts` |
+| Edit demographics | `clients/[id]/edit/` |
+| Deactivate/reactivate | `clients/[id]/actions.ts#setClientActive` |
+
+### P0: Service/Visit Logging ✅ Complete
+| Item | File(s) |
+|------|---------|
+| Log visit form | `services/visits/new/VisitLogForm.tsx` |
+| **AI voice-to-note (live record)** | `VisitLogForm.tsx` → `MediaRecorder` → `POST /ai/voice-to-note` |
+| **AI voice-to-note (file upload)** | `VisitLogForm.tsx` → file input → `POST /ai/voice-to-note` |
+| Case notes rendered as Markdown | `ClientProfileTabs.tsx` → `react-markdown` |
+| Create visit action + audit | `services/visits/new/actions.ts` |
+| All visits list | `services/visits/page.tsx` |
+
+### P0: Client Profile View ✅ Complete
+4-tab view: **Overview** (demographics + custom fields + household) · **Case Notes** (visit timeline with Markdown rendering + expand/collapse) · **Documents** (upload/download) · **Appointments** (upcoming + past)
+
+### P1: CSV Import/Export ✅ Complete
+Papa Parse import with row-by-row audit log. Export selected rows or all to CSV.
+
+### P1: Reporting Dashboard ✅ Complete
+- Stat cards: active clients, visits this week/month, appointments today
+- Visit trend **line chart** (8-week history, weekly buckets from `computeDashboardStats`)
+- Service breakdown **pie chart**
+- Quick actions: Record Visit, Add Client, New Appointment
+- Today's appointments with cancel/reschedule
+
+### P1: Scheduling/Calendar ✅ Complete
+Week-view grid, appointment creation, cancel/reschedule from dashboard, status machine.
+
+### P1: Configurable Fields ✅ Complete
+Admin CRUD for custom fields (text/number/date/boolean/select/multiselect) scoped to `client` or `visit`. Values stored in JSONB.
+
+### P1: Audit Log ✅ Complete
+DB triggers + server action logging. PII-safe (field names only, never values). Admin-only viewer with filters.
+
+### P2: AI Features ✅ Complete
+| Feature | Endpoint | Status |
+|---------|----------|--------|
+| Photo-to-Intake | `POST /ai/photo-to-intake` | ✅ Wired in ClientRegistrationForm |
+| Multilingual Intake | `POST /ai/multilingual-intake` | ✅ Wired in ClientRegistrationForm (language toggle) |
+| Voice-to-Case Notes | `POST /ai/voice-to-note` | ✅ Wired in VisitLogForm (live record + file upload) |
+
+**AI model chain:**
+```
+Vision tasks (photo/multilingual intake):
+  Gemini 3 Flash → Gemini 3 Flash Lite (fallback)
+
+Voice-to-Note:
+  Step 1 Transcription: Groq Whisper large-v3-turbo → Whisper large-v3
+  Step 2 Structuring:   Groq Llama 3.3 70B → Gemini 3 Flash → SambaNova Llama 3.3 70B
+```
+
+**Error handling:** 1.5s back-off on 429 before trying next provider. User-facing errors are plain English, not stack traces.
+
+### Database Migrations
+Apply in order via Supabase SQL Editor:
+
+| # | File | Purpose |
+|---|------|---------|
+| 1 | `20260328000001_init.sql` | Full schema + RLS + 10 seeded service types |
+| 2 | `20260328000002_profile_trigger.sql` | Auto-create profile on signup |
+| 3 | `20260328000003_profiles_self_insert.sql` | Allow self-insert |
+| 4 | `20260328000004_fix_profiles_rls_recursion.sql` | Fix `42P17` recursion |
+| 5 | `20260328000005_fix_profiles_role_escalation.sql` | Prevent self-promotion |
+| 6 | `20260328000006_audit_triggers.sql` | DB triggers on clients/visits/profiles |
+| 7 | `20260328000007_appointments.sql` | Appointments table + RLS |
+| 8 | `20260328000008_field_definitions.sql` | Configurable fields + 5 starter fields |
+| 9 | `20260328000009_rename_read_only_to_viewer.sql` | Rename `read_only` → `viewer` |
+| 9b | `20260328000009b_viewer_migrate_profiles.sql` | Migrate existing rows to new enum value |
+| 10 | `20260328000010_programs_array.sql` | `programs text[]`, drop old `program text` |
+| 11 | `20260329000001_visits_custom_fields.sql` | Add `custom_fields jsonb` to visits |
+| 12 | `20260329000002_care_work_features.sql` | Additional care workflow fields |
+
+---
+
+## What's NOT Built Yet (Recommended Next)
+
+See **functional_requirements.md** for full FR details. Ordered by impact:
+
+### Next up — High value, moderate effort
+
+| Feature | FR | Notes |
+|---------|-----|-------|
+| **Semantic search** | FR-AI-4/5 | Natural language search across case notes. Needs pgvector on Supabase + embedding generation. High demo value. |
+| **Client handoff summary** | FR-AI-6/7/8 | One-click AI summary of a client's full history from their profile page. Backend endpoint + button on `clients/[id]/page.tsx`. |
+| **Multi-tenancy (org_id)** | NFR | Add `org_id` to all tables + RLS policies. Required before this can serve multiple real nonprofits simultaneously. |
+
+### Medium priority
+
+| Feature | FR | Notes |
+|---------|-----|-------|
+| **Smart follow-up detection** | FR-AI-11/12 | Analyze case note on save → surface action items. Can run in `createVisit` action after insert. |
+| **Appointment reminders** | FR-SCH-3 | Email or in-app. Supabase edge functions + cron, or Resend for email. |
+| **Funder report generation** | FR-AI-9/10 | AI narrative + aggregated stats → PDF. High nonprofit value, moderate complexity. |
+
+### Lower priority / post-launch
+
+| Feature | Notes |
+|---------|-------|
+| **FR-AI-17 label caching** | Cache translated form labels for multilingual intake (noted in backend README as planned). |
+| **Supabase CLI + migration management** | Currently requires manual SQL Editor steps. `supabase link` + `supabase db push` would streamline this. |
+| **Appointment status auto-update** | Mark past `scheduled` appointments as `completed` via a Supabase cron function. |
+
+---
+
+## Deployment
+
+### Frontend → Vercel
+See README.md for full step-by-step. Key points:
+- Root Directory must be set to `frontend`
+- After deploy, set `NEXT_PUBLIC_AI_API_URL` to the Render backend URL
+- After deploy, add `https://your-app.vercel.app/auth/callback` to Supabase → Auth → Redirect URLs
+
+### AI Backend → Render
+`backend/render.yaml` is auto-detected. Set `GEMINI_API_KEY` and `GROQ_API_KEY` in the Render environment.
+
+Health check: `GET /health` → `{"status": "ok"}`
+
+Free tier cold-starts after 15 min idle (~30s delay). Upgrade to Starter ($7/mo) for always-on.
 
 ---
 
@@ -286,7 +280,6 @@ Add `https://<your-vercel-url>/auth/callback` to the Google redirect URIs.
 ### Auth pattern — always use `getSession()`
 ```ts
 import { getSession } from '@/lib/supabase/session'
-
 const session = await getSession()
 const { user, profile } = session ?? {}
 ```
@@ -295,7 +288,6 @@ Do **not** call `getUser()` + `getProfile()` separately. Do **not** add `redirec
 ### Role-gating UI
 ```tsx
 import { can } from '@/lib/auth/permissions'
-
 {can.createClient(profile?.role) && <Button>Add Client</Button>}
 ```
 
@@ -309,60 +301,51 @@ if (!can.createClient(session?.profile?.role)) return { error: 'Not authorized.'
 ### Audit logging in server actions
 ```ts
 import { logAudit } from '@/lib/audit'
-
 await logAudit({ actorId: session.user.id, action: 'CREATE', tableName: 'clients', recordId: data.id })
-// For updates, pass changedFields: ['role'] or similar
 ```
 
-### Custom fields — name convention
-Form inputs for custom fields use `cf_<field_name>` (e.g. `cf_emergency_contact`).
-The action strips the `cf_` prefix and stores the result in `custom_fields` jsonb.
+### Custom fields
+Form inputs use `cf_<field_name>` prefix (e.g. `cf_emergency_contact`).
+Action strips `cf_` prefix and stores result in `custom_fields` JSONB.
+Multi-select uses `formData.getAll('cf_fieldname')`.
+
+### AI API calls (frontend)
+All AI calls go from client component → `NEXT_PUBLIC_AI_API_URL` (backend). Always use `FormData` with a `file` field. Handle errors by reading `response.detail` from the JSON error body.
 
 ### Data fetching
 - **Server Components:** `lib/supabase/server.ts`
-- **Server Actions (writes):** `lib/supabase/server.ts` — Supabase RLS applies automatically
-- **Client Components (OAuth only):** `lib/supabase/client.ts`
+- **Server Actions:** `lib/supabase/server.ts` — RLS applies automatically
+- **Client Components (OAuth, document uploads):** `lib/supabase/client.ts`
 
-### Navigation structure
-- **NavBar (top):** Dashboard | Clients | Services | Admin (admin only)
-- **AppNav (sidebar):** context-aware — shows Services sub-nav on `/services/*`, Admin sub-nav on `/admin/*`; `null` elsewhere
-
-### File naming
-- Routes/pages: `kebab-case`
-- Components: `PascalCase`
-- DB columns: `snake_case`
-- TypeScript types: `PascalCase`
+### Important Next.js 16 gotchas
+- **`proxy.ts` not `middleware.ts`** — export must be `export async function proxy(...)`
+- **`searchParams` is a Promise** — always `await searchParams` before accessing properties
+- **`useActionState` not `useFormState`** — React 19 renamed this hook
 
 ### Running checks locally
 ```bash
 cd frontend
 npm run lint          # ESLint
 npm run type-check    # tsc --noEmit
-npm run format        # Prettier auto-fix
-npm run build         # Full production build
+npm run build         # Full production build (TypeScript errors skipped — see next.config.ts)
 ```
 
 ---
 
 ## Environment Variables
 
-Copy `.env.example` to `frontend/.env.local`:
+### Frontend (`frontend/.env.local`)
+| Variable | Required | Where to find |
+|----------|----------|--------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase → Settings → API → Project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase → Settings → API → anon/public |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase → Settings → API → service_role — **never commit** |
+| `NEXT_PUBLIC_AI_API_URL` | No | Render backend URL (default: `http://localhost:8000`) |
+| `NEXT_PUBLIC_ORG_NAME` | No | Org name shown in UI greeting |
 
-| Variable | Where to find it |
-|----------|-----------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Settings → API → Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase → Settings → API → anon/public |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Settings → API → service_role (keep secret, never commit) |
-
----
-
-## Important Notes
-
-- **`proxy.ts` not `middleware.ts`** — Next.js 16 renamed middleware. Export must be `export async function proxy(...)`. Never create `middleware.ts`.
-- **RLS is on everywhere** — If a query returns empty unexpectedly, check the RLS policies in `20260328000001_init.sql`. Use the service role key in SQL Editor to bypass for debugging.
-- **`is_admin()` and `get_my_role()` are security definer functions** — They bypass RLS to avoid infinite recursion when policies reference `profiles`. Do not drop them.
-- **`custom_fields` is jsonb** — Field definitions live in `field_definitions`; values live in `clients.custom_fields`. The intake form collects `cf_*` keys; the action strips the prefix.
-- **Audit triggers fire on DB-level changes** — The `log_audit_event()` trigger on `clients`, `visits`, and `profiles` runs regardless of which user or tool makes the change. Server action `logAudit()` calls are a belt-and-suspenders supplement for CREATE events.
-- **Admin-only routes need no extra guard in pages** — `app/(app)/admin/layout.tsx` handles the redirect for all `/admin/*` routes.
-- **`useActionState` not `useFormState`** — React 19 renamed this hook. Use `useActionState` from `react`.
-- **`searchParams` is a Promise in Next.js 16** — Always `await searchParams` before accessing properties.
+### Backend (`backend/.env`)
+| Variable | Required | Notes |
+|----------|----------|-------|
+| `GEMINI_API_KEY` | Yes | Google AI Studio — vision tasks |
+| `GROQ_API_KEY` | Yes | Groq — Whisper + Llama |
+| `SAMBANOVA_API_KEY` | No | SambaNova — fallback for note structuring |
