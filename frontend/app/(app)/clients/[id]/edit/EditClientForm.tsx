@@ -119,7 +119,7 @@ export default function EditClientForm({
             <div>
               <label htmlFor="language" className={labelCls}>Preferred language</label>
               <input id="language" name="language" type="text"
-                defaultValue={typeof (client as Record<string, unknown>).language === 'string' ? String((client as Record<string, unknown>).language) : ''}
+                defaultValue={(client as any).language}
                 placeholder="English" className={inputCls} />
             </div>
           </div>
