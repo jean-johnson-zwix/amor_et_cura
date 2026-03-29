@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useActionState } from 'react'
 import { createVisit, type NewVisitFormState } from './actions'
 import type { FieldDefinition } from '@/types/database'
+import { ChevronLeft } from 'lucide-react'
 
 const initialState: NewVisitFormState = {}
 
@@ -80,23 +81,24 @@ export default function VisitLogForm({
 
   if (state.success) {
     return (
-      <div className="mx-auto max-w-2xl rounded-[14px] border border-[#e2e8f0] bg-white p-8 text-center">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-light mx-auto mb-3">
-          <svg className="size-5 text-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+      <div className="mx-auto max-w-2xl rounded-[14px] border-2 border-teal bg-white p-10 text-center">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-teal mx-auto mb-5">
+          <svg className="size-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <p className="text-[15px] font-semibold text-navy">Visit logged successfully!</p>
-        <div className="mt-4 flex justify-center gap-3">
+        <p className="text-3xl font-bold text-navy mb-2">Visit recorded!</p>
+        <p className="text-lg text-[#6b7280] mb-8">The visit has been saved successfully.</p>
+        <div className="flex flex-col sm:flex-row justify-center gap-4">
           {clientId && (
             <a href={`/clients/${clientId}`}
-              className="inline-flex h-9 items-center rounded-lg bg-teal px-4 text-[13px] font-medium text-white hover:bg-[#009e77]">
-              Back to {clientName}
+              className="inline-flex h-12 items-center justify-center gap-1.5 rounded-xl bg-teal px-6 text-base font-semibold text-white hover:bg-[#009e77]">
+              <ChevronLeft className="size-4" /> Back to {clientName}
             </a>
           )}
           <button onClick={() => window.location.reload()}
-            className="inline-flex h-9 items-center rounded-lg border border-[#e2e8f0] bg-white px-4 text-[13px] font-medium text-navy hover:bg-teal-tint">
-            Log another
+            className="inline-flex h-12 items-center justify-center rounded-xl border-2 border-[#e2e8f0] bg-white px-6 text-base font-semibold text-navy hover:bg-teal-tint">
+            Record another visit
           </button>
         </div>
       </div>

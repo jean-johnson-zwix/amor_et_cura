@@ -13,9 +13,11 @@ import {
   ClipboardList,
   ChevronDown,
   ChevronUp,
+  ChevronRight,
   Download,
   Paperclip,
   UserPlus,
+  ArrowRight,
   X,
 } from 'lucide-react'
 
@@ -382,7 +384,8 @@ export default function ClientProfileTabs({
               </div>
             )}
 
-            {/* Household / Family members */}
+            {/* Household / Family members — only shown when there are members or the user can add them */}
+            {(householdMembers.length > 0 || canLinkFamily) && (
             <div className="rounded-[14px] border border-[#e2e8f0] bg-white lg:col-span-2">
               <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
                 <p className="text-[13px] font-semibold text-navy">Household / Family</p>
@@ -410,15 +413,16 @@ export default function ClientProfileTabs({
                       </div>
                       <a
                         href={`/clients/${m.id}`}
-                        className="text-[11px] text-teal hover:underline"
+                        className="inline-flex items-center gap-0.5 text-[11px] text-teal hover:underline"
                       >
-                        View →
+                        View <ChevronRight className="size-3" />
                       </a>
                     </div>
                   ))}
                 </div>
               )}
             </div>
+            )}
           </div>
         )}
       </div>
@@ -486,7 +490,7 @@ export default function ClientProfileTabs({
                         {/* Referral badge */}
                         {visit.referral_to && (
                           <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700 border border-amber-200">
-                            Referred → {visit.referral_to}
+                            Referred <ArrowRight className="size-3" /> {visit.referral_to}
                           </span>
                         )}
 

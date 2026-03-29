@@ -24,7 +24,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
           </p>
         </div>
         <p className="text-center text-[11px] text-[#4a62a0]">
-          Powered by Chandler CARE Center
+          {process.env.NEXT_PUBLIC_ORG_NAME ?? 'Amor Et Cura'}
         </p>
       </div>
 

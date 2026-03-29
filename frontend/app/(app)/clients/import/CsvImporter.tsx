@@ -121,7 +121,7 @@ export default function CsvImporter() {
         </p>
         <button
           onClick={() => {
-            const template = 'first_name,last_name,dob,phone,email,address,program\nMaria,Garcia,1985-04-12,(602) 555-0101,mgarcia@example.com,"123 Main St, Chandler, AZ",Family Services\n'
+            const template = 'first_name,last_name,dob,phone,email,address,program\nMaria,Garcia,1985-04-12,(602) 555-0101,mgarcia@example.com,"123 Main St, City, State",Family Services\n'
             const blob = new Blob([template], { type: 'text/csv' })
             const url = URL.createObjectURL(blob)
             const a = document.createElement('a')

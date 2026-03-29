@@ -63,7 +63,7 @@ export default function AppointmentForm({
               aria-invalid={!!state.fieldErrors?.client_id} required className={selectCls}>
               <option value="">Select a client…</option>
               {clients.map((c) => (
-                <option key={c.id} value={c.id}>{c.name} ({c.number})</option>
+                <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
             {state.fieldErrors?.client_id && (

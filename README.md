@@ -3,7 +3,7 @@
 
 A lightweight, open-source client and case management web application that any nonprofit can deploy for under $30/month.
 
-Built for the [ASU WiCS x OHack Hackathon](https://www.ohack.dev) — March 28–29, 2026, in partnership with [Chandler CARE Center](https://www.cusd80.com/carecenter).
+Built at [ASU WiCS x OHack Hackathon](https://www.ohack.dev) — March 28–29, 2026. Generalizable to any human-services nonprofit.
 
 ---
 
@@ -17,53 +17,45 @@ Amor et Cura solves that problem once, for everyone.
 
 ---
 
-## Features
+## What's Built
 
-**P0 — Core (must ship)**
+**Core (P0) — all shipped**
 - Auth with role-based access (Admin / Case Worker / Viewer)
-- Client registration with searchable client list
-- Service and visit logging per client
-- Client profile view (demographics + visit history)
-- Deployed with seed data and one-click deploy
+- Client registration with custom fields, search, sort, filter, and CSV import/export
+- Client profiles — 4-tab view: Overview, Case Notes timeline, Documents, Appointments
+- Visit logging with case narrative, referral tracking, and custom fields
+- Client profile editing, deactivate/reactivate
+- Household member linking across client records
 
-**P1 — Demo-worthy**
-- CSV import/export
-- Reporting dashboard with charts
-- Appointment scheduling and calendar view
-- Configurable intake fields (no code changes)
-- Audit log
+**Demo-worthy (P1) — all shipped**
+- Reporting dashboard — stat cards, visit trend bar chart, service breakdown pie chart, quick actions
+- Weekly appointment calendar with cancel/reschedule from dashboard
+- Configurable intake fields via Admin UI (no code changes required)
+- Document uploads and downloads via Supabase Storage
+- Audit log with filters and pagination
 
-**P2 — AI stretch**
-- Photo-to-intake (snap a paper form → auto-fill registration)
-- Semantic search across case notes
+**AI features (P2) — shipped**
 - AI client handoff summary
-- Auto-generated funder reports
-- Smart follow-up detection from case notes
-- Voice-to-structured case notes
-- Multilingual intake (English + Spanish)
+- AI funder report generator
+- Smart follow-up detection on dashboard
+- Multilingual intake form (English / Spanish toggle)
 
 ---
 
 ## Tech Stack
 
-- **Frontend:** Next.js 16 (App Router), TypeScript, Tailwind CSS, shadcn/ui
-- **Backend:** Next.js Server Actions + API Routes (FastAPI microservice planned for AI features)
-- **Database, Auth & Storage:** Supabase (PostgreSQL + Auth + Storage)
-- **Hosting:** Vercel
-- **CI:** GitHub Actions (lint + type-check on every PR)
-
----
-
-## Project Board
-
-All work is tracked on the [ohack_dev GitHub Project board](https://github.com/users/jean-johnson-zwix/projects/3).
-
-| Label | Meaning |
-|-------|---------|
-| `setup` | Pre-implementation decisions |
-| `P0` | Must ship for a working demo |
-| `P1` | Demo-worthy features |
-| `P2` | AI stretch goals |
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 (App Router, Server Components, Server Actions) |
+| Language | TypeScript (strict mode) |
+| Styling | Tailwind CSS 4 |
+| UI | shadcn/ui, Base UI, Lucide React icons |
+| Charts | Recharts |
+| Database | Supabase (PostgreSQL + RLS) |
+| Auth | Supabase Auth (email + Google SSO) |
+| Storage | Supabase Storage (`client-documents` bucket) |
+| Hosting | Vercel |
+| CI | GitHub Actions (lint + type-check on every PR) |
 
 ---
 
@@ -72,40 +64,61 @@ All work is tracked on the [ohack_dev GitHub Project board](https://github.com/u
 **Prerequisites:** Node.js 20+, a Supabase account, a Vercel account.
 
 ```bash
-# Clone the repo
 git clone https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management.git
-cd nonprofit_client_and_case_management
-
-# Install frontend dependencies
-cd frontend
+cd nonprofit_client_and_case_management/frontend
 npm install
 
-# Copy env template and fill in your Supabase credentials
+# Copy env template and fill in Supabase credentials
 cp ../.env.example .env.local
-# Then edit .env.local and add your NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-# Run locally
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
-> See [DEVELOPER_NOTES.md](./DEVELOPER_NOTES.md) for a full breakdown of what's already built and where to start.
+**Bootstrap first admin** (run once in Supabase SQL Editor after signing up):
+```sql
+update public.profiles set role = 'admin' where id = '<your-user-uuid>';
+```
+
+> See [DEVELOPER_NOTES.md](./DEVELOPER_NOTES.md) for a full breakdown of what's built, conventions, and deployment steps.
+
+---
+
+## Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Server-side only — never commit |
+| `NEXT_PUBLIC_ORG_NAME` | No | Org name shown in UI (default: "our organization") |
+| `ANTHROPIC_API_KEY` | No | Enables AI features |
+
+---
+
+## Project Board
+
+All work is tracked on the [OHack GitHub Project board](https://github.com/users/jean-johnson-zwix/projects/3).
+
+| Label | Meaning |
+|---|---|
+| `P0` | Must ship for a working demo |
+| `P1` | Demo-worthy features |
+| `P2` | AI stretch goals |
 
 ---
 
 ## Contributing
 
 1. Pick an issue from the [project board](https://github.com/users/jean-johnson-zwix/projects/3)
-2. Create a branch: `feature/short-description` or `fix/short-description`
-3. Open a PR — CI will run lint and type-check automatically
+2. Branch from `maitridev`: `feature/short-description` or `fix/short-description`
+3. Open a PR targeting `main` — CI runs lint and type-check automatically
 
-See [functional_requirements.md](./functional_requirements.md) for full feature specs.
+See [DEVELOPER_NOTES.md](./DEVELOPER_NOTES.md) for conventions and architecture details.
 
 ---
 
 ## Nonprofit Partners
 
-Primary: [Chandler CARE Center](https://www.cusd80.com/carecenter) — school-based family resource center serving Chandler, AZ since 1995.
-
-Generalizable to: NMTSA, Will2Walk, ICM Food & Clothing Bank, Sunshine Acres, Lost Our Home Pet Rescue, Tranquility Trail, Seed Spot.
+Built to generalize the problems of: NMTSA, Chandler CARE Center, Will2Walk, ICM Food & Clothing Bank, Sunshine Acres, Lost Our Home Pet Rescue, Tranquility Trail, Seed Spot.

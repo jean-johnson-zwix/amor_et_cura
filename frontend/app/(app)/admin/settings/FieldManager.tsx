@@ -12,7 +12,7 @@ import {
   type FieldFormState,
 } from './actions'
 import type { FieldDefinition, FieldAppliesTo, FieldType } from '@/types/database'
-import { ChevronLeft, Pencil, Trash2, ClipboardList, UserPlus, Check, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Pencil, Trash2, ClipboardList, UserPlus, Check, X } from 'lucide-react'
 
 // ── Constants ─────────────────────────────────────────────────
 
@@ -443,8 +443,8 @@ function FormPicker({
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-light">
                 {form.icon}
               </div>
-              <span className="text-[11px] font-medium text-teal opacity-0 transition-opacity group-hover:opacity-100">
-                Manage fields →
+              <span className="inline-flex items-center gap-0.5 text-[11px] font-medium text-teal opacity-0 transition-opacity group-hover:opacity-100">
+                Manage fields <ChevronRight className="size-3" />
               </span>
             </div>
             <div>
