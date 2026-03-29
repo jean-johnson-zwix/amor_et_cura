@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import ServiceBreakdownChart from '@/components/dashboard/ServiceBreakdownChart'
@@ -5,6 +6,7 @@ import VisitTrendChart from '@/components/dashboard/VisitTrendChart'
 import { getDashboardStats } from '@/lib/dashboard'
 import { STUB_APPOINTMENTS, appointmentsForDate, formatTime } from '@/lib/appointments'
 import PrintButton from './PrintButton'
+import FollowUpSection from './FollowUpSection'
 
 const TODAY = '2026-03-28'
 
@@ -95,8 +97,13 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
+      {/* Follow-up alerts */}
+      <Suspense fallback={<div className="h-32 animate-pulse rounded-xl bg-muted" />}>
+        <FollowUpSection />
+      </Suspense>
+
       <p className="text-xs text-muted-foreground print:hidden">
-        Data is stubbed — live figures will appear after Supabase is connected (issues #7, #8).
+        Stats and appointments use stub data — live figures will appear after Supabase is connected (issues #7, #8).
       </p>
     </div>
   )
