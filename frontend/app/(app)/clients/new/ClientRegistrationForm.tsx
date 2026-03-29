@@ -125,7 +125,7 @@ export default function ClientRegistrationForm({
           </div>
           <div>
             <label htmlFor="address" className={labelCls}>Address</label>
-            <input id="address" name="address" placeholder="123 Main St, Chandler, AZ" className={inputCls} />
+            <input id="address" name="address" placeholder="123 Main St, City, State" className={inputCls} />
           </div>
         </div>
       </div>

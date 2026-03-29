@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { Topbar } from '@/components/Topbar'
 
@@ -195,22 +196,22 @@ export default async function AuditLogPage({
           <div className="flex items-center gap-2">
             {page > 1 ? (
               <Link href={buildHref({ page: String(page - 1) })}
-                className="inline-flex h-8 items-center rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#6b7280] hover:bg-teal-tint"
+                className="inline-flex h-8 items-center gap-1 rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#6b7280] hover:bg-teal-tint"
               >
-                ← Prev
+                <ChevronLeft className="size-3.5" /> Prev
               </Link>
             ) : (
-              <span className="inline-flex h-8 items-center rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#6b7280]/40">← Prev</span>
+              <span className="inline-flex h-8 items-center gap-1 rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#6b7280]/40"><ChevronLeft className="size-3.5" /> Prev</span>
             )}
             <span className="text-[12px] text-[#6b7280]">Page {page} of {totalPages}</span>
             {page < totalPages ? (
               <Link href={buildHref({ page: String(page + 1) })}
-                className="inline-flex h-8 items-center rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#6b7280] hover:bg-teal-tint"
+                className="inline-flex h-8 items-center gap-1 rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#6b7280] hover:bg-teal-tint"
               >
-                Next →
+                Next <ChevronRight className="size-3.5" />
               </Link>
             ) : (
-              <span className="inline-flex h-8 items-center rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#6b7280]/40">Next →</span>
+              <span className="inline-flex h-8 items-center gap-1 rounded-lg border border-[#e2e8f0] px-3 text-[13px] text-[#6b7280]/40">Next <ChevronRight className="size-3.5" /></span>
             )}
           </div>
         )}

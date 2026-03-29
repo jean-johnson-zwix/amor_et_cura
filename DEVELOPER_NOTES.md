@@ -1,5 +1,5 @@
 # Developer Notes
-*Last updated: 2026-03-28*
+*Last updated: 2026-03-29*
 
 A running log of what's built, what's not, and where to start. Keep this updated as features are completed.
 
@@ -16,31 +16,36 @@ nonprofit_client_and_case_management/
 │   │   │   ├── not-found.tsx        # In-app 404 (renders inside sidebar)
 │   │   │   ├── page.tsx             # Redirects / → /dashboard
 │   │   │   ├── dashboard/
-│   │   │   │   ├── page.tsx         # Stat cards + Recharts charts (live Supabase data)
+│   │   │   │   ├── page.tsx         # Stat cards, charts, quick actions, today's appointments
+│   │   │   │   ├── DashboardAppointments.tsx  # Cancel/reschedule step machine (client)
+│   │   │   │   ├── actions.ts       # cancelAppointment, rescheduleAppointment
 │   │   │   │   └── PrintButton.tsx  # Client component: window.print()
 │   │   │   ├── clients/
-│   │   │   │   ├── page.tsx         # Client list (server component, live data)
-│   │   │   │   ├── ClientsTable.tsx # Interactive search + table (client component)
+│   │   │   │   ├── page.tsx         # Client list with search, sort, filter (server)
+│   │   │   │   ├── ClientsTable.tsx # Interactive table with CSV export (client)
 │   │   │   │   ├── new/
-│   │   │   │   │   ├── page.tsx     # Fetches service_types + field_definitions
-│   │   │   │   │   ├── ClientRegistrationForm.tsx  # Renders standard + custom fields
+│   │   │   │   │   ├── page.tsx
+│   │   │   │   │   ├── ClientRegistrationForm.tsx  # Standard + custom fields, EN/ES toggle
 │   │   │   │   │   └── actions.ts   # createClient — insert + custom_fields + audit log
 │   │   │   │   ├── [id]/
-│   │   │   │   │   └── page.tsx     # Client profile: demographics + custom fields + visits
+│   │   │   │   │   ├── page.tsx     # Fetches visits, documents, appointments, household members
+│   │   │   │   │   ├── ClientProfileTabs.tsx  # 4-tab UI: Overview / Case Notes / Documents / Appointments
+│   │   │   │   │   ├── actions.ts   # updateClient, setClientActive, linkFamilyMember
+│   │   │   │   │   └── edit/        # Edit demographics form
 │   │   │   │   └── import/
-│   │   │   │       ├── page.tsx     # CSV import UI
-│   │   │   │       ├── ImportForm.tsx
+│   │   │   │       ├── page.tsx
+│   │   │   │       ├── CsvImporter.tsx
 │   │   │   │       └── actions.ts   # importClients — bulk insert + audit log per row
 │   │   │   ├── services/
 │   │   │   │   ├── page.tsx         # Redirects /services → /services/schedule
 │   │   │   │   ├── visits/
-│   │   │   │   │   ├── page.tsx     # All visits table (live data)
+│   │   │   │   │   ├── page.tsx     # All past visits table (live data)
 │   │   │   │   │   └── new/
 │   │   │   │   │       ├── page.tsx
-│   │   │   │   │       ├── VisitLogForm.tsx
-│   │   │   │   │       └── actions.ts  # createVisit — insert + audit log
+│   │   │   │   │       ├── VisitLogForm.tsx  # Service, narrative, referral, custom fields
+│   │   │   │   │       └── actions.ts        # createVisit — returns {success:true}, no redirect
 │   │   │   │   └── schedule/
-│   │   │   │       ├── page.tsx     # Week-view calendar (live data, ?week= param)
+│   │   │   │       ├── page.tsx     # Week-view calendar (?week= param), week nav in page content
 │   │   │   │       └── new/
 │   │   │   │           ├── page.tsx
 │   │   │   │           ├── AppointmentForm.tsx
@@ -49,50 +54,50 @@ nonprofit_client_and_case_management/
 │   │   │       ├── layout.tsx       # Role guard: non-admins → /dashboard
 │   │   │       ├── page.tsx         # /admin — stats + section links
 │   │   │       ├── users/
-│   │   │       │   ├── page.tsx     # User management table + role selector
+│   │   │       │   ├── page.tsx
 │   │   │       │   ├── role-form.tsx
 │   │   │       │   └── actions.ts   # updateUserRole — update + audit log
 │   │   │       ├── settings/
-│   │   │       │   ├── page.tsx     # Configurable fields viewer (server)
-│   │   │       │   ├── FieldManager.tsx  # Add / disable / delete fields (client)
-│   │   │       │   └── actions.ts   # addFieldDefinition, toggleFieldActive, deleteFieldDefinition
+│   │   │       │   ├── page.tsx
+│   │   │       │   ├── FieldManager.tsx  # Form-picker → per-form field CRUD (client)
+│   │   │       │   └── actions.ts   # addFieldDefinition, toggleFieldActive, deleteFieldDefinition, updateFieldDefinition
 │   │   │       └── audit-log/
-│   │   │           └── page.tsx     # Audit log viewer with filters + pagination
+│   │   │           └── page.tsx     # Audit log with filters + pagination
 │   │   ├── auth/callback/           # OAuth code exchange route handler
 │   │   ├── login/                   # /login — email/password + Google SSO
 │   │   ├── signup/                  # /signup — email/password registration
 │   │   ├── not-found.tsx            # Global 404
 │   │   └── layout.tsx               # Root layout (fonts, metadata)
 │   ├── components/
-│   │   ├── AppNav.tsx               # Context-aware sidebar (Services sub-nav, Admin sub-nav)
-│   │   ├── nav-bar.tsx              # Top nav: Dashboard / Clients / Services / Admin
+│   │   ├── nav-bar.tsx              # Sidebar: Dashboard / Clients / Clinical+Service / Admin (collapsible)
+│   │   ├── AuthLayout.tsx           # Login page shell (brand panel + form panel)
+│   │   ├── Topbar.tsx               # Page header: breadcrumbs + actions slot
+│   │   ├── AppNav.tsx               # Stub (navigation handled by nav-bar.tsx)
 │   │   ├── google-sign-in-button.tsx
 │   │   ├── dashboard/
-│   │   │   ├── ServiceBreakdownChart.tsx   # Recharts bar chart
-│   │   │   └── VisitTrendChart.tsx         # Recharts line chart
-│   │   └── ui/                      # shadcn/ui primitives
+│   │   │   ├── ServiceBreakdownChart.tsx   # Recharts PieChart — visits by service type
+│   │   │   └── VisitTrendChart.tsx         # Recharts BarChart — visits by recency period
+│   │   └── ui/                      # shadcn/ui primitives (Button, Input, Label, etc.)
 │   ├── lib/
-│   │   ├── audit.ts                 # logAudit() — thin wrapper around audit_log insert
+│   │   ├── audit.ts                 # logAudit() — insert into audit_log
 │   │   ├── appointments.ts          # getMondayOfWeek, addDays, getWeekDays, appointmentsForDate, formatTime
 │   │   ├── csv.ts                   # parseCSV (Papa Parse), exportToCSV
 │   │   ├── dashboard.ts             # computeDashboardStats(visits, activeClients)
 │   │   ├── utils.ts                 # cn() Tailwind class merger
 │   │   └── supabase/
-│   │       ├── client.ts            # Browser Supabase client (OAuth only)
+│   │       ├── client.ts            # Browser Supabase client (document uploads, OAuth)
 │   │       ├── server.ts            # Server Supabase client (reads cookies)
 │   │       ├── session.ts           # getSession() → { user, profile }
 │   │       └── queries.ts           # getProfile(userId), getAllProfiles()
-│   │   └── auth/
-│   │       └── permissions.ts       # can.createClient(), can.editVisit(), can.manageUsers(), etc.
-│   ├── types/database.ts            # Client, Visit, Appointment, Profile, ServiceType, AuditLog, FieldDefinition
+│   ├── types/database.ts            # Client, Visit, Appointment, Profile, ServiceType, AuditLog, FieldDefinition, Document
 │   └── proxy.ts                     # Next.js 16 proxy: session refresh + auth guard
 ├── supabase/
-│   ├── migrations/                  # Apply in numbered order via Supabase SQL Editor
+│   ├── migrations/                  # Apply in numbered order (see table below)
 │   ├── seed.sql                     # Original seed (clients + visits only)
-│   └── demo_seed.sql                # Complete demo seed: profiles + clients + visits + appointments
+│   └── demo_seed.sql                # Full demo seed: profiles + clients + visits + appointments
 ├── .github/workflows/ci.yml         # CI: lint + type-check on every PR
 ├── .env.example                     # Copy to frontend/.env.local
-├── functional_requirements.md       # Full feature specs with FR codes and completion status
+├── reference_docs/                  # Original OHack SRD and nonprofit briefs
 └── DEVELOPER_NOTES.md               # This file
 ```
 

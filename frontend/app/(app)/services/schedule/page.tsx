@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Topbar } from '@/components/Topbar'
 import { createClient } from '@/lib/supabase/server'
 import {
@@ -101,33 +102,32 @@ export default async function SchedulePage({
       <Topbar
         crumbs={[{ label: 'Services' }, { label: 'Schedule' }]}
         actions={
-          <div className="flex items-center gap-2">
-            <Link
-              href={`/services/schedule?week=${prevMonday}`}
-              className="inline-flex h-8 items-center justify-center rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] font-medium text-[#1f2937] transition-colors hover:bg-teal-tint"
-            >
-              ← Prev week
-            </Link>
-            <span className="text-[13px] font-semibold text-navy hidden sm:block">{weekLabel}</span>
-            <Link
-              href={`/services/schedule?week=${nextMonday}`}
-              className="inline-flex h-8 items-center justify-center rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] font-medium text-[#1f2937] transition-colors hover:bg-teal-tint"
-            >
-              Next week →
-            </Link>
-            <Link
-              href="/services/schedule/new"
-              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77]"
-            >
-              + New appointment
-            </Link>
-          </div>
+          <Link
+            href="/services/schedule/new"
+            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77]"
+          >
+            + New appointment
+          </Link>
         }
       />
 
       <div className="p-6 flex flex-col gap-4">
-        {/* Week label on mobile */}
-        <p className="text-[13px] font-semibold text-navy sm:hidden">{weekLabel}</p>
+        {/* Week navigation row */}
+        <div className="flex items-center justify-center gap-3">
+          <Link
+            href={`/services/schedule?week=${prevMonday}`}
+            className="inline-flex h-9 items-center justify-center rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] font-medium text-[#1f2937] transition-colors hover:bg-teal-tint"
+          >
+            <ChevronLeft className="size-4" />
+          </Link>
+          <span className="text-[14px] font-semibold text-navy">{weekLabel}</span>
+          <Link
+            href={`/services/schedule?week=${nextMonday}`}
+            className="inline-flex h-9 items-center justify-center rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] font-medium text-[#1f2937] transition-colors hover:bg-teal-tint"
+          >
+            <ChevronRight className="size-4" />
+          </Link>
+        </div>
 
         {/* Calendar grid */}
         <div className="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
@@ -171,8 +171,8 @@ export default async function SchedulePage({
         {appointments.length === 0 && (
           <p className="text-center text-[13px] text-[#6b7280]">
             No appointments this week.{' '}
-            <Link href="/services/schedule/new" className="text-teal hover:underline">
-              Schedule one →
+            <Link href="/services/schedule/new" className="inline-flex items-center gap-0.5 text-teal hover:underline">
+              Schedule one <ChevronRight className="size-3.5" />
             </Link>
           </p>
         )}
