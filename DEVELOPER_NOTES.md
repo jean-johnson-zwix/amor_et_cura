@@ -92,10 +92,10 @@ nonprofit_client_and_case_management/
 |------|---------|-------|
 | Email/password login | `app/login/` | `signIn` server action, form with error state |
 | Email/password signup | `app/signup/` | `signUp` server action, email confirmation flow |
-| Google SSO | `components/google-sign-in-button.tsx`, `app/auth/callback/route.ts` | PKCE flow; browser-side initiation, server-side exchange |
+| Google SSO | `components/google-sign-in-button.tsx`, `app/auth/callback/route.ts` | PKCE flow |
 | Sign out | `app/login/actions.ts` → `signOut` | Clears session, redirects to `/login` |
-| Session guard (proxy) | `proxy.ts` | Validates JWT on every request via `getUser()`; redirects unauthenticated users to `/login` |
-| Profile auto-creation | `supabase/migrations/20260328000002_profile_trigger.sql` | `handle_new_user` trigger; `getProfile()` upserts on-demand for pre-trigger accounts |
+| Session guard (proxy) | `proxy.ts` | Validates JWT on every request; redirects unauthenticated to `/login` |
+| Profile auto-creation | `supabase/migrations/20260328000002_profile_trigger.sql` | `handle_new_user` trigger; `getProfile()` upserts on-demand |
 | Session + profile helper | `lib/supabase/session.ts` → `getSession()` | Returns `{ user, profile }`. Use this in every layout/page. |
 | Role-gated routes | `app/(app)/admin/layout.tsx` | Non-admins redirected to `/` for all `/admin/*` routes |
 | Admin nav links | `components/AppNav.tsx` | Users / Settings / Audit Log links shown only to `admin` |
@@ -142,7 +142,7 @@ All 5 migrations must be applied in order via the Supabase SQL Editor:
 | Issue | Feature | Status | Notes |
 |-------|---------|--------|-------|
 | [#1](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/1) | Auth + RBAC | ✅ Done | |
-| [#2](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/2) | Client Registration | UI done | Wire Supabase insert in `clients/new/actions.ts` |
+| [#2](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/2) | Client Registration | ✅ Done | Supabase insert wired in `clients/new/actions.ts`; client list wired |
 | [#3](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/3) | Service/Visit Logging | UI done | Wire Supabase insert in `visits/new/actions.ts` |
 | [#4](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/4) | Client Profile View | UI done | Wire Supabase in `clients/[id]/page.tsx` |
 | [#5](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/5) | Deploy + Seed Data | Not started | Vercel deploy, `supabase/seed.sql` ready |
