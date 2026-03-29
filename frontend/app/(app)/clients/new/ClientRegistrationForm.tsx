@@ -7,22 +7,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 
-const PROGRAMS = [
-  'Case Management',
-  'Child & Family Services',
-  'Education Support',
-  'Employment Support',
-  'Food Assistance',
-  'Housing Support',
-  'Legal Aid Referral',
-  'Medical Referral',
-  'Mental Health Services',
-  'Transportation Assistance',
-]
-
 const initialState: NewClientFormState = {}
 
-export default function ClientRegistrationForm() {
+export default function ClientRegistrationForm({
+  serviceTypes,
+}: {
+  serviceTypes: { id: string; name: string }[]
+}) {
   const [state, action, isPending] = useActionState(createClient, initialState)
 
   return (
@@ -99,8 +90,8 @@ export default function ClientRegistrationForm() {
               className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               <option value="">Select a program…</option>
-              {PROGRAMS.map((p) => (
-                <option key={p} value={p}>{p}</option>
+              {serviceTypes.map((s) => (
+                <option key={s.id} value={s.name}>{s.name}</option>
               ))}
             </select>
           </div>

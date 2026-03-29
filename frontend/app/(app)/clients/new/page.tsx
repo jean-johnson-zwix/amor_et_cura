@@ -1,7 +1,14 @@
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
 import ClientRegistrationForm from './ClientRegistrationForm'
 
-export default function NewClientPage() {
+export default async function NewClientPage() {
+  const supabase = await createClient()
+  const { data: serviceTypes } = await supabase
+    .from('service_types')
+    .select('id, name')
+    .order('name')
+
   return (
     <div className="flex flex-col gap-6">
       <div>
@@ -12,7 +19,7 @@ export default function NewClientPage() {
         </nav>
         <h1 className="text-xl font-semibold">Register new client</h1>
       </div>
-      <ClientRegistrationForm />
+      <ClientRegistrationForm serviceTypes={serviceTypes ?? []} />
     </div>
   )
 }
