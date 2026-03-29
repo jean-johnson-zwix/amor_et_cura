@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: amor-et-cura-backend
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false   # Required for photo-to-intake and multilingual-intake (vision)
+      - key: GROQ_API_KEY
+        sync: false   # Required for voice-to-note (Whisper transcription + note structuring)
+    healthCheckPath: /health
