@@ -84,18 +84,21 @@ export default function EditClientForm({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="program">Program</Label>
-            <select
-              id="program"
-              name="program"
-              defaultValue={client.program ?? ''}
-              className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-            >
-              <option value="">Select a program…</option>
+            <Label>Programs</Label>
+            <div className="flex flex-wrap gap-3">
               {serviceTypes.map((s) => (
-                <option key={s.id} value={s.name}>{s.name}</option>
+                <label key={s.id} className="flex items-center gap-1.5 text-sm">
+                  <input
+                    type="checkbox"
+                    name="programs"
+                    value={s.name}
+                    defaultChecked={(client.programs ?? []).includes(s.name)}
+                    className="size-4 rounded border"
+                  />
+                  {s.name}
+                </label>
               ))}
-            </select>
+            </div>
           </div>
 
           <div className="flex gap-3 pt-2">

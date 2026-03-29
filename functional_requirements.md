@@ -27,7 +27,7 @@ A lightweight, open-source web application for nonprofit case management. Target
 |---|---|
 | **Admin** | Full CRUD on all records, user management, configurable fields, audit log access, CSV import/export |
 | **Case Worker** | Create and update clients and service entries; edit own visits only; no delete or admin settings |
-| **Read-Only** | View clients, profiles, and reports; no create, edit, or delete |
+| **Viewer** | View clients, profiles, and reports; no create, edit, or delete |
 | **Unauthenticated** | No access — redirected to login |
 
 > Role permissions are detailed in [issue #20](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/20). Final matrix to be confirmed before implementation.
@@ -69,7 +69,9 @@ Requirements are prioritized: **P0** (must ship), **P1** (demo-worthy), **P2** (
 - FR-CLT-2: ✅ Each client shall be assigned a unique, human-readable system ID upon creation.
 - FR-CLT-3: ✅ The system shall display a searchable, paginated list of all clients.
 - FR-CLT-4: ✅ All authenticated users shall be able to search clients by name.
-- FR-CLT-5: Admins shall be able to deactivate (soft-delete) a client record.
+- FR-CLT-5: ✅ Admins shall be able to deactivate (soft-delete) a client record.
+- FR-CLT-6: ✅ A client may be enrolled in multiple programs simultaneously. Programs are stored as `text[]` and rendered as checkboxes on intake and edit forms.
+- FR-CLT-7: ✅ The client list shall support filtering by program and status, sortable columns (Name, DOB, Programs, Status), and row-level selection for targeted CSV export.
 
 ### 4.3 Service & Visit Logging (P0) ✅ Complete
 
@@ -80,7 +82,7 @@ Requirements are prioritized: **P0** (must ship), **P1** (demo-worthy), **P2** (
 ### 4.4 Client Profile View (P0) ✅ Complete
 
 - FR-PRF-1: ✅ The system shall provide a single-page client profile showing demographic information at the top and service history below.
-- FR-PRF-2: Admins shall be able to edit client demographic information.
+- FR-PRF-2: ✅ Admins and Case Workers shall be able to edit client demographic information.
 
 ### 4.5 Deployment & Demo Data (P0) — In Progress
 

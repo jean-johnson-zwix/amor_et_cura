@@ -46,7 +46,7 @@ export async function updateClient(
   const phone     = (formData.get('phone')      as string | null)?.trim() || null
   const email     = (formData.get('email')      as string | null)?.trim() || null
   const address   = (formData.get('address')    as string | null)?.trim() || null
-  const program   = (formData.get('program')    as string | null)?.trim() || null
+  const programs  = formData.getAll('programs').map((v) => String(v).trim()).filter(Boolean)
 
   const fieldErrors: Record<string, string> = {}
   if (!firstName) fieldErrors.first_name = 'First name is required.'
@@ -66,7 +66,7 @@ export async function updateClient(
       phone,
       email,
       address,
-      program,
+      programs,
       updated_at: new Date().toISOString(),
     })
     .eq('id', clientId)

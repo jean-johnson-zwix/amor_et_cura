@@ -16,28 +16,26 @@ function toRow(cells: (string | null | undefined)[]): string {
 
 export function clientsToCsv(clients: Client[]): string {
   const header = toRow([
-    'Client ID',
     'First Name',
     'Last Name',
     'Date of Birth',
     'Phone',
     'Email',
     'Address',
-    'Program',
+    'Programs',
     'Status',
     'Registered',
   ])
 
   const rows = clients.map((c) =>
     toRow([
-      c.client_number,
       c.first_name,
       c.last_name,
       c.dob,
       c.phone,
       c.email,
       c.address,
-      c.program,
+      (c.programs ?? []).join(' | '),
       c.is_active ? 'Active' : 'Inactive',
       c.created_at.split('T')[0],
     ])

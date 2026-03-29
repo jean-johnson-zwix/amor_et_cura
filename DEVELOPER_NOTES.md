@@ -138,10 +138,15 @@ update public.profiles set role = 'admin' where id = '<your-user-id>';
 
 | Item | File(s) |
 |------|---------|
-| Client list with live search | `clients/page.tsx` + `ClientsTable.tsx` |
-| New client form | `clients/new/ClientRegistrationForm.tsx` |
-| Create action + audit log | `clients/new/actions.ts` |
+| Client list with search, filter, sort | `clients/page.tsx` + `ClientsTable.tsx` |
+| Row selection + export selected to CSV | `ClientsTable.tsx` — checkbox per row, "Export N selected" button |
+| Filter by program and status | `ClientsTable.tsx` — dropdowns; program list derived from loaded clients |
+| Sortable columns | `ClientsTable.tsx` — Name, DOB, Programs, Status with asc/desc toggle |
+| New client form (multi-program checkboxes) | `clients/new/ClientRegistrationForm.tsx` |
+| Create action + audit log | `clients/new/actions.ts` — `formData.getAll('programs')` |
 | Custom fields on intake form | Fetched from `field_definitions` where `applies_to = 'client'` |
+| Deactivate / Reactivate client | `clients/[id]/ClientActions.tsx` + `clients/[id]/actions.ts#setClientActive` |
+| Edit client demographics | `clients/[id]/edit/page.tsx` + `EditClientForm.tsx` + `actions.ts#updateClient` |
 
 ### P0: Service/Visit Logging ✅ Complete (issue #3)
 
@@ -156,7 +161,9 @@ update public.profiles set role = 'admin' where id = '<your-user-id>';
 | Item | File(s) |
 |------|---------|
 | Demographics panel + visit history | `clients/[id]/page.tsx` |
+| Multi-program display | `clients/[id]/page.tsx` — `client.programs.join(', ')` |
 | Custom field values displayed | Reads from `client.custom_fields` jsonb, labels from `field_definitions` |
+| Deactivate/Edit actions (role-gated) | `clients/[id]/ClientActions.tsx` — Admin and Case Worker only |
 
 ### P1: CSV Import/Export ✅ Complete (issue #6)
 
@@ -179,10 +186,11 @@ update public.profiles set role = 'admin' where id = '<your-user-id>';
 
 | Item | File(s) |
 |------|---------|
-| Week-view calendar | `services/schedule/page.tsx` |
+| Week-view calendar (Mon–Sun) | `services/schedule/page.tsx` — 7-day grid |
 | New appointment form | `services/schedule/new/AppointmentForm.tsx` |
 | Create appointment action + audit log | `services/schedule/new/actions.ts` |
 | Appointments DB table + RLS | `supabase/migrations/20260328000007_appointments.sql` |
+| Today's appointments on dashboard | `dashboard/page.tsx` — queries `appointments` table for today, renders list |
 
 ### P1: Configurable Fields ✅ Complete (issue #9)
 
@@ -218,6 +226,8 @@ Apply in order via Supabase SQL Editor → New Query:
 | 6 | `20260328000006_audit_triggers.sql` | DB triggers: log INSERT/UPDATE/DELETE on clients, visits, profiles |
 | 7 | `20260328000007_appointments.sql` | Appointments table + RLS |
 | 8 | `20260328000008_field_definitions.sql` | Configurable field definitions table + RLS + 5 starter fields |
+| 9 | `20260328000009_rename_read_only_to_viewer.sql` | Rename `read_only` enum value → `viewer`; UPDATE must run after ALTER TYPE |
+| 10 | `20260328000010_programs_array.sql` | Add `programs text[]`, migrate from single `program text`, drop old column |
 
 ---
 

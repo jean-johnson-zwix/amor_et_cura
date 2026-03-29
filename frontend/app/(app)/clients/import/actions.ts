@@ -12,7 +12,7 @@ export type ImportRow = {
   phone: string | null
   email: string | null
   address: string | null
-  program: string | null
+  programs: string[]
 }
 
 export type ImportRowResult = {
@@ -55,7 +55,7 @@ export async function importClients(rows: ImportRow[]): Promise<ImportResult> {
       phone: row.phone,
       email: row.email,
       address: row.address,
-      program: row.program,
+      programs: row.programs,
       created_by: session.user.id,
     }).select('id').single()
 

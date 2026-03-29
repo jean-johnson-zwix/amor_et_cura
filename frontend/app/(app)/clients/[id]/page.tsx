@@ -72,9 +72,6 @@ export default async function ClientProfilePage({
             <h1 className="text-xl font-semibold">
               {client.first_name} {client.last_name}
             </h1>
-            <span className="font-mono text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
-              {client.client_number}
-            </span>
             {client.is_active ? (
               <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">Active</span>
             ) : (
@@ -102,8 +99,8 @@ export default async function ClientProfilePage({
               <dd className="mt-0.5 font-medium">{formatDob(client.dob)}</dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">Program</dt>
-              <dd className="mt-0.5 font-medium">{client.program ?? '—'}</dd>
+              <dt className="text-muted-foreground">Programs</dt>
+              <dd className="mt-0.5 font-medium">{(client.programs ?? []).length > 0 ? (client.programs ?? []).join(', ') : '—'}</dd>
             </div>
             <div>
               <dt className="text-muted-foreground">Phone</dt>

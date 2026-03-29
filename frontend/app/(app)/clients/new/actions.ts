@@ -21,7 +21,7 @@ export async function createClient(
   const phone = (formData.get('phone') as string | null)?.trim() || null
   const email = (formData.get('email') as string | null)?.trim() || null
   const address = (formData.get('address') as string | null)?.trim() || null
-  const program = (formData.get('program') as string | null)?.trim() || null
+  const programs = formData.getAll('programs').map((v) => String(v).trim()).filter(Boolean)
 
   // Collect custom fields (multiselect values come as arrays via getAll)
   const customFields: Record<string, unknown> = {}
@@ -54,7 +54,7 @@ export async function createClient(
     phone,
     email,
     address,
-    program,
+    programs,
     custom_fields: customFields,
     created_by: session!.user.id,
   }).select('id').single()

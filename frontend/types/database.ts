@@ -17,7 +17,7 @@ export interface Client {
   phone: string | null
   email: string | null
   address: string | null
-  program: string | null
+  programs: string[]
   is_active: boolean
   custom_fields: Record<string, unknown>
   created_by: string | null
