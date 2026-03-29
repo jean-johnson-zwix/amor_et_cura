@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/supabase/session'
+import { logAudit } from '@/lib/audit'
 
 export type ImportRow = {
   row: number
@@ -47,7 +48,7 @@ export async function importClients(rows: ImportRow[]): Promise<ImportResult> {
 
   for (const row of rows) {
     const name = `${row.first_name} ${row.last_name}`
-    const { error } = await supabase.from('clients').insert({
+    const { data, error } = await supabase.from('clients').insert({
       first_name: row.first_name,
       last_name: row.last_name,
       dob: row.dob,
@@ -56,12 +57,15 @@ export async function importClients(rows: ImportRow[]): Promise<ImportResult> {
       address: row.address,
       program: row.program,
       created_by: session.user.id,
-    })
+    }).select('id').single()
 
     if (error) {
       results.push({ row: row.row, name, status: 'error', error: error.message })
     } else {
       results.push({ row: row.row, name, status: 'success' })
+      if (data?.id) {
+        await logAudit({ actorId: session.user.id, action: 'CREATE', tableName: 'clients', recordId: data.id })
+      }
     }
   }
 

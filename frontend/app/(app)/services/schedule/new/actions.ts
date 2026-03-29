@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/supabase/session'
+import { logAudit } from '@/lib/audit'
 
 export type NewAppointmentFormState = {
   error?: string
@@ -34,7 +35,7 @@ export async function createAppointment(
   if (!session) return { error: 'Not authenticated.' }
 
   const supabase = await createClient()
-  const { error } = await supabase.from('appointments').insert({
+  const { data, error } = await supabase.from('appointments').insert({
     client_id: clientId,
     case_worker_id: session.user.id,
     service_type_id: serviceTypeId,
@@ -42,9 +43,13 @@ export async function createAppointment(
     duration_minutes: duration,
     notes,
     status: 'scheduled',
-  })
+  }).select('id').single()
 
   if (error) return { error: error.message }
+
+  if (data?.id) {
+    await logAudit({ actorId: session.user.id, action: 'CREATE', tableName: 'appointments', recordId: data.id })
+  }
 
   redirect('/services/schedule')
 }

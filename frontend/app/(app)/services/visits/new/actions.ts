@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/supabase/session'
+import { logAudit } from '@/lib/audit'
 
 export type NewVisitFormState = {
   error?: string
@@ -31,16 +32,20 @@ export async function createVisit(
   if (!session) return { error: 'Not authenticated.' }
 
   const supabase = await createClient()
-  const { error } = await supabase.from('visits').insert({
+  const { data, error } = await supabase.from('visits').insert({
     client_id: clientId,
     case_worker_id: session.user.id,
     service_type_id: serviceTypeId,
     visit_date: visitDate,
     duration_minutes: duration,
     notes,
-  })
+  }).select('id').single()
 
   if (error) return { error: error.message }
+
+  if (data?.id) {
+    await logAudit({ actorId: session.user.id, action: 'CREATE', tableName: 'visits', recordId: data.id })
+  }
 
   redirect(`/clients/${clientId}`)
 }

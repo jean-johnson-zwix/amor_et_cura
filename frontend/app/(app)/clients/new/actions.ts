@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { createClient as createSupabaseClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/supabase/session'
 import { can } from '@/lib/auth/permissions'
+import { logAudit } from '@/lib/audit'
 
 export type NewClientFormState = {
   error?: string
@@ -32,7 +33,7 @@ export async function createClient(
   if (!can.createClient(session?.profile?.role)) return { error: 'Not authorized.' }
 
   const supabase = await createSupabaseClient()
-  const { error } = await supabase.from('clients').insert({
+  const { data, error } = await supabase.from('clients').insert({
     first_name: firstName,
     last_name: lastName,
     dob: dob || null,
@@ -41,9 +42,13 @@ export async function createClient(
     address,
     program,
     created_by: session!.user.id,
-  })
+  }).select('id').single()
 
   if (error) return { error: error.message }
+
+  if (data?.id) {
+    await logAudit({ actorId: session!.user.id, action: 'CREATE', tableName: 'clients', recordId: data.id })
+  }
 
   redirect('/clients')
 }

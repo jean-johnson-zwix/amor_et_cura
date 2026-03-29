@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { can } from '@/lib/auth/permissions'
 import { getProfile } from '@/lib/supabase/queries'
 import type { UserRole } from '@/types/database'
+import { logAudit } from '@/lib/audit'
 
 const VALID_ROLES: UserRole[] = ['admin', 'case_worker', 'read_only']
 
@@ -37,6 +38,14 @@ export async function updateUserRole(
     console.error('[updateUserRole]', error.code, error.message)
     return { error: 'Failed to update role. Check database permissions.' }
   }
+
+  await logAudit({
+    actorId: user.id,
+    action: 'UPDATE',
+    tableName: 'profiles',
+    recordId: targetId,
+    changedFields: ['role'],
+  })
 
   revalidatePath('/admin/users')
   return { success: true }
