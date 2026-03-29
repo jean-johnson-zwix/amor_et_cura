@@ -7,13 +7,13 @@ import type { UserRole } from '@/types/database'
 const ROLE_BADGE: Record<UserRole, string> = {
   admin:       'bg-purple-100 text-purple-800',
   case_worker: 'bg-green-100 text-green-800',
-  read_only:   'bg-gray-100 text-gray-700',
+  viewer:      'bg-gray-100 text-gray-700',
 }
 
 const ROLE_LABELS: Record<UserRole, string> = {
   admin:       'Admin',
   case_worker: 'Case Worker',
-  read_only:   'Read Only',
+  viewer:      'Viewer',
 }
 
 export default async function UsersPage() {

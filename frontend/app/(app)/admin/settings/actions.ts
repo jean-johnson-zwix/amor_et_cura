@@ -68,3 +68,35 @@ export async function deleteFieldDefinition(id: string): Promise<void> {
   await supabase.from('field_definitions').delete().eq('id', id)
   revalidatePath('/admin/settings')
 }
+
+// ── Service Types ─────────────────────────────────────────────
+
+export type ServiceTypeFormState = { error?: string; success?: boolean }
+
+export async function addServiceType(
+  _prev: ServiceTypeFormState,
+  formData: FormData
+): Promise<ServiceTypeFormState> {
+  const session = await getSession()
+  if (!can.configureSettings(session?.profile?.role)) return { error: 'Not authorized.' }
+
+  const name = (formData.get('name') as string | null)?.trim()
+  if (!name) return { error: 'Name is required.' }
+
+  const supabase = await createClient()
+  const { error } = await supabase.from('service_types').insert({ name })
+
+  if (error) return { error: error.code === '23505' ? 'A service type with that name already exists.' : error.message }
+
+  revalidatePath('/admin/settings')
+  return { success: true }
+}
+
+export async function toggleServiceTypeActive(id: string, isActive: boolean): Promise<void> {
+  const session = await getSession()
+  if (!can.configureSettings(session?.profile?.role)) return
+
+  const supabase = await createClient()
+  await supabase.from('service_types').update({ is_active: isActive }).eq('id', id)
+  revalidatePath('/admin/settings')
+}

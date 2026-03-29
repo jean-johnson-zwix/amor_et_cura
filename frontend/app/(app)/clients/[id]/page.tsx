@@ -2,6 +2,9 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
+import { getSession } from '@/lib/supabase/session'
+import { can } from '@/lib/auth/permissions'
+import ClientActions from './ClientActions'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
@@ -20,7 +23,7 @@ export default async function ClientProfilePage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const supabase = await createClient()
+  const [session, supabase] = await Promise.all([getSession(), createClient()])
 
   const { data: client } = await supabase
     .from('clients')
@@ -64,18 +67,26 @@ export default async function ClientProfilePage({
           {' / '}
           <span>{client.first_name} {client.last_name}</span>
         </nav>
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl font-semibold">
-            {client.first_name} {client.last_name}
-          </h1>
-          <span className="font-mono text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
-            {client.client_number}
-          </span>
-          {client.is_active ? (
-            <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">Active</span>
-          ) : (
-            <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">Inactive</span>
-          )}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-semibold">
+              {client.first_name} {client.last_name}
+            </h1>
+            <span className="font-mono text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+              {client.client_number}
+            </span>
+            {client.is_active ? (
+              <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">Active</span>
+            ) : (
+              <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">Inactive</span>
+            )}
+          </div>
+          <ClientActions
+            clientId={client.id}
+            isActive={client.is_active}
+            canEdit={can.editClient(session?.profile?.role)}
+            canDeactivate={can.deactivateClient(session?.profile?.role)}
+          />
         </div>
       </div>
 

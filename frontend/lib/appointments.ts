@@ -38,7 +38,7 @@ export function addDays(dateStr: string, days: number): string {
 }
 
 export function getWeekDays(monday: string): string[] {
-  return Array.from({ length: 5 }, (_, i) => addDays(monday, i))
+  return Array.from({ length: 7 }, (_, i) => addDays(monday, i))
 }
 
 export function appointmentsForDate(

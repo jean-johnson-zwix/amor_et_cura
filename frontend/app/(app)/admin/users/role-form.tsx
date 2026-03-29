@@ -8,7 +8,7 @@ import type { UserRole } from '@/types/database'
 const ROLES: { value: UserRole; label: string }[] = [
   { value: 'admin',       label: 'Admin' },
   { value: 'case_worker', label: 'Case Worker' },
-  { value: 'read_only',   label: 'Read Only' },
+  { value: 'viewer',      label: 'Viewer' },
 ]
 
 export function RoleForm({

@@ -9,7 +9,7 @@ import type { Profile } from '@/types/database'
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Admin',
   case_worker: 'Case Worker',
-  read_only: 'Read Only',
+  viewer: 'Viewer',
 }
 
 const BASE_NAV_LINKS = [
@@ -31,7 +31,7 @@ export function NavBar({ profile }: { profile: Profile | null }) {
     <nav className="border-b bg-background shadow-sm">
       <div className="flex items-center justify-between px-4 py-3 sm:px-6">
         <div className="flex items-center gap-8">
-          <span className="text-base font-semibold">Amor et Cura</span>
+          <Link href="/dashboard" className="text-base font-semibold hover:opacity-80 transition-opacity">Amor et Cura</Link>
           <div className="hidden items-center gap-1 sm:flex">
             {navLinks.map(({ href, label }) => (
               <Link

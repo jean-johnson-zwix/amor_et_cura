@@ -7,7 +7,7 @@ import { getProfile } from '@/lib/supabase/queries'
 import type { UserRole } from '@/types/database'
 import { logAudit } from '@/lib/audit'
 
-const VALID_ROLES: UserRole[] = ['admin', 'case_worker', 'read_only']
+const VALID_ROLES: UserRole[] = ['admin', 'case_worker', 'viewer']
 
 export async function updateUserRole(
   _prevState: { error: string } | { success: true } | null,

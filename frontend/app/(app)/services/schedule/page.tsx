@@ -37,7 +37,7 @@ export default async function SchedulePage({
   const { week } = await searchParams
   const today = new Date().toISOString().split('T')[0]
   const monday = week ?? getMondayOfWeek(new Date())
-  const nextMonday = addDays(monday, 7)
+  const nextMonday = addDays(monday, 7)  // used for prev/next nav and query upper bound
   const prevMonday = addDays(monday, -7)
   const weekDays = getWeekDays(monday)
 
@@ -124,7 +124,7 @@ export default async function SchedulePage({
 
       <div>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">This Week</h2>
-        <div className="grid grid-cols-5 gap-3">
+        <div className="grid grid-cols-7 gap-3">
           {weekDays.map((date) => {
             const appts = appointmentsForDate(appointments, date)
             const isToday = date === today
