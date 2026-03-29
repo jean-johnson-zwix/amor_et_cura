@@ -1,5 +1,10 @@
 'use server'
 
+import { redirect } from 'next/navigation'
+import { createClient as createSupabaseClient } from '@/lib/supabase/server'
+import { getSession } from '@/lib/supabase/session'
+import { can } from '@/lib/auth/permissions'
+
 export type NewClientFormState = {
   error?: string
   fieldErrors?: Partial<Record<string, string>>
@@ -23,14 +28,22 @@ export async function createClient(
   if (!lastName) fieldErrors.last_name = 'Last name is required.'
   if (Object.keys(fieldErrors).length > 0) return { fieldErrors }
 
-  // TODO(#2): replace with Supabase insert once auth (#1) is wired up
-  // const supabase = await createClient()
-  // const { error } = await supabase.from('clients').insert({ first_name, last_name, dob, phone, email, address, program, created_by: user.id })
-  // if (error) return { error: error.message }
+  const session = await getSession()
+  if (!can.createClient(session?.profile?.role)) return { error: 'Not authorized.' }
 
-  // Stub: log and return success for now
-  console.log('createClient stub called', { firstName, lastName, dob, phone, email, address, program })
+  const supabase = await createSupabaseClient()
+  const { error } = await supabase.from('clients').insert({
+    first_name: firstName,
+    last_name: lastName,
+    dob: dob || null,
+    phone,
+    email,
+    address,
+    program,
+    created_by: session!.user.id,
+  })
 
-  // redirect('/clients') — uncomment when Supabase is wired
-  return {}
+  if (error) return { error: error.message }
+
+  redirect('/clients')
 }
