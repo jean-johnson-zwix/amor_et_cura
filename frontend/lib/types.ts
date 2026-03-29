@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'case_worker' | 'read_only'
+export type UserRole = 'admin' | 'case_worker' | 'viewer'
 
 export type Profile = {
   id: string
@@ -17,7 +17,7 @@ export type Client = {
   phone: string | null
   email: string | null
   address: string | null
-  program: string | null
+  programs: string[]
   is_active: boolean
   custom_fields: Record<string, unknown>
   created_by: string | null
@@ -40,6 +40,7 @@ export type Visit = {
   visit_date: string
   duration_minutes: number | null
   notes: string | null
+  custom_fields: Record<string, unknown>
   created_at: string
   updated_at: string
 }

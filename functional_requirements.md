@@ -4,6 +4,14 @@
 **Event:** ASU WiCS Hackathon — March 28–29, 2026
 **Last Updated:** 2026-03-28
 **Auth (P0 #1):** ✅ Complete — see DEVELOPER_NOTES.md for implementation details.
+**Client Registration (P0 #2):** ✅ Complete — Supabase insert wired, custom fields rendered.
+**Service/Visit Logging (P0 #3):** ✅ Complete — Supabase insert wired, audit logged.
+**Client Profile View (P0 #4):** ✅ Complete — demographics + visit history + custom fields displayed.
+**CSV Import/Export (P1 #6):** ✅ Complete — Papa Parse import, CSV export wired.
+**Reporting Dashboard (P1 #7):** ✅ Complete — stat cards + Recharts charts wired to live data.
+**Scheduling/Calendar (P1 #8):** ✅ Complete — week-view calendar + appointment creation wired.
+**Configurable Fields (P1 #9):** ✅ Complete — admin field CRUD, rendered on intake form and client profile.
+**Audit Log (P1 #10):** ✅ Complete — DB triggers + server action logging + admin viewer with filters.
 
 ---
 
@@ -19,7 +27,7 @@ A lightweight, open-source web application for nonprofit case management. Target
 |---|---|
 | **Admin** | Full CRUD on all records, user management, configurable fields, audit log access, CSV import/export |
 | **Case Worker** | Create and update clients and service entries; edit own visits only; no delete or admin settings |
-| **Read-Only** | View clients, profiles, and reports; no create, edit, or delete |
+| **Viewer** | View clients, profiles, and reports; no create, edit, or delete |
 | **Unauthenticated** | No access — redirected to login |
 
 > Role permissions are detailed in [issue #20](https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management/issues/20). Final matrix to be confirmed before implementation.
@@ -55,59 +63,61 @@ Requirements are prioritized: **P0** (must ship), **P1** (demo-worthy), **P2** (
 - FR-AUTH-3: ✅ Unauthenticated users shall be redirected to the login page.
 - FR-AUTH-4: ✅ Admins shall be able to assign and change user roles.
 
-### 4.2 Client Registration (P0)
+### 4.2 Client Registration (P0) ✅ Complete
 
-- FR-CLT-1: Admins and Case Workers shall be able to create a new client record with: first name, last name, date of birth, phone, email, and address.
-- FR-CLT-2: Each client shall be assigned a unique, human-readable system ID upon creation.
-- FR-CLT-3: The system shall display a searchable, paginated list of all clients.
-- FR-CLT-4: All authenticated users shall be able to search clients by name.
-- FR-CLT-5: Admins shall be able to deactivate (soft-delete) a client record.
+- FR-CLT-1: ✅ Admins and Case Workers shall be able to create a new client record with: first name, last name, date of birth, phone, email, and address.
+- FR-CLT-2: ✅ Each client shall be assigned a unique, human-readable system ID upon creation.
+- FR-CLT-3: ✅ The system shall display a searchable, paginated list of all clients.
+- FR-CLT-4: ✅ All authenticated users shall be able to search clients by name.
+- FR-CLT-5: ✅ Admins shall be able to deactivate (soft-delete) a client record.
+- FR-CLT-6: ✅ A client may be enrolled in multiple programs simultaneously. Programs are stored as `text[]` and rendered as checkboxes on intake and edit forms.
+- FR-CLT-7: ✅ The client list shall support filtering by program and status, sortable columns (Name, DOB, Programs, Status), and row-level selection for targeted CSV export.
 
-### 4.3 Service & Visit Logging (P0)
+### 4.3 Service & Visit Logging (P0) ✅ Complete
 
-- FR-SVC-1: Admins and Case Workers shall be able to log a service entry against a client, capturing: date, service type, assigned staff member, and free-text notes.
-- FR-SVC-2: Service types shall be configurable by an admin via a dropdown list.
-- FR-SVC-3: Each client's profile shall display their full service history in reverse chronological order.
+- FR-SVC-1: ✅ Admins and Case Workers shall be able to log a service entry against a client, capturing: date, service type, assigned staff member, and free-text notes.
+- FR-SVC-2: ✅ Service types shall be configurable by an admin via a dropdown list.
+- FR-SVC-3: ✅ Each client's profile shall display their full service history in reverse chronological order.
 
-### 4.4 Client Profile View (P0)
+### 4.4 Client Profile View (P0) ✅ Complete
 
-- FR-PRF-1: The system shall provide a single-page client profile showing demographic information at the top and service history below.
-- FR-PRF-2: Admins shall be able to edit client demographic information.
+- FR-PRF-1: ✅ The system shall provide a single-page client profile showing demographic information at the top and service history below.
+- FR-PRF-2: ✅ Admins and Case Workers shall be able to edit client demographic information.
 
-### 4.5 Deployment & Demo Data (P0)
+### 4.5 Deployment & Demo Data (P0) — In Progress
 
 - FR-DEP-1: The application shall be deployed to a publicly accessible URL.
-- FR-DEP-2: The system shall be seeded with a minimum of 10 clients and 30 service entries for demonstration.
+- FR-DEP-2: ✅ The system shall be seeded with a minimum of 10 clients and 30 service entries for demonstration. (`supabase/demo_seed.sql` — 12 clients, 32 visits, 16 appointments)
 - FR-DEP-3: The README shall include one-click deployment instructions.
 
-### 4.6 CSV Import / Export (P1)
+### 4.6 CSV Import / Export (P1) ✅ Complete
 
-- FR-CSV-1: Admins shall be able to upload a CSV file to bulk-create client records.
-- FR-CSV-2: The import process shall validate each row and report errors without halting the full import.
-- FR-CSV-3: Admins shall be able to export all clients or all service entries to CSV.
+- FR-CSV-1: ✅ Admins shall be able to upload a CSV file to bulk-create client records.
+- FR-CSV-2: ✅ The import process shall validate each row and report errors without halting the full import.
+- FR-CSV-3: ✅ Admins shall be able to export all clients or all service entries to CSV.
 
-### 4.7 Reporting Dashboard (P1)
+### 4.7 Reporting Dashboard (P1) ✅ Complete
 
-- FR-RPT-1: The system shall display a dashboard with: total active clients, services delivered this week / month / quarter, breakdown of service types (bar chart), and visit trend over time (line chart).
-- FR-RPT-2: The dashboard shall be printable or exportable to PDF.
+- FR-RPT-1: ✅ The system shall display a dashboard with: total active clients, services delivered this week / month / quarter, breakdown of service types (bar chart), and visit trend over time (line chart).
+- FR-RPT-2: ✅ The dashboard shall be printable or exportable to PDF.
 
-### 4.8 Configurable Fields (P1)
+### 4.8 Configurable Fields (P1) ✅ Complete
 
-- FR-CFG-1: Admins shall be able to add, remove, and reorder custom fields on the client profile and service entry form without code changes.
-- FR-CFG-2: Supported field types: text, number, date, boolean, single-select, multi-select.
-- FR-CFG-3: Custom field definitions shall be stored as a JSON schema per organization.
+- FR-CFG-1: ✅ Admins shall be able to add, remove, and reorder custom fields on the client profile and service entry form without code changes.
+- FR-CFG-2: ✅ Supported field types: text, number, date, boolean, single-select, multi-select.
+- FR-CFG-3: ✅ Custom field definitions are stored in the `field_definitions` table with `applies_to` scoping (`client` or `visit`). Values are stored in `clients.custom_fields` (jsonb).
 
-### 4.9 Audit Log (P1)
+### 4.9 Audit Log (P1) ✅ Complete
 
-- FR-AUD-1: The system shall log all create, update, and delete actions with: timestamp, acting user, entity type, and entity ID.
-- FR-AUD-2: The audit log shall record which fields were changed — not the field values — to avoid storing PII.
-- FR-AUD-3: Admins shall be able to view and filter the audit log.
+- FR-AUD-1: ✅ The system shall log all create, update, and delete actions with: timestamp, acting user, entity type, and entity ID.
+- FR-AUD-2: ✅ The audit log records which fields were changed (not values) to avoid storing PII. DB triggers on `clients`, `visits`, and `profiles` capture UPDATE field diffs automatically.
+- FR-AUD-3: ✅ Admins can view and filter the audit log at `/admin/audit-log` by table, action type, and user.
 
-### 4.10 Scheduling (P1)
+### 4.10 Scheduling (P1) ✅ Complete
 
-- FR-SCH-1: Admins and Case Workers shall be able to schedule a future appointment for a client, capturing: date/time, service type, and assigned staff.
-- FR-SCH-2: The system shall display a calendar view of upcoming appointments for the current day and week.
-- FR-SCH-3: The system shall surface in-app reminders for upcoming appointments.
+- FR-SCH-1: ✅ Admins and Case Workers shall be able to schedule a future appointment for a client, capturing: date/time, service type, and assigned staff.
+- FR-SCH-2: ✅ The system shall display a calendar view of upcoming appointments for the current day and week.
+- FR-SCH-3: In-app reminders for upcoming appointments (post-hackathon).
 
 ---
 

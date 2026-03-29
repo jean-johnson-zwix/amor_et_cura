@@ -20,7 +20,7 @@ Amor et Cura solves that problem once, for everyone.
 ## Features
 
 **P0 — Core (must ship)**
-- Auth with role-based access (Admin / Case Worker / Read-Only)
+- Auth with role-based access (Admin / Case Worker / Viewer)
 - Client registration with searchable client list
 - Service and visit logging per client
 - Client profile view (demographics + visit history)
