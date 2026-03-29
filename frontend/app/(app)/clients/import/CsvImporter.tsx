@@ -58,7 +58,7 @@ function parseRows(data: Record<string, string>[]): ParsedPreview {
       phone: mapped.phone ?? null,
       email: mapped.email ?? null,
       address: mapped.address ?? null,
-      programs: mapped.programs ?? null,
+      programs: mapped.programs ?? [],
     })
   })
 
@@ -201,7 +201,7 @@ export default function CsvImporter() {
                       <td className="px-3 py-2 text-navy">{r.first_name} {r.last_name}</td>
                       <td className="px-3 py-2 text-[#6b7280]">{r.dob ?? '—'}</td>
                       <td className="px-3 py-2 text-[#6b7280]">{r.phone ?? '—'}</td>
-                      <td className="px-3 py-2 text-[#6b7280]">{r.program ?? '—'}</td>
+                      <td className="px-3 py-2 text-[#6b7280]">{r.programs?.join(', ') || '—'}</td>
                     </tr>
                   ))}
                   {preview.rows.length > 5 && (
