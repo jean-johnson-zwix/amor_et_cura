@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { Client, Visit } from '@/lib/types'
+import type { Client, Visit } from '@/types/database'
 
 // ── Stub data (replace with Supabase queries after #1 Auth lands) ──────────
 

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
 import { clientsToCsv, downloadCsv } from '@/lib/csv'
-import type { Client } from '@/lib/types'
+import type { Client } from '@/types/database'
 
 export default function ClientsTable({ clients }: { clients: Client[] }) {
   const [query, setQuery] = useState('')

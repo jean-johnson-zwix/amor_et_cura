@@ -1,4 +1,4 @@
-import type { Client } from './types'
+import type { Client } from '@/types/database'
 
 function escapeCell(value: string | null | undefined): string {
   if (value === null || value === undefined) return ''

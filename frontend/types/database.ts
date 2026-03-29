@@ -44,6 +44,19 @@ export interface Visit {
   updated_at: string
 }
 
+export interface Appointment {
+  id: string
+  client_id: string
+  case_worker_id: string
+  service_type_id: string | null
+  scheduled_at: string   // ISO datetime e.g. "2026-03-30T10:00:00"
+  duration_minutes: number | null
+  notes: string | null
+  status: 'scheduled' | 'completed' | 'cancelled'
+  created_at: string
+  updated_at: string
+}
+
 export interface AuditLog {
   id: string
   actor_id: string | null
