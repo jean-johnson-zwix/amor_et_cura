@@ -14,19 +14,18 @@ const ROLE_LABELS: Record<string, string> = {
 
 const BASE_NAV_LINKS = [
   { href: '/dashboard', label: 'Dashboard' },
-  { href: '/clients', label: 'Clients' },
-]
-
-const ADMIN_NAV_LINKS = [
-  { href: '/admin/users', label: 'Users' },
-  { href: '/admin/settings', label: 'Settings' },
-  { href: '/admin/audit-log', label: 'Audit Log' },
+  { href: '/clients',   label: 'Clients' },
+  { href: '/services',  label: 'Services' },
 ]
 
 export function NavBar({ profile }: { profile: Profile | null }) {
   const pathname = usePathname()
   const isAdmin = profile?.role === 'admin'
-  const navLinks = isAdmin ? [...BASE_NAV_LINKS, ...ADMIN_NAV_LINKS] : BASE_NAV_LINKS
+
+  const navLinks = [
+    ...BASE_NAV_LINKS,
+    ...(isAdmin ? [{ href: '/admin', label: 'Admin' }] : []),
+  ]
 
   return (
     <nav className="border-b bg-background shadow-sm">

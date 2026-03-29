@@ -46,5 +46,5 @@ export async function createAppointment(
 
   if (error) return { error: error.message }
 
-  redirect('/schedule')
+  redirect('/services/schedule')
 }

@@ -19,7 +19,6 @@ export default async function VisitsPage() {
     id: v.id,
     visit_date: v.visit_date,
     duration_minutes: v.duration_minutes,
-    notes: v.notes,
     client: v.clients as { id: string; first_name: string; last_name: string } | null,
     service_type_name: (v.service_types as { name: string } | null)?.name ?? '—',
     case_worker_name: (v.profiles as { full_name: string } | null)?.full_name ?? '—',
@@ -27,7 +26,7 @@ export default async function VisitsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">Visits</h1>
+      <h1 className="text-xl font-semibold">All Visits</h1>
 
       {visits.length === 0 ? (
         <p className="text-sm text-muted-foreground">

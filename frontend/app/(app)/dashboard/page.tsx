@@ -79,7 +79,7 @@ export default async function DashboardPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Today&apos;s appointments</CardTitle>
-            <Link href="/schedule" className="text-xs text-primary hover:underline">
+            <Link href="/services/schedule" className="text-xs text-primary hover:underline">
               View full schedule →
             </Link>
           </div>

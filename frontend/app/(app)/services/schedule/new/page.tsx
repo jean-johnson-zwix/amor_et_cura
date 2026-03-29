@@ -26,7 +26,7 @@ export default async function NewAppointmentPage({
     <div className="flex flex-col gap-6">
       <div>
         <nav className="text-sm text-muted-foreground mb-1">
-          <Link href="/schedule" className="hover:underline">Schedule</Link>
+          <Link href="/services/schedule" className="hover:underline">Calendar</Link>
           {' / '}
           <span>New Appointment</span>
         </nav>

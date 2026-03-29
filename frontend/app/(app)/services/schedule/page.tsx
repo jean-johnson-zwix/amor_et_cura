@@ -71,30 +71,30 @@ export default async function SchedulePage({
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold">Schedule</h1>
+          <h1 className="text-xl font-semibold">Calendar</h1>
           <p className="text-sm text-muted-foreground">Week of {formatDateHeading(weekDays[0])}</p>
         </div>
         <div className="flex items-center gap-2">
           <Link
-            href={`/schedule?week=${prevMonday}`}
+            href={`/services/schedule?week=${prevMonday}`}
             className="inline-flex h-8 items-center justify-center rounded-lg border border-input bg-background px-2.5 text-sm font-medium transition-colors hover:bg-muted"
           >
             ← Prev
           </Link>
           <Link
-            href="/schedule"
+            href="/services/schedule"
             className="inline-flex h-8 items-center justify-center rounded-lg border border-input bg-background px-2.5 text-sm font-medium transition-colors hover:bg-muted"
           >
             Today
           </Link>
           <Link
-            href={`/schedule?week=${nextMonday}`}
+            href={`/services/schedule?week=${nextMonday}`}
             className="inline-flex h-8 items-center justify-center rounded-lg border border-input bg-background px-2.5 text-sm font-medium transition-colors hover:bg-muted"
           >
             Next →
           </Link>
           <Link
-            href="/schedule/new"
+            href="/services/schedule/new"
             className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
           >
             + New Appointment
@@ -102,7 +102,6 @@ export default async function SchedulePage({
         </div>
       </div>
 
-      {/* Today's appointments — quick view (only shown on current week) */}
       {monday === getMondayOfWeek(new Date()) && todayAppts.length > 0 && (
         <div className="flex flex-col gap-2">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Today</h2>
@@ -123,7 +122,6 @@ export default async function SchedulePage({
         </div>
       )}
 
-      {/* Week view grid */}
       <div>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">This Week</h2>
         <div className="grid grid-cols-5 gap-3">
@@ -150,7 +148,7 @@ export default async function SchedulePage({
         <Card>
           <CardContent className="py-6 text-center text-sm text-muted-foreground">
             No appointments this week.{' '}
-            <Link href="/schedule/new" className="text-primary hover:underline">
+            <Link href="/services/schedule/new" className="text-primary hover:underline">
               Schedule one →
             </Link>
           </CardContent>

@@ -28,7 +28,7 @@ export default function AppointmentForm({
           <p className="text-sm font-medium text-green-700">Appointment scheduled!</p>
           <div className="flex gap-3">
             <Link
-              href="/schedule"
+              href="/services/schedule"
               className="inline-flex h-8 items-center justify-center rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
             >
               View calendar
@@ -82,26 +82,14 @@ export default function AppointmentForm({
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="scheduled_date">Date *</Label>
-              <Input
-                id="scheduled_date"
-                name="scheduled_date"
-                type="date"
-                aria-invalid={!!state.fieldErrors?.scheduled_date}
-                required
-              />
+              <Input id="scheduled_date" name="scheduled_date" type="date" aria-invalid={!!state.fieldErrors?.scheduled_date} required />
               {state.fieldErrors?.scheduled_date && (
                 <p className="text-xs text-destructive">{state.fieldErrors.scheduled_date}</p>
               )}
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="scheduled_time">Time *</Label>
-              <Input
-                id="scheduled_time"
-                name="scheduled_time"
-                type="time"
-                aria-invalid={!!state.fieldErrors?.scheduled_time}
-                required
-              />
+              <Input id="scheduled_time" name="scheduled_time" type="time" aria-invalid={!!state.fieldErrors?.scheduled_time} required />
               {state.fieldErrors?.scheduled_time && (
                 <p className="text-xs text-destructive">{state.fieldErrors.scheduled_time}</p>
               )}
@@ -124,15 +112,7 @@ export default function AppointmentForm({
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="duration_minutes">Duration (minutes)</Label>
-              <Input
-                id="duration_minutes"
-                name="duration_minutes"
-                type="number"
-                min="15"
-                max="480"
-                step="15"
-                placeholder="30"
-              />
+              <Input id="duration_minutes" name="duration_minutes" type="number" min="15" max="480" step="15" placeholder="30" />
             </div>
           </div>
 

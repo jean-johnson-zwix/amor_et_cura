@@ -24,9 +24,7 @@ export default function VisitLogForm({
     return (
       <Card className="max-w-2xl">
         <CardContent className="py-8 text-center flex flex-col items-center gap-4">
-          <p className="text-sm font-medium text-green-700">
-            Visit logged successfully!
-          </p>
+          <p className="text-sm font-medium text-green-700">Visit logged successfully!</p>
           <div className="flex gap-3">
             <a
               href={`/clients/${clientId}`}
@@ -49,7 +47,6 @@ export default function VisitLogForm({
   return (
     <form action={action}>
       <input type="hidden" name="client_id" value={clientId} />
-
       <Card className="max-w-2xl">
         <CardHeader>
           <CardTitle>Log Visit</CardTitle>
@@ -79,7 +76,6 @@ export default function VisitLogForm({
                 <p className="text-xs text-destructive">{state.fieldErrors.visit_date}</p>
               )}
             </div>
-
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="duration_minutes">Duration (minutes)</Label>
               <Input
@@ -126,7 +122,6 @@ export default function VisitLogForm({
               Cancel
             </Button>
           </div>
-
         </CardContent>
       </Card>
     </form>
