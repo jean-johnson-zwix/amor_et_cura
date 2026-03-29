@@ -107,12 +107,6 @@ export default async function DashboardPage() {
 
   const dayName = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
-  const totalVisits = visits.length
-  const periodData = [
-    { name: 'This week',  count: stats.visitsThisWeek },
-    { name: 'This month', count: Math.max(0, stats.visitsThisMonth - stats.visitsThisWeek) },
-    { name: 'Older',      count: Math.max(0, totalVisits - stats.visitsThisMonth) },
-  ].filter((d) => d.count > 0)
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -210,9 +204,9 @@ export default async function DashboardPage() {
       {/* ── Charts ─────────────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         <div className="rounded-2xl border border-[#e2e8f0] bg-white p-5">
-          <p className="mb-1 text-base font-bold text-navy">When were visits?</p>
-          <p className="mb-4 text-sm text-[#6b7280]">All visits broken down by how recent they are</p>
-          <VisitTrendChart data={periodData} />
+          <p className="mb-1 text-base font-bold text-navy">Visit trend</p>
+          <p className="mb-4 text-sm text-[#6b7280]">Visits per week over the last 8 weeks</p>
+          <VisitTrendChart data={stats.visitTrend} />
         </div>
         <div className="rounded-2xl border border-[#e2e8f0] bg-white p-5">
           <p className="mb-1 text-base font-bold text-navy">What services were provided?</p>

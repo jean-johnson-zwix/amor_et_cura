@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useTransition } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { linkFamilyMember } from './actions'
@@ -92,12 +93,17 @@ function LabelValue({ label, value }: { label: string; value: React.ReactNode })
 function ExpandableText({ text, limit = 220 }: { text: string; limit?: number }) {
   const [expanded, setExpanded] = useState(false)
   const needsTruncation = text.length > limit
+  const displayText = needsTruncation && !expanded ? text.slice(0, limit) + '…' : text
 
   return (
     <div>
-      <p className="text-[13px] text-[#374151] leading-relaxed whitespace-pre-wrap">
-        {needsTruncation && !expanded ? text.slice(0, limit) + '…' : text}
-      </p>
+      <div className="prose prose-sm max-w-none text-[13px] text-[#374151] leading-relaxed
+        [&_h3]:text-[12px] [&_h3]:font-semibold [&_h3]:uppercase [&_h3]:tracking-wide [&_h3]:text-navy [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:first:mt-0
+        [&_p]:mb-1.5 [&_p]:last:mb-0
+        [&_ul]:pl-4 [&_ul]:mb-1.5 [&_li]:mb-0.5
+        [&_strong]:font-semibold [&_strong]:text-navy">
+        <ReactMarkdown>{displayText}</ReactMarkdown>
+      </div>
       {needsTruncation && (
         <button
           onClick={() => setExpanded((v) => !v)}
