@@ -58,7 +58,7 @@ function parseRows(data: Record<string, string>[]): ParsedPreview {
       phone: mapped.phone ?? null,
       email: mapped.email ?? null,
       address: mapped.address ?? null,
-      program: mapped.program ?? null,
+      programs: mapped.programs ?? null,
     })
   })
 
