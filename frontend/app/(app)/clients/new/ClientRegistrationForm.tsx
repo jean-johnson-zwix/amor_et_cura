@@ -2,13 +2,15 @@
 
 import { useActionState } from 'react'
 import { createClient, type NewClientFormState } from './actions'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import type { FieldDefinition } from '@/types/database'
 
 const initialState: NewClientFormState = {}
+
+const inputCls =
+  'h-9 w-full rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] text-navy outline-none transition-all focus:border-teal focus:ring-2 focus:ring-teal/20 placeholder:text-[#9ca3af]'
+const selectCls =
+  'h-9 w-full rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] text-navy outline-none transition-all focus:border-teal focus:ring-2 focus:ring-teal/20'
+const labelCls = 'mb-1 block text-[11px] font-medium text-[#6b7280]'
 
 function CustomFieldInput({ field }: { field: FieldDefinition }) {
   const inputName = `cf_${field.name}`
@@ -17,22 +19,17 @@ function CustomFieldInput({ field }: { field: FieldDefinition }) {
   if (field.field_type === 'boolean') {
     return (
       <div className="flex items-center gap-2">
-        <input type="checkbox" id={inputName} name={inputName} className="size-4 rounded border" />
-        <Label htmlFor={inputName}>{labelText}</Label>
+        <input type="checkbox" id={inputName} name={inputName} className="size-4 rounded border-[#e2e8f0] accent-teal" />
+        <label htmlFor={inputName} className="text-[13px] text-navy">{labelText}</label>
       </div>
     )
   }
 
   if (field.field_type === 'select') {
     return (
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor={inputName}>{labelText}</Label>
-        <select
-          id={inputName}
-          name={inputName}
-          required={field.required}
-          className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
+      <div>
+        <label htmlFor={inputName} className={labelCls}>{labelText}</label>
+        <select id={inputName} name={inputName} required={field.required} className={selectCls}>
           <option value="">Select…</option>
           {(field.options ?? []).map((opt) => (
             <option key={opt} value={opt}>{opt}</option>
@@ -44,12 +41,12 @@ function CustomFieldInput({ field }: { field: FieldDefinition }) {
 
   if (field.field_type === 'multiselect') {
     return (
-      <div className="flex flex-col gap-1.5">
-        <Label>{labelText}</Label>
-        <div className="flex flex-wrap gap-3">
+      <div>
+        <p className={labelCls}>{labelText}</p>
+        <div className="flex flex-wrap gap-3 pt-1">
           {(field.options ?? []).map((opt) => (
-            <label key={opt} className="flex items-center gap-1.5 text-sm">
-              <input type="checkbox" name={inputName} value={opt} className="size-4 rounded border" />
+            <label key={opt} className="flex items-center gap-1.5 text-[13px] text-navy">
+              <input type="checkbox" name={inputName} value={opt} className="size-4 rounded border-[#e2e8f0] accent-teal" />
               {opt}
             </label>
           ))}
@@ -58,14 +55,11 @@ function CustomFieldInput({ field }: { field: FieldDefinition }) {
     )
   }
 
-  const inputType = field.field_type === 'number' ? 'number'
-    : field.field_type === 'date' ? 'date'
-    : 'text'
-
+  const inputType = field.field_type === 'number' ? 'number' : field.field_type === 'date' ? 'date' : 'text'
   return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor={inputName}>{labelText}</Label>
-      <Input id={inputName} name={inputName} type={inputType} required={field.required} />
+    <div>
+      <label htmlFor={inputName} className={labelCls}>{labelText}</label>
+      <input id={inputName} name={inputName} type={inputType} required={field.required} className={inputCls} />
     </div>
   )
 }
@@ -80,110 +74,108 @@ export default function ClientRegistrationForm({
   const [state, action, isPending] = useActionState(createClient, initialState)
 
   return (
-    <form action={action}>
-      <Card className="max-w-2xl">
-        <CardHeader>
-          <CardTitle>New Client</CardTitle>
-          <CardDescription>Complete the intake form to register a new client.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-5">
-          {state.error && (
-            <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {state.error}
-            </div>
-          )}
+    <form action={action} className="mx-auto max-w-2xl flex flex-col gap-4">
+      {state.error && (
+        <div className="rounded-lg bg-red-50 px-3 py-2.5 text-[12px] text-red-700">{state.error}</div>
+      )}
 
+      {/* Basic information */}
+      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+        <div className="mb-4 border-b border-[#e2e8f0] pb-3">
+          <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Basic information</p>
+        </div>
+        <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="first_name">First name *</Label>
-              <Input
-                id="first_name"
-                name="first_name"
-                placeholder="Maria"
-                aria-invalid={!!state.fieldErrors?.first_name}
-                required
-              />
+            <div>
+              <label htmlFor="first_name" className={labelCls}>First name *</label>
+              <input id="first_name" name="first_name" placeholder="Maria" required
+                aria-invalid={!!state.fieldErrors?.first_name} className={inputCls} />
               {state.fieldErrors?.first_name && (
-                <p className="text-xs text-destructive">{state.fieldErrors.first_name}</p>
+                <p className="mt-0.5 text-[11px] text-red-600">{state.fieldErrors.first_name}</p>
               )}
             </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="last_name">Last name *</Label>
-              <Input
-                id="last_name"
-                name="last_name"
-                placeholder="Garcia"
-                aria-invalid={!!state.fieldErrors?.last_name}
-                required
-              />
+            <div>
+              <label htmlFor="last_name" className={labelCls}>Last name *</label>
+              <input id="last_name" name="last_name" placeholder="Garcia" required
+                aria-invalid={!!state.fieldErrors?.last_name} className={inputCls} />
               {state.fieldErrors?.last_name && (
-                <p className="text-xs text-destructive">{state.fieldErrors.last_name}</p>
+                <p className="mt-0.5 text-[11px] text-red-600">{state.fieldErrors.last_name}</p>
               )}
             </div>
           </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="dob">Date of birth</Label>
-            <Input id="dob" name="dob" type="date" />
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" name="phone" type="tel" placeholder="(602) 555-0100" />
+            <div>
+              <label htmlFor="dob" className={labelCls}>Date of birth</label>
+              <input id="dob" name="dob" type="date" className={inputCls} />
             </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="client@example.com" />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="address">Address</Label>
-            <Input id="address" name="address" placeholder="123 Main St, Chandler, AZ" />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label>Programs</Label>
-            <div className="flex flex-wrap gap-3">
-              {serviceTypes.map((s) => (
-                <label key={s.id} className="flex items-center gap-1.5 text-sm">
-                  <input type="checkbox" name="programs" value={s.name} className="size-4 rounded border" />
-                  {s.name}
-                </label>
-              ))}
+            <div>
+              <label htmlFor="language" className={labelCls}>Preferred language</label>
+              <input id="language" name="language" type="text" placeholder="English" className={inputCls} />
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="phone" className={labelCls}>Phone</label>
+              <input id="phone" name="phone" type="tel" placeholder="(602) 555-0100" className={inputCls} />
+            </div>
+            <div>
+              <label htmlFor="email" className={labelCls}>Email</label>
+              <input id="email" name="email" type="email" placeholder="client@example.com" className={inputCls} />
+            </div>
+          </div>
+          <div>
+            <label htmlFor="address" className={labelCls}>Address</label>
+            <input id="address" name="address" placeholder="123 Main St, Chandler, AZ" className={inputCls} />
+          </div>
+        </div>
+      </div>
 
-          {/* Custom fields */}
-          {customFields.length > 0 && (
-            <>
-              <div className="border-t pt-4">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
-                  Additional Information
-                </p>
-                <div className="flex flex-col gap-4">
-                  {customFields.map((field) => (
-                    <CustomFieldInput key={field.id} field={field} />
-                  ))}
-                </div>
-              </div>
-            </>
+      {/* Programs */}
+      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+        <div className="mb-4 border-b border-[#e2e8f0] pb-3">
+          <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Programs</p>
+        </div>
+        <div className="flex flex-col divide-y divide-[#f1f5f9]">
+          {serviceTypes.map((s) => (
+            <label key={s.id}
+              className="flex h-9 cursor-pointer items-center gap-2.5 transition-colors hover:bg-teal-tint px-1 rounded"
+            >
+              <input type="checkbox" name="programs" value={s.name}
+                className="size-4 rounded border-[#e2e8f0] accent-teal" />
+              <span className="text-[13px] text-navy">{s.name}</span>
+            </label>
+          ))}
+          {serviceTypes.length === 0 && (
+            <p className="text-[12px] text-[#6b7280]">No programs configured yet.</p>
           )}
+        </div>
+      </div>
 
-          <div className="flex gap-3 pt-2">
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Saving…' : 'Register client'}
-            </Button>
-            <Button type="button" variant="outline" onClick={() => window.history.back()}>
-              Cancel
-            </Button>
+      {/* Custom fields */}
+      {customFields.length > 0 && (
+        <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+          <div className="mb-4 border-b border-[#e2e8f0] pb-3">
+            <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Additional information</p>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            {customFields.map((field) => (
+              <CustomFieldInput key={field.id} field={field} />
+            ))}
+          </div>
+        </div>
+      )}
 
-        </CardContent>
-      </Card>
+      {/* Footer */}
+      <div className="flex items-center justify-between">
+        <button type="button" onClick={() => window.history.back()}
+          className="inline-flex h-9 items-center rounded-lg border border-[#e2e8f0] bg-white px-4 text-[13px] font-medium text-[#1f2937] hover:bg-teal-tint">
+          Cancel
+        </button>
+        <button type="submit" disabled={isPending}
+          className="inline-flex h-9 items-center rounded-lg bg-teal px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77] disabled:opacity-60">
+          {isPending ? 'Saving…' : 'Register client'}
+        </button>
+      </div>
     </form>
   )
 }

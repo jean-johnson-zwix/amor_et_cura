@@ -11,14 +11,24 @@ import {
   type AppointmentWithDetails,
 } from '@/lib/appointments'
 
-const SERVICE_COLORS: Record<string, { bg: string; text: string }> = {
-  'Food Assistance': { bg: '#e0f7f4', text: '#007b58' },
-  'Case Management': { bg: '#fce4f0', text: '#eb3690' },
-  'Counseling':      { bg: '#e8ecf6', text: '#0a1e52' },
-}
+const SERVICE_RULES: Array<{ match: string; bg: string; text: string }> = [
+  { match: 'food',       bg: '#e0f7f4', text: '#007b58' },
+  { match: 'case',       bg: '#fce4f0', text: '#eb3690' },
+  { match: 'counsel',    bg: '#e8ecf6', text: '#0a1e52' },
+  { match: 'mental',     bg: '#e8ecf6', text: '#0a1e52' },
+  { match: 'housing',    bg: '#e0f7f4', text: '#007b58' },
+  { match: 'employ',     bg: '#fce4f0', text: '#eb3690' },
+  { match: 'education',  bg: '#e8ecf6', text: '#0a1e52' },
+  { match: 'medical',    bg: '#e0f7f4', text: '#007b58' },
+  { match: 'transport',  bg: '#fce4f0', text: '#eb3690' },
+  { match: 'child',      bg: '#e0f7f4', text: '#007b58' },
+  { match: 'legal',      bg: '#fce4f0', text: '#eb3690' },
+]
 
 function getServiceColor(name: string) {
-  return SERVICE_COLORS[name] ?? { bg: '#f3f4f6', text: '#6b7280' }
+  const lower = name.toLowerCase()
+  const rule = SERVICE_RULES.find((r) => lower.includes(r.match))
+  return rule ?? { bg: '#e0f7f4', text: '#007b58' }
 }
 
 function AppointmentChip({ appt }: { appt: AppointmentWithDetails }) {

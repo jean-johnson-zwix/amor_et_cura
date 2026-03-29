@@ -3,12 +3,14 @@
 import { useActionState } from 'react'
 import Link from 'next/link'
 import { createAppointment, type NewAppointmentFormState } from './actions'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 
 const initialState: NewAppointmentFormState = {}
+
+const inputCls =
+  'h-9 w-full rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] text-navy outline-none transition-all focus:border-teal focus:ring-2 focus:ring-teal/20 placeholder:text-[#9ca3af]'
+const selectCls =
+  'h-9 w-full rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] text-navy outline-none transition-all focus:border-teal focus:ring-2 focus:ring-teal/20'
+const labelCls = 'mb-1 block text-[11px] font-medium text-[#6b7280]'
 
 export default function AppointmentForm({
   defaultClientId,
@@ -23,120 +25,108 @@ export default function AppointmentForm({
 
   if (state.success) {
     return (
-      <Card className="max-w-2xl">
-        <CardContent className="py-8 text-center flex flex-col items-center gap-4">
-          <p className="text-sm font-medium text-green-700">Appointment scheduled!</p>
-          <div className="flex gap-3">
-            <Link
-              href="/services/schedule"
-              className="inline-flex h-8 items-center justify-center rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
-            >
-              View calendar
-            </Link>
-            <button
-              onClick={() => window.location.reload()}
-              className="inline-flex h-8 items-center justify-center rounded-lg border border-input bg-background px-2.5 text-sm font-medium transition-colors hover:bg-muted"
-            >
-              Schedule another
-            </button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="mx-auto max-w-lg rounded-[14px] border border-[#e2e8f0] bg-white p-8 text-center">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-light mx-auto mb-3">
+          <svg className="size-5 text-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <p className="text-[15px] font-semibold text-navy">Appointment scheduled!</p>
+        <div className="mt-4 flex justify-center gap-3">
+          <Link href="/services/schedule"
+            className="inline-flex h-9 items-center rounded-lg bg-teal px-4 text-[13px] font-medium text-white hover:bg-[#009e77]">
+            View calendar
+          </Link>
+          <button onClick={() => window.location.reload()}
+            className="inline-flex h-9 items-center rounded-lg border border-[#e2e8f0] bg-white px-4 text-[13px] font-medium text-navy hover:bg-teal-tint">
+            Schedule another
+          </button>
+        </div>
+      </div>
     )
   }
 
   return (
-    <form action={action}>
-      <Card className="max-w-2xl">
-        <CardHeader>
-          <CardTitle>Schedule Appointment</CardTitle>
-          <CardDescription>Book a future appointment for a client.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-5">
-          {state.error && (
-            <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {state.error}
-            </div>
-          )}
+    <form action={action} className="mx-auto max-w-lg flex flex-col gap-4">
+      {state.error && (
+        <div className="rounded-lg bg-red-50 px-3 py-2.5 text-[12px] text-red-700">{state.error}</div>
+      )}
 
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="client_id">Client *</Label>
-            <select
-              id="client_id"
-              name="client_id"
-              defaultValue={defaultClientId ?? ''}
-              aria-invalid={!!state.fieldErrors?.client_id}
-              className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-              required
-            >
+      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+        <div className="mb-4 border-b border-[#e2e8f0] pb-3">
+          <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Appointment details</p>
+        </div>
+        <div className="flex flex-col gap-4">
+          <div>
+            <label htmlFor="client_id" className={labelCls}>Client *</label>
+            <select id="client_id" name="client_id" defaultValue={defaultClientId ?? ''}
+              aria-invalid={!!state.fieldErrors?.client_id} required className={selectCls}>
               <option value="">Select a client…</option>
               {clients.map((c) => (
                 <option key={c.id} value={c.id}>{c.name} ({c.number})</option>
               ))}
             </select>
             {state.fieldErrors?.client_id && (
-              <p className="text-xs text-destructive">{state.fieldErrors.client_id}</p>
+              <p className="mt-0.5 text-[11px] text-red-600">{state.fieldErrors.client_id}</p>
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="scheduled_date">Date *</Label>
-              <Input id="scheduled_date" name="scheduled_date" type="date" aria-invalid={!!state.fieldErrors?.scheduled_date} required />
-              {state.fieldErrors?.scheduled_date && (
-                <p className="text-xs text-destructive">{state.fieldErrors.scheduled_date}</p>
-              )}
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="scheduled_time">Time *</Label>
-              <Input id="scheduled_time" name="scheduled_time" type="time" aria-invalid={!!state.fieldErrors?.scheduled_time} required />
-              {state.fieldErrors?.scheduled_time && (
-                <p className="text-xs text-destructive">{state.fieldErrors.scheduled_time}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="service_type_id">Service type</Label>
-              <select
-                id="service_type_id"
-                name="service_type_id"
-                className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-              >
+            <div>
+              <label htmlFor="service_type_id" className={labelCls}>Service type</label>
+              <select id="service_type_id" name="service_type_id" className={selectCls}>
                 <option value="">Select a service type…</option>
                 {serviceTypes.map((s) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
               </select>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="duration_minutes">Duration (minutes)</Label>
-              <Input id="duration_minutes" name="duration_minutes" type="number" min="15" max="480" step="15" placeholder="30" />
+            <div>
+              <label htmlFor="duration_minutes" className={labelCls}>Duration (minutes)</label>
+              <input id="duration_minutes" name="duration_minutes" type="number"
+                min="15" max="480" step="15" placeholder="30" className={inputCls} />
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="notes">Notes</Label>
-            <textarea
-              id="notes"
-              name="notes"
-              rows={3}
-              placeholder="Any preparation notes or reminders…"
-              className="w-full rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="scheduled_date" className={labelCls}>Date *</label>
+              <input id="scheduled_date" name="scheduled_date" type="date" required
+                aria-invalid={!!state.fieldErrors?.scheduled_date} className={inputCls} />
+              {state.fieldErrors?.scheduled_date && (
+                <p className="mt-0.5 text-[11px] text-red-600">{state.fieldErrors.scheduled_date}</p>
+              )}
+            </div>
+            <div>
+              <label htmlFor="scheduled_time" className={labelCls}>Time *</label>
+              <input id="scheduled_time" name="scheduled_time" type="time" required
+                aria-invalid={!!state.fieldErrors?.scheduled_time} className={inputCls} />
+              {state.fieldErrors?.scheduled_time && (
+                <p className="mt-0.5 text-[11px] text-red-600">{state.fieldErrors.scheduled_time}</p>
+              )}
+            </div>
           </div>
 
-          <div className="flex gap-3 pt-2">
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Scheduling…' : 'Schedule appointment'}
-            </Button>
-            <Button type="button" variant="outline" onClick={() => window.history.back()}>
-              Cancel
-            </Button>
+          <div>
+            <label htmlFor="notes" className={labelCls}>Notes</label>
+            <textarea id="notes" name="notes" rows={3}
+              placeholder="Any preparation notes or reminders…"
+              className="w-full rounded-lg border border-[#e2e8f0] bg-white px-3 py-2 text-[13px] text-navy outline-none transition-all placeholder:text-[#9ca3af] focus:border-teal focus:ring-2 focus:ring-teal/20 resize-y"
+            />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <button type="button" onClick={() => window.history.back()}
+          className="inline-flex h-9 items-center rounded-lg border border-[#e2e8f0] bg-white px-4 text-[13px] font-medium text-[#1f2937] hover:bg-teal-tint">
+          Cancel
+        </button>
+        <button type="submit" disabled={isPending}
+          className="inline-flex h-9 items-center rounded-lg bg-teal px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77] disabled:opacity-60">
+          {isPending ? 'Scheduling…' : 'Book appointment'}
+        </button>
+      </div>
     </form>
   )
 }

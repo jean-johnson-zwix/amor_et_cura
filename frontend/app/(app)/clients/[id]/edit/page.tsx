@@ -1,8 +1,8 @@
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/supabase/session'
 import { can } from '@/lib/auth/permissions'
+import { Topbar } from '@/components/Topbar'
 import EditClientForm from './EditClientForm'
 
 export default async function EditClientPage({
@@ -31,20 +31,15 @@ export default async function EditClientPage({
   if (!client) notFound()
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <nav className="text-sm text-muted-foreground mb-1">
-          <Link href="/clients" className="hover:underline">Clients</Link>
-          {' / '}
-          <Link href={`/clients/${id}`} className="hover:underline">
-            {client.first_name} {client.last_name}
-          </Link>
-          {' / '}
-          <span>Edit</span>
-        </nav>
-        <h1 className="text-xl font-semibold">Edit client</h1>
+    <>
+      <Topbar crumbs={[
+        { label: 'Clients', href: '/clients' },
+        { label: `${client.first_name} ${client.last_name}`, href: `/clients/${id}` },
+        { label: 'Edit' },
+      ]} />
+      <div className="p-6">
+        <EditClientForm client={client} serviceTypes={serviceTypes ?? []} customFields={fieldDefs ?? []} />
       </div>
-      <EditClientForm client={client} serviceTypes={serviceTypes ?? []} customFields={fieldDefs ?? []} />
-    </div>
+    </>
   )
 }

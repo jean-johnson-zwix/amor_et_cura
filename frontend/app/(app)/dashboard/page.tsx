@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { Users, CalendarDays, Clock, Monitor, TrendingUp } from 'lucide-react'
 import ServiceBreakdownChart from '@/components/dashboard/ServiceBreakdownChart'
 import VisitTrendChart from '@/components/dashboard/VisitTrendChart'
-import { Topbar } from '@/components/Topbar'
 import { computeDashboardStats } from '@/lib/dashboard'
 import { createClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/supabase/session'
@@ -48,7 +47,7 @@ function StatCard({
           {badge}
         </span>
       </div>
-      <p className="mt-3 text-2xl font-semibold tabular-nums text-[#0a1e52]">{value}</p>
+      <p className="mt-3 text-2xl font-semibold tabular-nums text-navy">{value}</p>
       <p className="mt-0.5 text-[12px] text-[#6b7280]">{label}</p>
     </div>
   )
@@ -106,13 +105,10 @@ export default async function DashboardPage() {
   const dayName = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
   return (
-    <>
-      <Topbar crumbs={[{ label: 'Dashboard' }]} />
-
-      <div className="flex flex-col gap-5 p-6">
+    <div className="flex flex-col gap-5 p-6">
         {/* Greeting */}
         <div>
-          <h1 className="text-[18px] font-semibold text-[#0a1e52]">Good morning, {firstName} 👋</h1>
+          <h1 className="text-[18px] font-semibold text-navy">Good morning, {firstName} 👋</h1>
           <p className="mt-0.5 text-[12px] text-[#6b7280]">
             Here&apos;s what&apos;s happening at Chandler CARE Center today — {dayName}.
           </p>
@@ -165,11 +161,11 @@ export default async function DashboardPage() {
         {/* Charts row */}
         <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
           <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-4">
-            <p className="mb-3 text-[13px] font-semibold text-[#0a1e52]">Visit trend — last 7 weeks</p>
+            <p className="mb-3 text-[13px] font-semibold text-navy">Visit trend — last 7 weeks</p>
             <VisitTrendChart data={stats.visitTrend} />
           </div>
           <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-4">
-            <p className="mb-3 text-[13px] font-semibold text-[#0a1e52]">Services breakdown</p>
+            <p className="mb-3 text-[13px] font-semibold text-navy">Services breakdown</p>
             <ServiceBreakdownChart data={stats.serviceBreakdown} />
           </div>
         </div>
@@ -179,8 +175,8 @@ export default async function DashboardPage() {
           {/* Today's appointments */}
           <div className="rounded-[14px] border border-[#e2e8f0] bg-white">
             <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
-              <p className="text-[13px] font-semibold text-[#0a1e52]">Today&apos;s appointments</p>
-              <Link href="/services/schedule" className="text-[11px] text-[#00bd8e] hover:underline">
+              <p className="text-[13px] font-semibold text-navy">Today&apos;s appointments</p>
+              <Link href="/services/schedule" className="text-[11px] text-teal hover:underline">
                 View schedule →
               </Link>
             </div>
@@ -199,9 +195,9 @@ export default async function DashboardPage() {
                   const isConfirmed = appt.status === 'confirmed'
                   return (
                     <div key={appt.id} className="flex items-center gap-3 px-4 py-3">
-                      <div className="h-2 w-2 shrink-0 rounded-full bg-[#00bd8e]" />
+                      <div className="h-2 w-2 shrink-0 rounded-full bg-teal" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-semibold text-[#0a1e52] truncate">{appt.client_name}</p>
+                        <p className="text-[13px] font-semibold text-navy truncate">{appt.client_name}</p>
                         <p className="text-[11px] text-[#6b7280]">{appt.service_type_name}</p>
                       </div>
                       <div className="flex shrink-0 flex-col items-end gap-1">
@@ -227,8 +223,8 @@ export default async function DashboardPage() {
           {/* Recently added clients */}
           <div className="rounded-[14px] border border-[#e2e8f0] bg-white">
             <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
-              <p className="text-[13px] font-semibold text-[#0a1e52]">Recently added clients</p>
-              <Link href="/clients" className="text-[11px] text-[#00bd8e] hover:underline">
+              <p className="text-[13px] font-semibold text-navy">Recently added clients</p>
+              <Link href="/clients" className="text-[11px] text-teal hover:underline">
                 View all →
               </Link>
             </div>
@@ -250,7 +246,7 @@ export default async function DashboardPage() {
                       <div className="flex-1 min-w-0">
                         <Link
                           href={`/clients/${c.id}`}
-                          className="text-[13px] font-semibold text-[#0a1e52] hover:underline truncate block"
+                          className="text-[13px] font-semibold text-navy hover:underline truncate block"
                         >
                           {c.first_name} {c.last_name}
                         </Link>
@@ -275,7 +271,6 @@ export default async function DashboardPage() {
             )}
           </div>
         </div>
-      </div>
-    </>
+    </div>
   )
 }
