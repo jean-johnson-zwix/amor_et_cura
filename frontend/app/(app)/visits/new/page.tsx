@@ -1,15 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import VisitLogForm from './VisitLogForm'
-
-// Stub client lookup — replace with Supabase query after #1 Auth lands
-const STUB_CLIENTS: Record<string, { name: string }> = {
-  '1': { name: 'Maria Garcia' },
-  '2': { name: 'James Thompson' },
-  '3': { name: 'Aisha Patel' },
-  '4': { name: 'Carlos Rivera' },
-  '5': { name: 'Linda Nguyen' },
-}
+import { createClient } from '@/lib/supabase/server'
 
 export default async function NewVisitPage({
   searchParams,
@@ -20,8 +12,20 @@ export default async function NewVisitPage({
 
   if (!client_id) notFound()
 
-  const client = STUB_CLIENTS[client_id]
+  const supabase = await createClient()
+  const { data: client } = await supabase
+    .from('clients')
+    .select('id, first_name, last_name')
+    .eq('id', client_id)
+    .single()
+
   if (!client) notFound()
+
+  const { data: serviceTypes } = await supabase
+    .from('service_types')
+    .select('id, name')
+    .eq('is_active', true)
+    .order('name')
 
   return (
     <div className="flex flex-col gap-6">
@@ -35,7 +39,11 @@ export default async function NewVisitPage({
         </nav>
         <h1 className="text-xl font-semibold">Log a visit</h1>
       </div>
-      <VisitLogForm clientId={client_id} clientName={client.name} />
+      <VisitLogForm
+        clientId={client.id}
+        clientName={`${client.first_name} ${client.last_name}`}
+        serviceTypes={serviceTypes ?? []}
+      />
     </div>
   )
 }

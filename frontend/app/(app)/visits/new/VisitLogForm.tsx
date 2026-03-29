@@ -7,27 +7,16 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 
-const SERVICE_TYPES = [
-  { id: 'st-1', name: 'Case Management' },
-  { id: 'st-2', name: 'Food Assistance' },
-  { id: 'st-3', name: 'Housing Support' },
-  { id: 'st-4', name: 'Medical Referral' },
-  { id: 'st-5', name: 'Mental Health Services' },
-  { id: 'st-6', name: 'Employment Support' },
-  { id: 'st-7', name: 'Child & Family Services' },
-  { id: 'st-8', name: 'Legal Aid Referral' },
-  { id: 'st-9', name: 'Transportation Assistance' },
-  { id: 'st-10', name: 'Education Support' },
-]
-
 const initialState: NewVisitFormState = {}
 
 export default function VisitLogForm({
   clientId,
   clientName,
+  serviceTypes,
 }: {
   clientId: string
   clientName: string
+  serviceTypes: { id: string; name: string }[]
 }) {
   const [state, action, isPending] = useActionState(createVisit, initialState)
 
@@ -36,7 +25,7 @@ export default function VisitLogForm({
       <Card className="max-w-2xl">
         <CardContent className="py-8 text-center flex flex-col items-center gap-4">
           <p className="text-sm font-medium text-green-700">
-            Visit logged successfully! (stub — not saved to database yet)
+            Visit logged successfully!
           </p>
           <div className="flex gap-3">
             <a
@@ -106,14 +95,13 @@ export default function VisitLogForm({
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="service_type_id">Service type</Label>
-            {/* TODO(#3): load from service_types table once Supabase is wired */}
             <select
               id="service_type_id"
               name="service_type_id"
               className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             >
               <option value="">Select a service type…</option>
-              {SERVICE_TYPES.map((s) => (
+              {serviceTypes.map((s) => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
@@ -139,9 +127,7 @@ export default function VisitLogForm({
             </Button>
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            Note: form submission is stubbed — data will not be saved until issue #1 (Auth) is complete.
-          </p>
+
         </CardContent>
       </Card>
     </form>
