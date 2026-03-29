@@ -6,13 +6,76 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import type { FieldDefinition } from '@/types/database'
 
 const initialState: NewClientFormState = {}
 
+function CustomFieldInput({ field }: { field: FieldDefinition }) {
+  const inputName = `cf_${field.name}`
+  const labelText = field.label + (field.required ? ' *' : '')
+
+  if (field.field_type === 'boolean') {
+    return (
+      <div className="flex items-center gap-2">
+        <input type="checkbox" id={inputName} name={inputName} className="size-4 rounded border" />
+        <Label htmlFor={inputName}>{labelText}</Label>
+      </div>
+    )
+  }
+
+  if (field.field_type === 'select') {
+    return (
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor={inputName}>{labelText}</Label>
+        <select
+          id={inputName}
+          name={inputName}
+          required={field.required}
+          className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          <option value="">Select…</option>
+          {(field.options ?? []).map((opt) => (
+            <option key={opt} value={opt}>{opt}</option>
+          ))}
+        </select>
+      </div>
+    )
+  }
+
+  if (field.field_type === 'multiselect') {
+    return (
+      <div className="flex flex-col gap-1.5">
+        <Label>{labelText}</Label>
+        <div className="flex flex-wrap gap-3">
+          {(field.options ?? []).map((opt) => (
+            <label key={opt} className="flex items-center gap-1.5 text-sm">
+              <input type="checkbox" name={inputName} value={opt} className="size-4 rounded border" />
+              {opt}
+            </label>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  const inputType = field.field_type === 'number' ? 'number'
+    : field.field_type === 'date' ? 'date'
+    : 'text'
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor={inputName}>{labelText}</Label>
+      <Input id={inputName} name={inputName} type={inputType} required={field.required} />
+    </div>
+  )
+}
+
 export default function ClientRegistrationForm({
   serviceTypes,
+  customFields,
 }: {
   serviceTypes: { id: string; name: string }[]
+  customFields: FieldDefinition[]
 }) {
   const [state, action, isPending] = useActionState(createClient, initialState)
 
@@ -95,6 +158,22 @@ export default function ClientRegistrationForm({
               ))}
             </select>
           </div>
+
+          {/* Custom fields */}
+          {customFields.length > 0 && (
+            <>
+              <div className="border-t pt-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+                  Additional Information
+                </p>
+                <div className="flex flex-col gap-4">
+                  {customFields.map((field) => (
+                    <CustomFieldInput key={field.id} field={field} />
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
 
           <div className="flex gap-3 pt-2">
             <Button type="submit" disabled={isPending}>

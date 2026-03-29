@@ -66,3 +66,19 @@ export interface AuditLog {
   changed_fields: string[] | null
   created_at: string
 }
+
+export type FieldType = 'text' | 'number' | 'date' | 'boolean' | 'select' | 'multiselect'
+export type FieldAppliesTo = 'client' | 'visit'
+
+export interface FieldDefinition {
+  id: string
+  name: string
+  label: string
+  field_type: FieldType
+  options: string[] | null
+  required: boolean
+  applies_to: FieldAppliesTo
+  sort_order: number
+  is_active: boolean
+  created_at: string
+}

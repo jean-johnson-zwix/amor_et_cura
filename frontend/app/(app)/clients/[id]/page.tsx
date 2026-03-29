@@ -30,11 +30,24 @@ export default async function ClientProfilePage({
 
   if (!client) notFound()
 
-  const { data: rawVisits } = await supabase
-    .from('visits')
-    .select('*, service_types(name), profiles(full_name)')
-    .eq('client_id', id)
-    .order('visit_date', { ascending: false })
+  const [{ data: rawVisits }, { data: fieldDefs }] = await Promise.all([
+    supabase
+      .from('visits')
+      .select('*, service_types(name), profiles(full_name)')
+      .eq('client_id', id)
+      .order('visit_date', { ascending: false }),
+    supabase
+      .from('field_definitions')
+      .select('*')
+      .eq('applies_to', 'client')
+      .eq('is_active', true)
+      .order('sort_order')
+      .order('created_at'),
+  ])
+
+  const activeCustomFields = (fieldDefs ?? []).filter(
+    (f) => client.custom_fields && f.name in client.custom_fields
+  )
 
   const visits = (rawVisits ?? []).map((v) => ({
     ...v,
@@ -97,6 +110,17 @@ export default async function ClientProfilePage({
               <dt className="text-muted-foreground">Registered</dt>
               <dd className="mt-0.5 font-medium">{formatDate(client.created_at)}</dd>
             </div>
+
+            {activeCustomFields.map((field) => {
+              const raw = (client.custom_fields as Record<string, unknown>)[field.name]
+              const display = Array.isArray(raw) ? raw.join(', ') : String(raw ?? '—')
+              return (
+                <div key={field.id}>
+                  <dt className="text-muted-foreground">{field.label}</dt>
+                  <dd className="mt-0.5 font-medium">{display || '—'}</dd>
+                </div>
+              )
+            })}
           </dl>
         </CardContent>
       </Card>

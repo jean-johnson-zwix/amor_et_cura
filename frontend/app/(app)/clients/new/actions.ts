@@ -23,6 +23,20 @@ export async function createClient(
   const address = (formData.get('address') as string | null)?.trim() || null
   const program = (formData.get('program') as string | null)?.trim() || null
 
+  // Collect custom fields (multiselect values come as arrays via getAll)
+  const customFields: Record<string, unknown> = {}
+  for (const [key, value] of formData.entries()) {
+    if (key.startsWith('cf_')) {
+      const fieldName = key.slice(3)
+      const existing = customFields[fieldName]
+      if (existing !== undefined) {
+        customFields[fieldName] = Array.isArray(existing) ? [...existing, value] : [existing, value]
+      } else {
+        customFields[fieldName] = value
+      }
+    }
+  }
+
   // Basic validation
   const fieldErrors: Record<string, string> = {}
   if (!firstName) fieldErrors.first_name = 'First name is required.'
@@ -41,6 +55,7 @@ export async function createClient(
     email,
     address,
     program,
+    custom_fields: customFields,
     created_by: session!.user.id,
   }).select('id').single()
 
