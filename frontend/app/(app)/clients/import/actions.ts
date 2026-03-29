@@ -1,5 +1,8 @@
 'use server'
 
+import { createClient } from '@/lib/supabase/server'
+import { getSession } from '@/lib/supabase/session'
+
 export type ImportRow = {
   row: number
   first_name: string
@@ -25,31 +28,41 @@ export type ImportResult = {
 }
 
 export async function importClients(rows: ImportRow[]): Promise<ImportResult> {
+  const session = await getSession()
+  if (!session) {
+    return {
+      results: rows.map((r) => ({
+        row: r.row,
+        name: `${r.first_name} ${r.last_name}`,
+        status: 'error',
+        error: 'Not authenticated.',
+      })),
+      successCount: 0,
+      errorCount: rows.length,
+    }
+  }
+
+  const supabase = await createClient()
   const results: ImportRowResult[] = []
 
   for (const row of rows) {
     const name = `${row.first_name} ${row.last_name}`
+    const { error } = await supabase.from('clients').insert({
+      first_name: row.first_name,
+      last_name: row.last_name,
+      dob: row.dob,
+      phone: row.phone,
+      email: row.email,
+      address: row.address,
+      program: row.program,
+      created_by: session.user.id,
+    })
 
-    // TODO(#6): replace with Supabase insert once auth (#1) is wired up
-    // const supabase = await createClient()
-    // const { error } = await supabase.from('clients').insert({
-    //   first_name: row.first_name,
-    //   last_name: row.last_name,
-    //   dob: row.dob,
-    //   phone: row.phone,
-    //   email: row.email,
-    //   address: row.address,
-    //   program: row.program,
-    //   created_by: user.id,
-    // })
-    // if (error) {
-    //   results.push({ row: row.row, name, status: 'error', error: error.message })
-    //   continue
-    // }
-
-    // Stub: simulate success
-    console.log('importClients stub — row', row.row, name)
-    results.push({ row: row.row, name, status: 'success' })
+    if (error) {
+      results.push({ row: row.row, name, status: 'error', error: error.message })
+    } else {
+      results.push({ row: row.row, name, status: 'success' })
+    }
   }
 
   return {

@@ -9,7 +9,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="flex h-screen flex-col overflow-hidden">
       <NavBar profile={session?.profile ?? null} />
       <div className="flex flex-1 overflow-hidden">
-        <AppNav />
+        <AppNav profile={session?.profile ?? null} />
         <main className="flex-1 overflow-y-auto bg-muted/20 p-6">{children}</main>
       </div>
     </div>

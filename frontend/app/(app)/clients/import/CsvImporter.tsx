@@ -215,9 +215,6 @@ export default function CsvImporter() {
                 <Button variant="outline" onClick={handleReset}>Cancel</Button>
               </div>
 
-              <p className="text-xs text-muted-foreground">
-                Note: import is stubbed — data will not be saved until issue #1 (Auth) is complete.
-              </p>
             </div>
           )}
         </CardContent>

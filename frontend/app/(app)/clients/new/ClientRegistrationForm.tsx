@@ -114,10 +114,6 @@ export default function ClientRegistrationForm() {
             </Button>
           </div>
 
-          {/* Stub notice — remove when Supabase is wired */}
-          <p className="text-xs text-muted-foreground">
-            Note: form submission is stubbed — data will not be saved until issue #1 (Auth) is complete.
-          </p>
         </CardContent>
       </Card>
     </form>

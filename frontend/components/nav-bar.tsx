@@ -13,7 +13,7 @@ const ROLE_LABELS: Record<string, string> = {
 }
 
 const BASE_NAV_LINKS = [
-  { href: '/', label: 'Dashboard' },
+  { href: '/dashboard', label: 'Dashboard' },
   { href: '/clients', label: 'Clients' },
 ]
 
@@ -29,19 +29,19 @@ export function NavBar({ profile }: { profile: Profile | null }) {
   const navLinks = isAdmin ? [...BASE_NAV_LINKS, ...ADMIN_NAV_LINKS] : BASE_NAV_LINKS
 
   return (
-    <nav className="border-b bg-white shadow-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+    <nav className="border-b bg-background shadow-sm">
+      <div className="flex items-center justify-between px-4 py-3 sm:px-6">
         <div className="flex items-center gap-8">
-          <span className="text-lg font-semibold text-gray-900">Amor et Cura</span>
+          <span className="text-base font-semibold">Amor et Cura</span>
           <div className="hidden items-center gap-1 sm:flex">
             {navLinks.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
                 className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                  pathname === href
-                    ? 'bg-gray-100 text-gray-900'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  pathname === href || pathname.startsWith(href + '/')
+                    ? 'bg-muted text-foreground'
+                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                 }`}
               >
                 {label}
@@ -51,15 +51,13 @@ export function NavBar({ profile }: { profile: Profile | null }) {
         </div>
         <div className="flex items-center gap-3">
           <div className="hidden text-right sm:block">
-            <p className="text-sm font-medium text-gray-900">{profile?.full_name ?? '—'}</p>
-            <p className="text-xs text-gray-500">
+            <p className="text-sm font-medium">{profile?.full_name ?? '—'}</p>
+            <p className="text-xs text-muted-foreground">
               {profile ? (ROLE_LABELS[profile.role] ?? profile.role) : ''}
             </p>
           </div>
           <form action={signOut}>
-            <Button type="submit" variant="outline" size="sm">
-              Sign out
-            </Button>
+            <Button type="submit" variant="outline" size="sm">Sign out</Button>
           </form>
         </div>
       </div>

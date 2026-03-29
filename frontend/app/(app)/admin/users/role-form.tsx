@@ -29,7 +29,7 @@ export function RoleForm({
         name="role"
         defaultValue={currentRole}
         disabled={isSelf || pending}
-        className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 focus:border-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+        className="rounded-md border border-input bg-background px-2 py-1 text-sm focus:border-ring focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
         {ROLES.map(({ value, label }) => (
           <option key={value} value={value}>{label}</option>
@@ -38,12 +38,8 @@ export function RoleForm({
       <Button type="submit" size="sm" variant="outline" disabled={isSelf || pending}>
         {pending ? 'Saving…' : 'Save'}
       </Button>
-      {state && 'error' in state && (
-        <span className="text-xs text-red-600">{state.error}</span>
-      )}
-      {state && 'success' in state && (
-        <span className="text-xs text-green-600">Saved</span>
-      )}
+      {state && 'error' in state && <span className="text-xs text-destructive">{state.error}</span>}
+      {state && 'success' in state && <span className="text-xs text-green-600">Saved</span>}
     </form>
   )
 }
