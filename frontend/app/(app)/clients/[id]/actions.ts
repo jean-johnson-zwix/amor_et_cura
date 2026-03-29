@@ -48,6 +48,19 @@ export async function updateClient(
   const address   = (formData.get('address')    as string | null)?.trim() || null
   const programs  = formData.getAll('programs').map((v) => String(v).trim()).filter(Boolean)
 
+  const customFields: Record<string, unknown> = {}
+  for (const [key, value] of formData.entries()) {
+    if (key.startsWith('cf_')) {
+      const fieldName = key.slice(3)
+      const existing = customFields[fieldName]
+      if (existing !== undefined) {
+        customFields[fieldName] = Array.isArray(existing) ? [...existing, value] : [existing, value]
+      } else {
+        customFields[fieldName] = value
+      }
+    }
+  }
+
   const fieldErrors: Record<string, string> = {}
   if (!firstName) fieldErrors.first_name = 'First name is required.'
   if (!lastName)  fieldErrors.last_name  = 'Last name is required.'
@@ -67,6 +80,7 @@ export async function updateClient(
       email,
       address,
       programs,
+      custom_fields: customFields,
       updated_at: new Date().toISOString(),
     })
     .eq('id', clientId)

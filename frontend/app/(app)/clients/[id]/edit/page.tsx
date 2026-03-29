@@ -16,9 +16,16 @@ export default async function EditClientPage({
   if (!can.editClient(session?.profile?.role)) notFound()
 
   const supabase = await createClient()
-  const [{ data: client }, { data: serviceTypes }] = await Promise.all([
+  const [{ data: client }, { data: serviceTypes }, { data: fieldDefs }] = await Promise.all([
     supabase.from('clients').select('*').eq('id', id).single(),
     supabase.from('service_types').select('id, name').eq('is_active', true).order('name'),
+    supabase
+      .from('field_definitions')
+      .select('*')
+      .eq('applies_to', 'client')
+      .eq('is_active', true)
+      .order('sort_order')
+      .order('created_at'),
   ])
 
   if (!client) notFound()
@@ -37,7 +44,7 @@ export default async function EditClientPage({
         </nav>
         <h1 className="text-xl font-semibold">Edit client</h1>
       </div>
-      <EditClientForm client={client} serviceTypes={serviceTypes ?? []} />
+      <EditClientForm client={client} serviceTypes={serviceTypes ?? []} customFields={fieldDefs ?? []} />
     </div>
   )
 }

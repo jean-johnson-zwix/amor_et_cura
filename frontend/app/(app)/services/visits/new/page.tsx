@@ -14,7 +14,7 @@ export default async function NewVisitPage({
 
   const supabase = await createClient()
 
-  const [{ data: client }, { data: serviceTypes }] = await Promise.all([
+  const [{ data: client }, { data: serviceTypes }, { data: fieldDefs }] = await Promise.all([
     supabase
       .from('clients')
       .select('first_name, last_name')
@@ -24,6 +24,13 @@ export default async function NewVisitPage({
       .from('service_types')
       .select('id, name')
       .order('name'),
+    supabase
+      .from('field_definitions')
+      .select('*')
+      .eq('applies_to', 'visit')
+      .eq('is_active', true)
+      .order('sort_order')
+      .order('created_at'),
   ])
 
   if (!client) notFound()
@@ -46,6 +53,7 @@ export default async function NewVisitPage({
         clientId={client_id}
         clientName={clientName}
         serviceTypes={serviceTypes ?? []}
+        customFields={fieldDefs ?? []}
       />
     </div>
   )

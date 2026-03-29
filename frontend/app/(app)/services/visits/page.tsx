@@ -1,10 +1,6 @@
 import Link from 'next/link'
-import { Card, CardContent } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/server'
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
+import VisitsTable from './VisitsTable'
 
 export default async function VisitsPage() {
   const supabase = await createClient()
@@ -13,7 +9,7 @@ export default async function VisitsPage() {
     .from('visits')
     .select('*, clients(id, first_name, last_name), service_types(name), profiles(full_name)')
     .order('visit_date', { ascending: false })
-    .limit(100)
+    .limit(500)
 
   const visits = (rawVisits ?? []).map((v) => ({
     id: v.id,
@@ -24,9 +20,25 @@ export default async function VisitsPage() {
     case_worker_name: (v.profiles as { full_name: string } | null)?.full_name ?? '—',
   }))
 
+  const serviceTypes = Array.from(
+    new Set(visits.map((v) => v.service_type_name).filter((s) => s !== '—'))
+  ).sort()
+
+  const caseWorkers = Array.from(
+    new Set(visits.map((v) => v.case_worker_name).filter((w) => w !== '—'))
+  ).sort()
+
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold">All Visits</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">All Visits</h1>
+        <Link
+          href="/services/visits/new"
+          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
+        >
+          + Log Visit
+        </Link>
+      </div>
 
       {visits.length === 0 ? (
         <p className="text-sm text-muted-foreground">
@@ -37,40 +49,7 @@ export default async function VisitsPage() {
           to log their first visit.
         </p>
       ) : (
-        <Card>
-          <CardContent className="p-0">
-            <div className="divide-y">
-              {visits.map((visit) => (
-                <div key={visit.id} className="flex items-center gap-4 px-4 py-3 text-sm">
-                  <span className="w-28 shrink-0 tabular-nums text-muted-foreground">
-                    {formatDate(visit.visit_date)}
-                  </span>
-                  {visit.client ? (
-                    <Link
-                      href={`/clients/${visit.client.id}`}
-                      className="min-w-0 truncate font-medium hover:underline"
-                    >
-                      {visit.client.first_name} {visit.client.last_name}
-                    </Link>
-                  ) : (
-                    <span className="text-muted-foreground">—</span>
-                  )}
-                  <span className="hidden truncate text-muted-foreground sm:block">
-                    {visit.service_type_name}
-                  </span>
-                  <span className="ml-auto hidden shrink-0 text-xs text-muted-foreground md:block">
-                    {visit.case_worker_name}
-                  </span>
-                  {visit.duration_minutes && (
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                      {visit.duration_minutes} min
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <VisitsTable visits={visits} serviceTypes={serviceTypes} caseWorkers={caseWorkers} />
       )}
     </div>
   )

@@ -21,6 +21,19 @@ export async function createVisit(
   const durationMinutes = formData.get('duration_minutes')
   const notes = (formData.get('notes') as string | null)?.trim() || null
 
+  const customFields: Record<string, unknown> = {}
+  for (const [key, value] of formData.entries()) {
+    if (key.startsWith('cf_')) {
+      const fieldName = key.slice(3)
+      const existing = customFields[fieldName]
+      if (existing !== undefined) {
+        customFields[fieldName] = Array.isArray(existing) ? [...existing, value] : [existing, value]
+      } else {
+        customFields[fieldName] = value
+      }
+    }
+  }
+
   const fieldErrors: Record<string, string> = {}
   if (!clientId) fieldErrors.client_id = 'Client is required.'
   if (!visitDate) fieldErrors.visit_date = 'Visit date is required.'
@@ -39,6 +52,7 @@ export async function createVisit(
     visit_date: visitDate,
     duration_minutes: duration,
     notes,
+    custom_fields: customFields,
   }).select('id').single()
 
   if (error) return { error: error.message }
