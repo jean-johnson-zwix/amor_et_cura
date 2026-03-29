@@ -2,7 +2,6 @@
 ### *Case management built for nonprofits that care*
 
 A lightweight, open-source client and case management platform any nonprofit can self-host for **under $30/month** — replacing spreadsheets and paper forms with a professional, AI-assisted system.
-A lightweight, open-source client and case management web application that any nonprofit can deploy for under $20/month.
 
 Built at [ASU WiCS × OHack Hackathon](https://www.ohack.dev) — March 28–29, 2026.
 
