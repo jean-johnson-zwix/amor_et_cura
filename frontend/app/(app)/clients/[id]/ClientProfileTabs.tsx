@@ -382,7 +382,8 @@ export default function ClientProfileTabs({
               </div>
             )}
 
-            {/* Household / Family members */}
+            {/* Household / Family members — only shown when there are members or the user can add them */}
+            {(householdMembers.length > 0 || canLinkFamily) && (
             <div className="rounded-[14px] border border-[#e2e8f0] bg-white lg:col-span-2">
               <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
                 <p className="text-[13px] font-semibold text-navy">Household / Family</p>
@@ -419,6 +420,7 @@ export default function ClientProfileTabs({
                 </div>
               )}
             </div>
+            )}
           </div>
         )}
       </div>

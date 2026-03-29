@@ -1,6 +1,5 @@
 'use server'
 
-import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/supabase/session'
 import { logAudit } from '@/lib/audit'
@@ -65,5 +64,5 @@ export async function createVisit(
     await logAudit({ actorId: session.user.id, action: 'CREATE', tableName: 'visits', recordId: data.id })
   }
 
-  redirect(`/clients/${clientId}`)
+  return { success: true }
 }

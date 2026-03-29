@@ -1,59 +1,58 @@
 'use client'
 
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts'
-import type { VisitTrend } from '@/lib/dashboard'
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 
-export default function VisitTrendChart({ data }: { data: VisitTrend[] }) {
+const COLORS = ['#00bd8e', '#0a1e52', '#eb3690', '#f59e0b', '#0ea5e9', '#7b3fa8']
+
+export default function VisitTrendChart({ data }: { data: { name: string; count: number }[] }) {
+  if (data.length === 0) {
+    return (
+      <div className="flex h-40 items-center justify-center">
+        <p className="text-base text-[#9ca3af]">No visits recorded yet.</p>
+      </div>
+    )
+  }
+
+  const total = data.reduce((sum, d) => sum + d.count, 0)
+
   return (
-    <ResponsiveContainer width="100%" height={200}>
-      <AreaChart data={data} margin={{ top: 4, right: 8, left: -16, bottom: 4 }}>
-        <defs>
-          <linearGradient id="tealGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%"  stopColor="#00bd8e" stopOpacity={0.25} />
-            <stop offset="95%" stopColor="#00bd8e" stopOpacity={0.02} />
-          </linearGradient>
-        </defs>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-        <XAxis
-          dataKey="date"
-          tick={{ fontSize: 11, fill: '#6b7280' }}
-          axisLine={false}
-          tickLine={false}
-        />
-        <YAxis
-          tick={{ fontSize: 11, fill: '#6b7280' }}
-          axisLine={false}
-          tickLine={false}
-          allowDecimals={false}
-        />
-        <Tooltip
-          contentStyle={{
-            fontSize: 12,
-            borderRadius: 8,
-            border: '1px solid #e2e8f0',
-            background: '#fff',
-            color: '#0a1e52',
-          }}
-        />
-        <Area
-          type="monotone"
-          dataKey="visits"
-          name="Visits"
-          stroke="#00bd8e"
-          strokeWidth={2}
-          fill="url(#tealGradient)"
-          dot={{ r: 3, fill: '#00bd8e', strokeWidth: 0 }}
-          activeDot={{ r: 5, fill: '#00bd8e' }}
-        />
-      </AreaChart>
-    </ResponsiveContainer>
+    <div>
+      <ResponsiveContainer width="100%" height={180}>
+        <PieChart>
+          <Pie
+            data={data}
+            dataKey="count"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            outerRadius={80}
+            strokeWidth={2}
+            stroke="#fff"
+          >
+            {data.map((_, i) => (
+              <Cell key={i} fill={COLORS[i % COLORS.length]} />
+            ))}
+          </Pie>
+        </PieChart>
+      </ResponsiveContainer>
+
+      {/* Visible legend — name + count + percentage */}
+      <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {data.map((item, i) => {
+          const pct = total > 0 ? Math.round((item.count / total) * 100) : 0
+          return (
+            <div key={item.name} className="flex items-center gap-2.5">
+              <div
+                className="h-3.5 w-3.5 shrink-0 rounded-sm"
+                style={{ background: COLORS[i % COLORS.length] }}
+              />
+              <span className="text-sm text-[#374151] flex-1">{item.name}</span>
+              <span className="text-sm font-bold text-navy tabular-nums">{pct}%</span>
+              <span className="text-sm text-[#6b7280] tabular-nums">({item.count})</span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
 }

@@ -85,7 +85,7 @@ export function NavBar({ profile }: { profile: Profile | null }) {
         <div className="mb-1 px-2 pt-2">
           <span className="text-[9px] font-semibold uppercase tracking-widest text-[#4a62a0]">Main</span>
         </div>
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-1">
           {MAIN_NAV.map(({ href, label, icon: Icon }) => {
             const active =
               href === '/clients'
@@ -96,13 +96,13 @@ export function NavBar({ profile }: { profile: Profile | null }) {
                 key={href}
                 href={href}
                 className={cn(
-                  'flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] font-medium transition-colors',
+                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors min-h-[44px]',
                   active
                     ? 'bg-[#00bd8e] text-white'
                     : 'text-[#c5d0e4] hover:bg-[#1f3e80] hover:text-white'
                 )}
               >
-                <Icon className="size-4 shrink-0" />
+                <Icon className="size-5 shrink-0" />
                 {label}
               </Link>
             )
@@ -110,10 +110,10 @@ export function NavBar({ profile }: { profile: Profile | null }) {
         </div>
 
         {/* Clinical / Services section */}
-        <div className="mb-1 mt-4 px-2">
-          <span className="text-[9px] font-semibold uppercase tracking-widest text-[#4a62a0]">Clinical / Service</span>
+        <div className="mb-1 mt-5 px-2">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[#4a62a0]">Clinical / Service</span>
         </div>
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-1">
           {SERVICES_NAV.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || pathname.startsWith(href + '/')
             return (
@@ -121,13 +121,13 @@ export function NavBar({ profile }: { profile: Profile | null }) {
                 key={href}
                 href={href}
                 className={cn(
-                  'flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-[13px] font-medium transition-colors',
+                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors min-h-[44px]',
                   active
                     ? 'bg-[#00bd8e] text-white'
                     : 'text-[#c5d0e4] hover:bg-[#1f3e80] hover:text-white'
                 )}
               >
-                <Icon className="size-4 shrink-0" />
+                <Icon className="size-5 shrink-0" />
                 {label}
               </Link>
             )
@@ -139,7 +139,7 @@ export function NavBar({ profile }: { profile: Profile | null }) {
           <div className="mt-4">
             <button
               onClick={() => setAdminOpen((v) => !v)}
-              className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-[13px] font-medium text-[#c5d0e4] transition-colors hover:bg-[#1f3e80] hover:text-white"
+              className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-[15px] font-semibold text-[#c5d0e4] transition-colors hover:bg-[#1f3e80] hover:text-white min-h-[44px]"
               aria-expanded={adminOpen}
             >
               <span className="flex items-center gap-2.5">
@@ -166,7 +166,7 @@ export function NavBar({ profile }: { profile: Profile | null }) {
                       key={href}
                       href={href}
                       className={cn(
-                        'flex items-center gap-2 rounded-lg px-2 py-1.5 text-[12px] font-medium transition-colors',
+                        'flex items-center gap-2.5 rounded-xl px-3 py-2 text-[14px] font-semibold transition-colors min-h-[40px]',
                         active
                           ? 'bg-[#00bd8e] text-white'
                           : 'text-[#c5d0e4] hover:bg-[#1f3e80] hover:text-white'
