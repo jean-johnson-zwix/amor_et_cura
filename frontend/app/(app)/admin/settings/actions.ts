@@ -69,6 +69,36 @@ export async function deleteFieldDefinition(id: string): Promise<void> {
   revalidatePath('/admin/settings')
 }
 
+export async function updateFieldDefinition(
+  id: string,
+  data: {
+    label: string
+    field_type: FieldType
+    options: string[] | null
+    required: boolean
+  }
+): Promise<{ error?: string }> {
+  const session = await getSession()
+  if (!can.manageUsers(session?.profile?.role)) return { error: 'Not authorized.' }
+
+  if (!data.label.trim()) return { error: 'Label is required.' }
+  if (!VALID_FIELD_TYPES.includes(data.field_type)) return { error: 'Invalid field type.' }
+
+  // Re-derive slug from updated label
+  const name = data.label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')
+
+  const supabase = await createClient()
+  const { error } = await supabase
+    .from('field_definitions')
+    .update({ name, label: data.label, field_type: data.field_type, options: data.options, required: data.required })
+    .eq('id', id)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin/settings')
+  return {}
+}
+
 // ── Service Types ─────────────────────────────────────────────
 
 export type ServiceTypeFormState = { error?: string; success?: boolean }
