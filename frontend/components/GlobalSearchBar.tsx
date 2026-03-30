@@ -121,7 +121,7 @@ export function GlobalSearchBar() {
     }
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!query.trim()) return
     if (smartSearch) {
@@ -304,7 +304,7 @@ export function GlobalSearchBar() {
                     </div>
                   </div>
                   <Link
-                    href={`/services/visits/new?client_id=${c.id}`}
+                    href={`/services/schedule/new?client_id=${c.id}`}
                     onClick={() => setOpen(false)}
                     className="inline-flex items-center gap-1 rounded-lg border border-[#e2e8f0] px-2.5 py-1 text-[11px] font-medium text-[#6b7280] hover:border-teal hover:text-teal transition-colors whitespace-nowrap"
                   >
@@ -353,7 +353,7 @@ export function GlobalSearchBar() {
                       {/* Actions */}
                       <div className="flex shrink-0 flex-col items-end gap-2">
                         <Link
-                          href={`/services/visits/new?client_id=${r.client_id}`}
+                          href={`/services/schedule/new?client_id=${r.client_id}`}
                           onClick={() => setOpen(false)}
                           className="inline-flex items-center gap-1 rounded-lg bg-teal px-2.5 py-1 text-[11px] font-medium text-white hover:bg-[#009e77] transition-colors whitespace-nowrap"
                         >
