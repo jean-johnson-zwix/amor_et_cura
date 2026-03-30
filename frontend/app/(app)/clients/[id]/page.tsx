@@ -6,6 +6,7 @@ import { can } from '@/lib/auth/permissions'
 import ClientActions from './ClientActions'
 import ClientProfileTabs from './ClientProfileTabs'
 import { ClientSummaryButton } from './ClientSummary'
+import { PrintProfileButton } from './PrintProfile'
 
 function getInitials(first: string, last: string) {
   return `${first[0] ?? ''}${last[0] ?? ''}`.toUpperCase()
@@ -136,12 +137,20 @@ export default async function ClientProfilePage({
       <Topbar
         crumbs={[{ label: 'Clients', href: '/clients' }, { label: clientName }]}
         actions={
-          <ClientActions
-            clientId={client.id}
-            isActive={client.is_active}
-            canEdit={can.editClient(role)}
-            canDeactivate={can.deactivateClient(role)}
-          />
+          <>
+            <PrintProfileButton
+              client={client}
+              customFields={activeCustomFields}
+              visits={visits}
+              summary={existingSummary}
+            />
+            <ClientActions
+              clientId={client.id}
+              isActive={client.is_active}
+              canEdit={can.editClient(role)}
+              canDeactivate={can.deactivateClient(role)}
+            />
+          </>
         }
       />
 

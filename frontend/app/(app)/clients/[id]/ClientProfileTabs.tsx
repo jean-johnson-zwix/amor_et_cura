@@ -375,7 +375,7 @@ export default function ClientProfileTabs({
         {activeTab === 'overview' && (
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {/* Demographics */}
-            <div className="rounded-[14px] border border-[#e2e8f0] bg-white px-5 pt-4 pb-1 h-full">
+            <div className="rounded-[14px] border border-[#e2e8f0] bg-white px-5 pt-4 pb-1 self-start">
               <p className="mb-1 text-[13px] font-semibold text-navy">Demographics</p>
               <dl>
                 <LabelValue label="Date of birth" value={formatDob(client.dob)} />

@@ -93,7 +93,27 @@ def fetch_client_context(client_id: str) -> dict[str, Any]:
         for v in raw_visits
     ]
 
+    # Fetch existing confirmed summary (best-effort — None if table missing or no row)
+    existing_summary: str | None = None
+    try:
+        summary_res = http.get(
+            f"{base_url}/rest/v1/client_summaries",
+            headers=headers,
+            params={
+                "client_id": f"eq.{client_id}",
+                "select": "summary_text,confirmed_at",
+                "limit": "1",
+            },
+        )
+        if summary_res.is_success:
+            rows = summary_res.json()
+            if rows and rows[0].get("confirmed_at"):
+                existing_summary = rows[0]["summary_text"]
+    except Exception:
+        pass
+
     logger.info(
-        "fetch_client_context: client_id=%s visits=%d", client_id, len(visits)
+        "fetch_client_context: client_id=%s visits=%d has_prior_summary=%s",
+        client_id, len(visits), existing_summary is not None,
     )
-    return {"demographics": demographics, "visits": visits}
+    return {"demographics": demographics, "visits": visits, "existing_summary": existing_summary}

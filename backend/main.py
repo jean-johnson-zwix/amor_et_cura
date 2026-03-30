@@ -225,6 +225,7 @@ async def client_summary(req: ClientSummaryRequest):
 
     d = context["demographics"]
     visits = context["visits"]
+    existing_summary: str | None = context.get("existing_summary")
 
     # Build the demographics block
     programs = ", ".join(d.get("programs") or []) or "None recorded"
@@ -267,6 +268,12 @@ async def client_summary(req: ClientSummaryRequest):
 
 ## Visit History ({len(visits)} visit{"s" if len(visits) != 1 else ""})
 {visit_block}"""
+
+    if existing_summary:
+        user_prompt += f"""
+
+## Previously Confirmed Summary (staff-edited context — incorporate and improve upon this)
+{existing_summary}"""
 
     logger.info(
         "client-summary: generating | visits=%d demo_chars=%d",
