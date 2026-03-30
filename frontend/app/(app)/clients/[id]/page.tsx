@@ -5,6 +5,7 @@ import { getSession } from '@/lib/supabase/session'
 import { can } from '@/lib/auth/permissions'
 import ClientActions from './ClientActions'
 import ClientProfileTabs from './ClientProfileTabs'
+import { ClientSummaryButton } from './ClientSummary'
 
 function getInitials(first: string, last: string) {
   return `${first[0] ?? ''}${last[0] ?? ''}`.toUpperCase()
@@ -76,6 +77,25 @@ export default async function ClientProfilePage({
       .order('last_name'),
   ])
 
+  // Isolated — table may not exist yet if migration hasn't been run
+  let existingSummary: {
+    id: string
+    summary_text: string
+    generated_at: string
+    confirmed_at: string | null
+    visit_count_at_generation: number
+  } | null = null
+  try {
+    const { data } = await supabase
+      .from('client_summaries' as string)
+      .select('id, summary_text, generated_at, confirmed_at, visit_count_at_generation')
+      .eq('client_id', id)
+      .maybeSingle()
+    existingSummary = data as typeof existingSummary
+  } catch {
+    // Table doesn't exist yet — run the migration to enable this feature
+  }
+
   // Household members — other clients sharing the same household_id
   const householdMembers =
     client.household_id
@@ -128,32 +148,39 @@ export default async function ClientProfilePage({
       <div className="p-6 flex flex-col gap-4">
         {/* Profile header card */}
         <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-teal text-[18px] font-semibold text-white">
-              {getInitials(client.first_name, client.last_name)}
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-[20px] font-semibold text-navy">{clientName}</h1>
-                {client.is_active ? (
-                  <span className="rounded-full bg-teal-light px-2 py-0.5 text-[10px] font-medium text-[#007b58]">Active</span>
-                ) : (
-                  <span className="rounded-full bg-[#f3f4f6] px-2 py-0.5 text-[10px] font-medium text-[#6b7280]">Inactive</span>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-teal text-[18px] font-semibold text-white">
+                {getInitials(client.first_name, client.last_name)}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h1 className="text-[20px] font-semibold text-navy">{clientName}</h1>
+                  {client.is_active ? (
+                    <span className="rounded-full bg-teal-light px-2 py-0.5 text-[10px] font-medium text-[#007b58]">Active</span>
+                  ) : (
+                    <span className="rounded-full bg-[#f3f4f6] px-2 py-0.5 text-[10px] font-medium text-[#6b7280]">Inactive</span>
+                  )}
+                </div>
+                {client.dob && (
+                  <p className="mt-0.5 text-[12px] text-[#6b7280]">{formatDob(client.dob)}</p>
+                )}
+                {(client.programs ?? []).length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {(client.programs ?? []).map((p: string) => (
+                      <span key={p} className="rounded bg-teal-light px-1.5 py-0.5 text-[10px] font-medium text-[#007b58]" style={{ borderRadius: 4 }}>
+                        {p}
+                      </span>
+                    ))}
+                  </div>
                 )}
               </div>
-              {client.dob && (
-                <p className="mt-0.5 text-[12px] text-[#6b7280]">{formatDob(client.dob)}</p>
-              )}
-              {(client.programs ?? []).length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {(client.programs ?? []).map((p: string) => (
-                    <span key={p} className="rounded bg-teal-light px-1.5 py-0.5 text-[10px] font-medium text-[#007b58]" style={{ borderRadius: 4 }}>
-                      {p}
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
+            <ClientSummaryButton
+              clientId={client.id}
+              visitCount={visits.length}
+              initialSummary={existingSummary ?? null}
+            />
           </div>
         </div>
 
@@ -171,6 +198,7 @@ export default async function ClientProfilePage({
             last_name: c.last_name,
             client_number: c.client_number,
           }))}
+          existingSummary={existingSummary ?? null}
           canLogVisit={can.logVisit(role)}
           canUploadDocuments={can.editClient(role)}
           canDeleteDocuments={can.deleteClient(role)}

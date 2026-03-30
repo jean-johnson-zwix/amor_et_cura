@@ -21,6 +21,7 @@ import {
   ArrowRight,
   X,
 } from 'lucide-react'
+import { ClientSummaryPanel } from './ClientSummary'
 
 // ── Local types ──────────────────────────────────────────────
 
@@ -223,6 +224,14 @@ type TabId = (typeof TABS)[number]['id']
 
 // ── Main component ────────────────────────────────────────────
 
+type SummaryRow = {
+  id: string
+  summary_text: string
+  generated_at: string
+  confirmed_at: string | null
+  visit_count_at_generation: number
+}
+
 export default function ClientProfileTabs({
   client,
   customFields,
@@ -231,6 +240,7 @@ export default function ClientProfileTabs({
   documents: initialDocuments,
   householdMembers,
   allActiveClients,
+  existingSummary,
   canLogVisit,
   canUploadDocuments,
   canDeleteDocuments,
@@ -243,6 +253,7 @@ export default function ClientProfileTabs({
   documents: Document[]
   householdMembers: HouseholdMember[]
   allActiveClients: HouseholdMember[]
+  existingSummary: SummaryRow | null
   canLogVisit: boolean
   canUploadDocuments: boolean
   canDeleteDocuments: boolean
@@ -364,7 +375,7 @@ export default function ClientProfileTabs({
         {activeTab === 'overview' && (
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {/* Demographics */}
-            <div className="rounded-[14px] border border-[#e2e8f0] bg-white px-5 pt-4 pb-1">
+            <div className="rounded-[14px] border border-[#e2e8f0] bg-white px-5 pt-4 pb-1 h-full">
               <p className="mb-1 text-[13px] font-semibold text-navy">Demographics</p>
               <dl>
                 <LabelValue label="Date of birth" value={formatDob(client.dob)} />
@@ -376,11 +387,14 @@ export default function ClientProfileTabs({
               </dl>
             </div>
 
-            {/* Custom fields */}
+            {/* Client Summary — right column, same row as Demographics */}
+            <ClientSummaryPanel summary={existingSummary} />
+
+            {/* Custom fields — full width if present */}
             {customFields.length > 0 && (
-              <div className="rounded-[14px] border border-[#e2e8f0] bg-white px-5 pt-4 pb-1">
+              <div className="rounded-[14px] border border-[#e2e8f0] bg-white px-5 pt-4 pb-1 lg:col-span-2">
                 <p className="mb-1 text-[13px] font-semibold text-navy">Additional information</p>
-                <dl>
+                <dl className="grid grid-cols-2 gap-x-8">
                   {customFields.map((field) => {
                     const raw = (client.custom_fields as Record<string, unknown>)[field.name]
                     const display = Array.isArray(raw) ? raw.join(', ') : String(raw ?? '—')

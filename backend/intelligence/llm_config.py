@@ -5,6 +5,7 @@ PHOTO_INTAKE_EXTRACTION = "photo_intake_extraction"
 AUDIO_TRANSCRIPTION     = "audio_transcription"
 NOTE_STRUCTURING        = "note_structuring"
 MULTILINGUAL_INTAKE     = "multilingual_intake"
+CLIENT_SUMMARY          = "client_summary"
 
 # Timeouts for different providers in seconds
 PROVIDER_TIMEOUTS = {
@@ -53,6 +54,18 @@ LLM_TASK_CONFIGS: Dict[str, Dict[str, Any]] = {
         "max_tokens": 1024,
         "temperature": 0.0,
         "response_format": "json",
+    },
+    CLIENT_SUMMARY: {
+        "description": "Synthesize client demographics and visit history into a clinical handoff brief",
+        "provider": "gemini",
+        "model": "gemini-2.5-flash",
+        "fallbacks": [
+            ("groq", "llama-3.3-70b-versatile"),
+            ("gemini", "gemini-3-flash-preview"),
+        ],
+        "max_tokens": 3000,
+        "temperature": 0.2,
+        "response_format": "text",
     },
 }
 
