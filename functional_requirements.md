@@ -150,7 +150,7 @@ All AI features follow a **human-in-the-loop** model: AI outputs are drafts requ
 - FR-AI-5: The system shall return ranked results by meaning (not keywords), showing client name + relevant snippet.
 - **Recommended approach:** Supabase `pgvector` extension + embedding generation on visit save + similarity search. Frontend: search bar on `/services/visits` or dashboard.
 
-### 5.3 Client Handoff Summary (P2) ⬜ Not started
+### 5.3 Client Handoff Summary (P2) ✅ Complete
 
 - FR-AI-6: Staff shall generate a structured case summary for any client from their profile page.
 - FR-AI-7: The summary shall include: background, services history, current status, active needs, risk factors, recommended next steps.
