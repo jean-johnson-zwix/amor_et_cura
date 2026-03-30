@@ -2,19 +2,20 @@ import json
 import logging
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from models import EmbedRequest, ClientSummaryRequest
+from models import EmbedRequest, ClientSummaryRequest, FunderReportRequest
 from dotenv import load_dotenv
 load_dotenv()
 from intelligence.llm import call_llm, call_llm_vision, transcribe_audio
-from intelligence.llm_config import PHOTO_INTAKE_EXTRACTION, NOTE_STRUCTURING, MULTILINGUAL_INTAKE, CLIENT_SUMMARY
+from intelligence.llm_config import PHOTO_INTAKE_EXTRACTION, NOTE_STRUCTURING, MULTILINGUAL_INTAKE, CLIENT_SUMMARY, FUNDER_REPORT
 from intelligence.prompts import (
     INTAKE_SYSTEM_PROMPT,
     VOICE_NOTE_SYSTEM_PROMPT,
     MULTILINGUAL_INTAKE_SYSTEM_PROMPT,
     CLIENT_SUMMARY_GENERATOR_SYSTEM_PROMPT,
+    FUNDER_REPORT_SYSTEM_PROMPT,
 )
 from intelligence.embedding import embed_text
-from data.supabase import fetch_client_context
+from data.supabase import fetch_client_context, fetch_report_context
 
 # ── Logging setup (PII-safe: never log names/addresses) ──────────────────────
 logging.basicConfig(level=logging.INFO)
@@ -292,6 +293,95 @@ async def client_summary(req: ClientSummaryRequest):
 
     from datetime import datetime, timezone
     return {"summary": summary.strip(), "generated_at": datetime.now(timezone.utc).isoformat()}
+
+
+@app.post("/ai/funder-report")
+async def funder_report(req: FunderReportRequest):
+    """
+    Accepts a date range and optional program filter.
+    Fetches aggregated, anonymized stats from Supabase, then generates
+    a professional grant narrative via the LLM.
+    No client PII is ever sent to the AI provider.
+    """
+    logger.info(
+        "funder-report: start=%s end=%s program=%s",
+        req.start_date, req.end_date, req.program_filter or "all",
+    )
+
+    try:
+        context = fetch_report_context(req.start_date, req.end_date, req.program_filter)
+    except ValueError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=502, detail=str(e))
+
+    stats = context["stats"]
+    note_excerpts = context["note_excerpts"]
+
+    # Build service breakdown text
+    breakdown_lines = "\n".join(
+        f"  - {row['service_type']}: {row['count']} session{'s' if row['count'] != 1 else ''}"
+        for row in stats["visit_breakdown"]
+    ) or "  - No services recorded"
+
+    # Compute growth percentage vs previous period
+    prev = stats["prev_period_visits"]
+    curr = stats["total_visits"]
+    if prev > 0:
+        growth_pct = round(((curr - prev) / prev) * 100, 1)
+        growth_text = f"{'+' if growth_pct >= 0 else ''}{growth_pct}% vs. prior period ({prev} services)"
+    else:
+        growth_text = "No comparable prior period data available"
+
+    # Build anonymized note excerpts block (max 5, no names used in output per system prompt)
+    if note_excerpts:
+        excerpts_block = "\n\n".join(
+            f"Excerpt {i + 1}: {excerpt}" for i, excerpt in enumerate(note_excerpts)
+        )
+    else:
+        excerpts_block = "No case notes available for this period."
+
+    program_label = req.program_filter or "All Programs"
+    avg_dur = f"{stats['avg_duration_minutes']} min" if stats["avg_duration_minutes"] else "N/A"
+
+    user_prompt = f"""## Report Parameters
+Period: {req.start_date} to {req.end_date} ({stats['period_days']} days)
+Program scope: {program_label}
+
+## Aggregated Statistics
+- Unique clients served: {stats['unique_clients']}
+- Total services delivered: {curr}
+- Average session duration: {avg_dur}
+- Period trend: {growth_text}
+
+## Service Breakdown
+{breakdown_lines}
+
+## Anonymized Case Note Excerpts
+(Use these only for the Success Narratives section. Replace any names with generic descriptors.)
+{excerpts_block}"""
+
+    logger.info(
+        "funder-report: calling LLM | unique_clients=%d total_visits=%d",
+        stats["unique_clients"], curr,
+    )
+
+    try:
+        narrative = call_llm(
+            system_prompt=FUNDER_REPORT_SYSTEM_PROMPT,
+            user_prompt=user_prompt,
+            task=FUNDER_REPORT,
+        )
+    except Exception as e:
+        logger.error("funder-report: LLM call failed: %s", repr(e))
+        raise HTTPException(status_code=503, detail=_ai_error_message(e))
+
+    from datetime import datetime, timezone
+    return {
+        "narrative": narrative.strip(),
+        "stats": stats,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
 
 
 @app.post("/ai/embed")

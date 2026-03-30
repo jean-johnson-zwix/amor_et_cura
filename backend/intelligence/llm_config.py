@@ -6,6 +6,7 @@ AUDIO_TRANSCRIPTION     = "audio_transcription"
 NOTE_STRUCTURING        = "note_structuring"
 MULTILINGUAL_INTAKE     = "multilingual_intake"
 CLIENT_SUMMARY          = "client_summary"
+FUNDER_REPORT           = "funder_report"
 
 # Timeouts for different providers in seconds
 PROVIDER_TIMEOUTS = {
@@ -65,6 +66,18 @@ LLM_TASK_CONFIGS: Dict[str, Dict[str, Any]] = {
         ],
         "max_tokens": 3000,
         "temperature": 0.2,
+        "response_format": "text",
+    },
+    FUNDER_REPORT: {
+        "description": "Generate a professional grant narrative from aggregated program statistics",
+        "provider": "gemini",
+        "model": "gemini-3.1-pro-preview",  # Highest reasoning — grant writing requires professional voice
+        "fallbacks": [
+            ("gemini", "gemini-2.5-flash"),
+            ("groq", "llama-3.3-70b-versatile"),
+        ],
+        "max_tokens": 4000,
+        "temperature": 0.3,
         "response_format": "text",
     },
 }

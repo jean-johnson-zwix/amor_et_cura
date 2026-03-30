@@ -59,7 +59,7 @@ function PrintDocument({
       {/* ── Page header ───────────────────── */}
       <div className="flex items-start justify-between border-b-2 border-[#00bd8e] pb-4 mb-6">
         <div>
-          <h1 className="text-[22px] font-bold text-[#0a1e52]">Chandler CARE Center</h1>
+          <h1 className="text-[22px] font-bold text-[#0a1e52]">{process.env.NEXT_PUBLIC_ORG_NAME ?? 'Amor et Cura'}</h1>
           <p className="text-[13px] text-[#6b7280] mt-0.5">Client Profile Export · {exportDate}</p>
         </div>
         <div className="text-right">
@@ -216,7 +216,7 @@ function PrintDocument({
 
       {/* ── Footer ────────────────────────── */}
       <div className="mt-8 border-t border-[#e2e8f0] pt-3 text-[11px] text-[#9ca3af] flex justify-between">
-        <span>Chandler CARE Center · Confidential</span>
+        <span>{process.env.NEXT_PUBLIC_ORG_NAME ?? 'Amor et Cura'} · Confidential</span>
         <span>Exported {exportDate}</span>
       </div>
     </div>

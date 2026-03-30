@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   Users,
   Activity,
+  BarChart3,
   CalendarDays,
   ClipboardList,
   ShieldCheck,
@@ -47,10 +48,11 @@ const SERVICES_NAV = [
 ]
 
 const ADMIN_NAV = [
-  { href: '/admin',             label: 'Overview',  icon: ShieldCheck },
-  { href: '/admin/users',       label: 'Users',     icon: UserCog },
-  { href: '/admin/settings',    label: 'Settings',  icon: Settings },
-  { href: '/admin/audit-log',   label: 'Audit Log', icon: FileText },
+  { href: '/admin',             label: 'Overview',        icon: ShieldCheck },
+  { href: '/admin/users',       label: 'Users',           icon: UserCog },
+  { href: '/admin/settings',    label: 'Settings',        icon: Settings },
+  { href: '/admin/audit-log',   label: 'Audit Log',       icon: FileText },
+  { href: '/admin/reports',     label: 'Impact Reports',  icon: BarChart3 },
 ]
 
 export function NavBar({ profile }: { profile: Profile | null }) {
@@ -62,10 +64,10 @@ export function NavBar({ profile }: { profile: Profile | null }) {
   const [adminOpen, setAdminOpen] = useState(inAdmin)
 
   return (
-    <aside className="flex h-screen w-52 shrink-0 flex-col bg-[#0a1e52] overflow-hidden">
+    <aside className="flex h-screen w-52 shrink-0 flex-col bg-navy overflow-hidden">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-4 py-5 shrink-0">
-        <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-lg bg-[#00bd8e]">
+        <div className="flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-lg bg-teal">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path
               d="M8 13.5C8 13.5 1.5 9.5 1.5 5.5C1.5 3.567 3.067 2 5 2C6.15 2 7.17 2.57 7.83 3.44L8 3.67L8.17 3.44C8.83 2.57 9.85 2 11 2C12.933 2 14.5 3.567 14.5 5.5C14.5 9.5 8 13.5 8 13.5Z"
@@ -96,9 +98,9 @@ export function NavBar({ profile }: { profile: Profile | null }) {
                 key={href}
                 href={href}
                 className={cn(
-                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors min-h-[44px]',
+                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors min-h-11',
                   active
-                    ? 'bg-[#00bd8e] text-white'
+                    ? 'bg-teal text-white'
                     : 'text-[#c5d0e4] hover:bg-[#1f3e80] hover:text-white'
                 )}
               >
@@ -121,9 +123,9 @@ export function NavBar({ profile }: { profile: Profile | null }) {
                 key={href}
                 href={href}
                 className={cn(
-                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors min-h-[44px]',
+                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors min-h-11',
                   active
-                    ? 'bg-[#00bd8e] text-white'
+                    ? 'bg-teal text-white'
                     : 'text-[#c5d0e4] hover:bg-[#1f3e80] hover:text-white'
                 )}
               >
@@ -139,7 +141,7 @@ export function NavBar({ profile }: { profile: Profile | null }) {
           <div className="mt-4">
             <button
               onClick={() => setAdminOpen((v) => !v)}
-              className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-[15px] font-semibold text-[#c5d0e4] transition-colors hover:bg-[#1f3e80] hover:text-white min-h-[44px]"
+              className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-[15px] font-semibold text-[#c5d0e4] transition-colors hover:bg-[#1f3e80] hover:text-white min-h-11"
               aria-expanded={adminOpen}
             >
               <span className="flex items-center gap-2.5">
@@ -166,9 +168,9 @@ export function NavBar({ profile }: { profile: Profile | null }) {
                       key={href}
                       href={href}
                       className={cn(
-                        'flex items-center gap-2.5 rounded-xl px-3 py-2 text-[14px] font-semibold transition-colors min-h-[40px]',
+                        'flex items-center gap-2.5 rounded-xl px-3 py-2 text-[14px] font-semibold transition-colors min-h-10',
                         active
-                          ? 'bg-[#00bd8e] text-white'
+                          ? 'bg-teal text-white'
                           : 'text-[#c5d0e4] hover:bg-[#1f3e80] hover:text-white'
                       )}
                     >
@@ -186,7 +188,7 @@ export function NavBar({ profile }: { profile: Profile | null }) {
       {/* Bottom user info */}
       <div className="shrink-0 border-t border-[#1f3e80] px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#00bd8e] text-[11px] font-semibold text-white">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-teal text-[11px] font-semibold text-white">
             {getInitials(profile?.full_name)}
           </div>
           <div className="min-w-0 flex-1">

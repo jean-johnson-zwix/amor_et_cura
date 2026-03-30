@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Users, Settings, FileText, ArrowRight } from 'lucide-react'
+import { Users, Settings, FileText, BarChart3, ArrowRight } from 'lucide-react'
 import { Topbar } from '@/components/Topbar'
 import { getAllProfiles } from '@/lib/supabase/queries'
 import type React from 'react'
@@ -13,6 +13,7 @@ const ADMIN_SECTIONS: {
   { href: '/admin/users',     title: 'User Management', description: 'View all staff accounts, promote or demote roles.', Icon: Users },
   { href: '/admin/settings',  title: 'Settings',        description: 'Configure service types and custom intake fields.', Icon: Settings },
   { href: '/admin/audit-log', title: 'Audit Log',       description: 'Review all create, update, and delete actions.', Icon: FileText },
+  { href: '/admin/reports',   title: 'Impact Reports',  description: 'Generate AI-assisted funder narratives from program data.', Icon: BarChart3 },
 ]
 
 export default async function AdminPage() {
