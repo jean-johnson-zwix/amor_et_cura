@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
+import { GlobalSearchBar } from '@/components/GlobalSearchBar'
 
 export type Crumb = { label: string; href?: string }
 
@@ -20,7 +21,10 @@ export function Topbar({ crumbs, actions }: { crumbs: Crumb[]; actions?: ReactNo
           </span>
         ))}
       </nav>
-      {actions && <div className="flex items-center gap-2">{actions}</div>}
+      <div className="flex items-center gap-3">
+        <GlobalSearchBar />
+        {actions && <div className="flex items-center gap-2">{actions}</div>}
+      </div>
     </div>
   )
 }

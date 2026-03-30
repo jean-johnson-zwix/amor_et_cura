@@ -62,6 +62,25 @@ export async function createVisit(
 
   if (data?.id) {
     await logAudit({ actorId: session.user.id, action: 'CREATE', tableName: 'visits', recordId: data.id })
+
+    // Generate and store embedding for semantic search (best-effort — never block the save)
+    const textToEmbed = [caseNotes, notes].filter(Boolean).join('\n\n').trim()
+    if (textToEmbed) {
+      try {
+        const aiUrl = process.env.NEXT_PUBLIC_AI_API_URL ?? 'http://localhost:8000'
+        const embedRes = await fetch(`${aiUrl}/ai/embed`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: textToEmbed }),
+        })
+        if (embedRes.ok) {
+          const { embedding } = await embedRes.json()
+          await supabase.from('visits').update({ embedding: JSON.stringify(embedding) }).eq('id', data.id)
+        }
+      } catch {
+        // Embedding is non-critical — silently skip if backend is unavailable
+      }
+    }
   }
 
   return { success: true }

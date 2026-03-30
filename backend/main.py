@@ -2,6 +2,7 @@ import json
 import logging
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from models import EmbedRequest
 from dotenv import load_dotenv
 load_dotenv()
 from intelligence.llm import call_llm, call_llm_vision, transcribe_audio
@@ -11,6 +12,7 @@ from intelligence.prompts import (
     VOICE_NOTE_SYSTEM_PROMPT,
     MULTILINGUAL_INTAKE_SYSTEM_PROMPT,
 )
+from intelligence.embedding import embed_text
 
 # ── Logging setup (PII-safe: never log names/addresses) ──────────────────────
 logging.basicConfig(level=logging.INFO)
@@ -107,7 +109,6 @@ async def photo_to_intake(file: UploadFile = File(...)):
 
     return {"intake": intake_data}
 
-
 # ── Endpoint 2: Voice → Structured Case Note ─────────────────────────────────
 ALLOWED_AUDIO_TYPES = {"audio/mpeg", "audio/mp3", "audio/wav", "audio/ogg", "audio/webm", "audio/mp4"}
 
@@ -203,3 +204,23 @@ async def multilingual_intake(file: UploadFile = File(...)):
     )
 
     return {"intake": intake_data}
+
+@app.post("/ai/embed")
+async def embed(req: EmbedRequest):
+    """
+    Accepts a text string and returns a 768-dimensional embedding vector
+    using Gemini text-embedding-004. Used by the frontend to embed case notes
+    on save and to embed search queries for semantic search.
+    """
+    if not req.text or not req.text.strip():
+        raise HTTPException(status_code=422, detail="text must not be empty.")
+
+    logger.info("embed: generating embedding | char_count=%d", len(req.text))
+
+    try:
+        vector = embed_text(req.text.strip())
+    except Exception as e:
+        logger.error("embed: failed: %s", repr(e))
+        raise HTTPException(status_code=503, detail=_ai_error_message(e))
+
+    return {"embedding": vector, "dims": len(vector)}
