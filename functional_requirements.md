@@ -144,7 +144,7 @@ All AI features follow a **human-in-the-loop** model: AI outputs are drafts requ
 - FR-AI-3: ✅ Staff review and confirm extracted data before the record is created.
 - **Implementation:** `ClientRegistrationForm.tsx` → `POST /ai/photo-to-intake` → Gemini 3 Flash → Gemini 3 Flash Lite (fallback). Accepted types: JPEG, PNG, WEBP, HEIC.
 
-### 5.2 Semantic Search (P2) ⬜ Not started
+### 5.2 Semantic Search (P2) ✅ Complete
 
 - FR-AI-4: All authenticated users shall submit a natural language query to search across all case notes.
 - FR-AI-5: The system shall return ranked results by meaning (not keywords), showing client name + relevant snippet.
