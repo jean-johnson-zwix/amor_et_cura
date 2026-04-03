@@ -2,7 +2,7 @@
 **Project:** Nonprofit Client & Case Management Platform
 **Client:** Chandler CARE Center (primary); generalizable to 8+ OHack nonprofits
 **Event:** ASU WiCS × OHack Hackathon — March 28–29, 2026
-**Last Updated:** 2026-03-29
+**Last Updated:** 2026-04-01
 
 ### Status Summary
 | Area | Status |
@@ -20,10 +20,11 @@
 | Photo-to-Intake (P2 #11) | ✅ Complete |
 | Voice-to-Case Notes (P2 #13) | ✅ Complete |
 | Multilingual Intake (P2 #14) | ✅ Complete |
-| Semantic Search (P2 #12) | ⬜ Not started |
-| Client Handoff Summary (P2) | ⬜ Not started |
+| Semantic Search (P2 #12) | ✅ Complete |
+| Client Handoff Summary (P2) | ✅ Complete |
+| Funder Report Generation (P2) | ✅ Complete |
+| Print/Download Client Profile (P2) | ✅ Complete |
 | Smart Follow-Up Detection (P2) | ⬜ Not started |
-| Funder Report Generation (P2) | ⬜ Not started |
 | Appointment Reminders | ⬜ Not started |
 | Multi-tenancy (org_id) | ⬜ Not started |
 
@@ -51,7 +52,7 @@ A lightweight, open-source web application for nonprofit case management. Target
 | # | Decision | Resolution |
 |---|----------|------------|
 | 1 | Tech stack | Next.js 16 (App Router) + TypeScript + Tailwind CSS 4 + Supabase |
-| 2 | Database schema | PostgreSQL via Supabase — 12 migrations in `supabase/migrations/` |
+| 2 | Database schema | PostgreSQL via Supabase — 14 migrations in `supabase/migrations/` |
 | 3 | Role permissions | Admin / Case Worker / Viewer enforced via RLS + `lib/auth/permissions.ts` |
 | 4 | Folder structure | Documented in `DEVELOPER_NOTES.md` |
 | 5 | Repo scaffolding | GitHub monorepo — `frontend/` + `backend/` + `supabase/` |
@@ -146,22 +147,22 @@ All AI features follow a **human-in-the-loop** model: AI outputs are drafts requ
 
 ### 5.2 Semantic Search (P2) ✅ Complete
 
-- FR-AI-4: All authenticated users shall submit a natural language query to search across all case notes.
-- FR-AI-5: The system shall return ranked results by meaning (not keywords), showing client name + relevant snippet.
-- **Recommended approach:** Supabase `pgvector` extension + embedding generation on visit save + similarity search. Frontend: search bar on `/services/visits` or dashboard.
+- FR-AI-4: ✅ All authenticated users shall submit a natural language query to search across all case notes.
+- FR-AI-5: ✅ The system shall return ranked results by meaning (not keywords), showing client name + relevant snippet.
+- **Implementation:** `GlobalSearchBar.tsx` + `SemanticSearch.tsx` → `POST /api/semantic-search` → AI backend embedding → `pgvector` similarity search. Migration `20260329000003_pgvector.sql` enables the extension. Embeddings generated on visit save via `createVisit` server action.
 
 ### 5.3 Client Handoff Summary (P2) ✅ Complete
 
-- FR-AI-6: Staff shall generate a structured case summary for any client from their profile page.
-- FR-AI-7: The summary shall include: background, services history, current status, active needs, risk factors, recommended next steps.
-- FR-AI-8: Summary is regeneratable on demand and not auto-saved without staff confirmation.
-- **Recommended approach:** New backend endpoint `POST /ai/client-summary`. Button on `clients/[id]/page.tsx`. Fetches all visits + demographics, sends to LLM, returns Markdown rendered inline.
+- FR-AI-6: ✅ Staff shall generate a structured case summary for any client from their profile page.
+- FR-AI-7: ✅ The summary shall include: background, services history, current status, active needs, risk factors, recommended next steps.
+- FR-AI-8: ✅ Summary is regeneratable on demand and not auto-saved without staff confirmation.
+- **Implementation:** `ClientSummary.tsx` on `clients/[id]` profile → `POST /ai/client-summary` → backend fetches all visits + demographics from Supabase → LLM generates structured Markdown → rendered inline with `react-markdown`. Summaries cached in `client_summaries` table (migration `20260329000004_client_summaries.sql`).
 
-### 5.4 Auto-Generated Funder Reports (P2) ⬜ Not started
+### 5.4 Auto-Generated Funder Reports (P2) ✅ Complete
 
-- FR-AI-9: Admins shall generate a narrative funder report for a selected time period.
-- FR-AI-10: Report combines aggregated service data with AI narrative, exportable to PDF.
-- **Recommended approach:** New page at `/admin/reports`. Server action aggregates stats → AI generates narrative → client renders as printable HTML.
+- FR-AI-9: ✅ Admins shall generate a narrative funder report for a selected time period.
+- FR-AI-10: ✅ Report combines aggregated service data with AI narrative, exportable to PDF.
+- **Implementation:** `/admin/reports` page (`ReportsHub.tsx`) → `POST /api/funder-report` → backend aggregates visit/client stats from Supabase → LLM generates grant-style narrative → rendered as printable HTML. Supports date range selection and program filtering.
 
 ### 5.5 Smart Follow-Up Detection (P2) ⬜ Not started
 
@@ -202,13 +203,10 @@ Ordered by impact-to-effort ratio:
 
 | Priority | Feature | Why |
 |----------|---------|-----|
-| 1 | **Auth callback URL** | Immediate — OAuth won't work on prod without this Supabase setting |
-| 2 | **Semantic search** | High demo value, differentiates from spreadsheets, aligns with SRD |
-| 3 | **Client handoff summary** | Solves a real daily pain point for case workers; backend endpoint is straightforward |
-| 4 | **Multi-tenancy (org_id)** | Required before this can serve multiple real nonprofits simultaneously |
-| 5 | **Smart follow-up detection** | Can run in existing `createVisit` server action with minimal new infrastructure |
-| 6 | **Appointment reminders** | High user value; needs Supabase cron + email provider (Resend) |
-| 7 | **Funder report generation** | High nonprofit value (grant reporting is a major pain point) |
+| 1 | **Multi-tenancy (org_id)** | Required before this can serve multiple real nonprofits simultaneously |
+| 2 | **Smart follow-up detection** | Can run in existing `createVisit` server action with minimal new infrastructure |
+| 3 | **Appointment reminders** | High user value; needs Supabase cron + email provider (Resend) |
+| 4 | **FR-AI-17 label caching** | Reduces Gemini API calls on repeated multilingual intake scans |
 
 ---
 

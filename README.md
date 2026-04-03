@@ -46,15 +46,21 @@ Built at [ASU WiCS × OHack Hackathon](https://www.ohack.dev) — March 28–29,
 - **Document storage** — Upload/download files (up to 50 MB) attached to client profiles
 - **Admin console** — User role management, service type editor, audit log viewer
 
-### AI features (P2) — all complete
+### AI features (P2) — complete
 
 | Feature | Endpoint | How it works |
 |---------|----------|-------------|
 | **Photo-to-Intake** | `POST /ai/photo-to-intake` | Photograph a paper form → AI extracts fields → pre-fills registration form for staff review |
 | **Voice-to-Case Notes** | `POST /ai/voice-to-note` | Record verbal notes → Whisper transcribes → Llama 3.3 structures into a clinical Markdown note |
 | **Multilingual Intake** | `POST /ai/multilingual-intake` | Any-language form photo → AI detects language + extracts + translates fields to English |
+| **Semantic Search** | `POST /api/semantic-search` | Natural language query across all case notes — ranked by meaning via `pgvector` embeddings |
+| **Client Handoff Summary** | `POST /ai/client-summary` | Generate a structured case summary (background, needs, risk factors, next steps) from any client profile |
+| **Funder Report** | `POST /api/funder-report` | Select a date range → AI generates a grant-ready narrative report combining service stats + prose |
 
 All AI processing is **in-memory only** — no uploaded files are ever written to disk.
+
+### Print / Download
+- **Print Client Profile** — Print or export any client's full profile (demographics, case notes, appointments) to PDF directly from their profile page.
 
 ---
 
@@ -67,6 +73,12 @@ Photo-to-Intake / Multilingual Intake
 Voice-to-Case Notes
   Step 1 — Transcription:  Groq Whisper large-v3-turbo → Whisper large-v3 (fallback)
   Step 2 — Structuring:    Groq Llama 3.3 70B → Gemini 3 Flash → SambaNova Llama 3.3 70B
+
+Semantic Search
+  Embedding generation (on visit save) → pgvector similarity query
+
+Client Handoff Summary / Funder Reports
+  Backend fetches data from Supabase → LLM generates structured Markdown narrative
 ```
 
 - **Graceful degradation** — 1.5 s back-off between 429 retries before trying the next provider
@@ -97,7 +109,7 @@ Voice-to-Case Notes
 
 ## Database Schema
 
-10 migrations in [`supabase/migrations/`](./supabase/migrations/) applied in order:
+14 migrations in [`supabase/migrations/`](./supabase/migrations/) applied in order:
 
 | Table | Purpose |
 |-------|---------|
@@ -109,6 +121,8 @@ Voice-to-Case Notes
 | `field_definitions` | Custom field schema (applies to `client` or `visit`) |
 | `documents` | Metadata for files stored in Supabase Storage |
 | `audit_log` | PII-safe event log — actor, action, table, record ID, changed field names |
+| `visit_embeddings` | `pgvector` embeddings for semantic search across case notes |
+| `client_summaries` | Cached AI-generated client handoff summaries |
 
 RLS policies on every table. Audit triggers fire automatically on INSERT / UPDATE / DELETE.
 
@@ -310,6 +324,7 @@ Render's free tier spins down services after 15 minutes of inactivity. The first
 /admin/users                Manage staff roles
 /admin/settings             Configure service types and custom fields
 /admin/audit-log            View audit trail
+/admin/reports              Generate AI funder reports (date range + program filter)
 /login                      Sign in
 /signup                     Create account
 ```
