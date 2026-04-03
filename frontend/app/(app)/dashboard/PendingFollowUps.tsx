@@ -114,7 +114,7 @@ export default function PendingFollowUps({ initialFollowUps }: { initialFollowUp
                 <div className="mt-3 flex items-center gap-2 flex-wrap">
                   <button
                     disabled={isProcessing}
-                    onClick={() => handleAction(fu.id, 'accepted')}
+                    onClick={() => handleAction(fu.id, 'active')}
                     className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-teal px-3 text-sm font-semibold text-white hover:bg-[#009e77] disabled:opacity-50 transition-colors"
                   >
                     <CheckCircle className="size-3.5" />

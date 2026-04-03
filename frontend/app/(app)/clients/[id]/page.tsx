@@ -7,6 +7,7 @@ import ClientActions from './ClientActions'
 import ClientProfileTabs from './ClientProfileTabs'
 import { ClientSummaryButton } from './ClientSummary'
 import { PrintProfileButton } from './PrintProfile'
+import type { TaskRow } from '../../../tasks/TasksClient'
 
 function getInitials(first: string, last: string) {
   return `${first[0] ?? ''}${last[0] ?? ''}`.toUpperCase()
@@ -48,6 +49,7 @@ export default async function ClientProfilePage({
     { data: rawAppointments },
     { data: rawDocuments },
     { data: allActiveClients },
+    { data: rawTasks },
   ] = await Promise.all([
     supabase
       .from('visits')
@@ -76,6 +78,12 @@ export default async function ClientProfilePage({
       .select('id, first_name, last_name, client_number, household_id')
       .eq('is_active', true)
       .order('last_name'),
+    supabase
+      .from('follow_ups')
+      .select('id, client_id, visit_id, description, category, urgency, suggested_due_date, created_at, visits(visit_date)')
+      .eq('client_id', id)
+      .eq('status', 'active')
+      .order('suggested_due_date', { ascending: true, nullsFirst: false }),
   ])
 
   // Isolated — table may not exist yet if migration hasn't been run
@@ -129,6 +137,23 @@ export default async function ClientProfilePage({
     service_type_name: (a.service_types as { name: string } | null)?.name ?? '—',
     case_worker_name: (a.profiles as { full_name: string } | null)?.full_name ?? '—',
   }))
+
+  const activeTasks: TaskRow[] = (rawTasks ?? []).map((t) => {
+    const visit = t.visits as unknown as { visit_date: string } | null
+    return {
+      id: t.id,
+      client_id: t.client_id,
+      visit_id: t.visit_id,
+      description: t.description,
+      category: t.category as TaskRow['category'],
+      urgency: (t.urgency ?? 'medium') as TaskRow['urgency'],
+      suggested_due_date: t.suggested_due_date,
+      created_at: t.created_at,
+      client_first_name: client.first_name,
+      client_last_name: client.last_name,
+      visit_date: visit?.visit_date ?? '',
+    }
+  })
 
   const clientName = `${client.first_name} ${client.last_name}`
 
@@ -208,6 +233,7 @@ export default async function ClientProfilePage({
             client_number: c.client_number,
           }))}
           existingSummary={existingSummary ?? null}
+          activeTasks={activeTasks}
           canLogVisit={can.logVisit(role)}
           canUploadDocuments={can.editClient(role)}
           canDeleteDocuments={can.deleteClient(role)}

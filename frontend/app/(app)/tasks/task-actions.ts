@@ -3,9 +3,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/supabase/session'
 
-export async function updateFollowUpStatus(
-  id: string,
-  status: 'active' | 'dismissed'
+export async function completeTask(
+  id: string
 ): Promise<{ error?: string; success?: boolean }> {
   const session = await getSession()
   if (!session) return { error: 'Not authenticated.' }
@@ -13,7 +12,7 @@ export async function updateFollowUpStatus(
   const supabase = await createClient()
   const { error } = await supabase
     .from('follow_ups')
-    .update({ status })
+    .update({ status: 'completed' })
     .eq('id', id)
 
   if (error) return { error: error.message }

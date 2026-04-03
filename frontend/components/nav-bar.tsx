@@ -19,6 +19,7 @@ import {
   FileText,
   LogOut,
   ChevronDown,
+  CheckSquare,
 } from 'lucide-react'
 
 const ROLE_LABELS: Record<string, string> = {
@@ -39,6 +40,7 @@ function getInitials(name: string | null | undefined): string {
 
 const MAIN_NAV = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/tasks',     label: 'My Tasks',  icon: CheckSquare },
   { href: '/clients',   label: 'Clients',   icon: Users },
 ]
 
@@ -92,6 +94,8 @@ export function NavBar({ profile }: { profile: Profile | null }) {
             const active =
               href === '/clients'
                 ? pathname.startsWith('/clients')
+                : href === '/tasks'
+                ? pathname.startsWith('/tasks')
                 : pathname === '/dashboard' || pathname === '/'
             return (
               <Link

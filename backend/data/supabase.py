@@ -42,10 +42,15 @@ def insert_follow_ups(follow_ups: list[dict], visit_id: str, client_id: str) -> 
 
     rows = []
     valid_categories = {"Referral", "Medical", "Document", "Financial", "Check-in"}
+    valid_urgencies  = {"high", "medium", "low"}
     for fu in follow_ups:
         category = fu.get("category", "Check-in")
         if category not in valid_categories:
             category = "Check-in"
+
+        urgency = fu.get("urgency", "medium")
+        if urgency not in valid_urgencies:
+            urgency = "medium"
 
         due_date = None
         days = fu.get("suggested_due_days")
@@ -57,6 +62,7 @@ def insert_follow_ups(follow_ups: list[dict], visit_id: str, client_id: str) -> 
             "client_id": client_id,
             "description": str(fu["description"])[:500],
             "category": category,
+            "urgency": urgency,
             "status": "pending",
             "suggested_due_date": due_date,
         })

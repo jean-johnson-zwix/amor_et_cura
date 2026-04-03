@@ -20,7 +20,11 @@ import {
   UserPlus,
   ArrowRight,
   X,
+  CheckSquare,
+  Square,
 } from 'lucide-react'
+import type { TaskRow } from '../../tasks/TasksClient'
+import { completeTask } from '../../tasks/task-actions'
 import { ClientSummaryPanel } from './ClientSummary'
 
 // ── Local types ──────────────────────────────────────────────
@@ -218,7 +222,22 @@ const TABS = [
   { id: 'case-notes',   label: 'Case Notes',       icon: ClipboardList },
   { id: 'documents',    label: 'Documents',        icon: FileText },
   { id: 'appointments', label: 'Appointments',     icon: CalendarDays },
+  { id: 'tasks',        label: 'Tasks',            icon: CheckSquare },
 ] as const
+
+const TASK_CATEGORY_STYLES: Record<TaskRow['category'], { bg: string; color: string }> = {
+  Referral:   { bg: '#e0edff', color: '#1d4ed8' },
+  Medical:    { bg: '#fce4f0', color: '#be185d' },
+  Document:   { bg: '#fef9c3', color: '#92400e' },
+  Financial:  { bg: '#dcfce7', color: '#15803d' },
+  'Check-in': { bg: '#f3f4f6', color: '#374151' },
+}
+
+const TASK_URGENCY_STYLES: Record<TaskRow['urgency'], { bg: string; color: string; label: string }> = {
+  high:   { bg: '#fee2e2', color: '#b91c1c', label: 'High' },
+  medium: { bg: '#fef3c7', color: '#92400e', label: 'Medium' },
+  low:    { bg: '#f3f4f6', color: '#6b7280', label: 'Low' },
+}
 
 type TabId = (typeof TABS)[number]['id']
 
@@ -241,6 +260,7 @@ export default function ClientProfileTabs({
   householdMembers,
   allActiveClients,
   existingSummary,
+  activeTasks,
   canLogVisit,
   canUploadDocuments,
   canDeleteDocuments,
@@ -254,6 +274,7 @@ export default function ClientProfileTabs({
   householdMembers: HouseholdMember[]
   allActiveClients: HouseholdMember[]
   existingSummary: SummaryRow | null
+  activeTasks: TaskRow[]
   canLogVisit: boolean
   canUploadDocuments: boolean
   canDeleteDocuments: boolean
@@ -261,6 +282,8 @@ export default function ClientProfileTabs({
 }) {
   const [activeTab, setActiveTab] = useState<TabId>('overview')
   const [documents, setDocuments] = useState<Document[]>(initialDocuments)
+  const [tasks, setTasks] = useState<TaskRow[]>(activeTasks)
+  const [completingTaskId, setCompletingTaskId] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [showLinkModal, setShowLinkModal] = useState(false)
@@ -673,6 +696,86 @@ export default function ClientProfileTabs({
                     </span>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── TAB 5: Tasks ────────────────────────────────────── */}
+      <div
+        role="tabpanel"
+        id="tabpanel-tasks"
+        aria-labelledby="tab-tasks"
+        hidden={activeTab !== 'tasks'}
+      >
+        {activeTab === 'tasks' && (
+          <div className="rounded-[14px] border border-[#e2e8f0] bg-white">
+            <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
+              <p className="text-[13px] font-semibold text-navy">
+                Active Tasks ({tasks.length})
+              </p>
+              <a href="/tasks" className="text-[11px] text-teal hover:underline">
+                View all tasks →
+              </a>
+            </div>
+            {tasks.length === 0 ? (
+              <p className="px-4 py-10 text-center text-[13px] text-[#6b7280]">
+                No active tasks for this client.
+              </p>
+            ) : (
+              <div className="divide-y divide-[#f1f5f9]">
+                {tasks.map((task) => {
+                  const catStyle = TASK_CATEGORY_STYLES[task.category]
+                  const urgStyle = TASK_URGENCY_STYLES[task.urgency]
+                  const isCompleting = completingTaskId === task.id
+
+                  return (
+                    <div key={task.id} className={`flex items-start gap-3 px-4 py-3 ${isCompleting ? 'opacity-50' : ''}`}>
+                      <button
+                        onClick={async () => {
+                          setCompletingTaskId(task.id)
+                          const result = await completeTask(task.id)
+                          if (!result.error) {
+                            setTasks((prev) => prev.filter((t) => t.id !== task.id))
+                            router.refresh()
+                          }
+                          setCompletingTaskId(null)
+                        }}
+                        disabled={isCompleting}
+                        title="Mark as complete"
+                        className="mt-0.5 shrink-0 text-[#d1d5db] hover:text-teal transition-colors disabled:opacity-50"
+                      >
+                        {isCompleting ? (
+                          <CheckSquare className="size-4 text-teal" />
+                        ) : (
+                          <Square className="size-4" />
+                        )}
+                      </button>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-medium text-navy">{task.description}</p>
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                          <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: catStyle.bg, color: catStyle.color }}>
+                            {task.category}
+                          </span>
+                          <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: urgStyle.bg, color: urgStyle.color }}>
+                            {urgStyle.label}
+                          </span>
+                          {task.suggested_due_date && (
+                            <span className="text-[11px] text-[#6b7280]">
+                              Due {new Date(task.suggested_due_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </span>
+                          )}
+                        </div>
+                        {task.visit_date && (
+                          <p className="mt-0.5 text-[11px] text-[#9ca3af]">
+                            From visit on {new Date(task.visit_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
