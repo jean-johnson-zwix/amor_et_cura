@@ -27,6 +27,57 @@ def _client() -> tuple[str, dict[str, str]]:
     return _SUPABASE_URL, headers
 
 
+def insert_follow_ups(follow_ups: list[dict], visit_id: str, client_id: str) -> None:
+    """
+    Insert AI-detected follow-up suggestions into the follow_ups table.
+    Each item must have: description, category, urgency, suggested_due_days (optional).
+    Raises RuntimeError on Supabase failure.
+    """
+    if not follow_ups:
+        return
+
+    base_url, headers = _client()
+
+    from datetime import date, timedelta
+
+    rows = []
+    valid_categories = {"Referral", "Medical", "Document", "Financial", "Check-in"}
+    for fu in follow_ups:
+        category = fu.get("category", "Check-in")
+        if category not in valid_categories:
+            category = "Check-in"
+
+        due_date = None
+        days = fu.get("suggested_due_days")
+        if isinstance(days, int) and days > 0:
+            due_date = (date.today() + timedelta(days=days)).isoformat()
+
+        rows.append({
+            "visit_id": visit_id,
+            "client_id": client_id,
+            "description": str(fu["description"])[:500],
+            "category": category,
+            "status": "pending",
+            "suggested_due_date": due_date,
+        })
+
+    with httpx.Client(timeout=10) as http:
+        res = http.post(
+            f"{base_url}/rest/v1/follow_ups",
+            headers={**headers, "Prefer": "return=minimal"},
+            json=rows,
+        )
+        if not res.is_success:
+            raise RuntimeError(
+                f"insert_follow_ups failed: {res.status_code} {res.text}"
+            )
+
+    logger.info(
+        "insert_follow_ups: inserted %d follow-up(s) for visit_id=%s",
+        len(rows), visit_id,
+    )
+
+
 def fetch_client_context(client_id: str) -> dict[str, Any]:
     """
     Fetch all data needed to generate a handoff summary for one client.

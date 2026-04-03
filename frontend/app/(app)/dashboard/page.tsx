@@ -8,6 +8,7 @@ import { computeDashboardStats } from '@/lib/dashboard'
 import { createClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/supabase/session'
 import DashboardAppointments from './DashboardAppointments'
+import PendingFollowUps, { type FollowUp } from './PendingFollowUps'
 
 const AVATAR_COLORS = ['#00bd8e', '#eb3690', '#3960a3', '#7b3fa8']
 
@@ -67,23 +68,34 @@ export default async function DashboardPage() {
   const tomorrowStart = new Date(todayStart)
   tomorrowStart.setDate(tomorrowStart.getDate() + 1)
 
-  const [{ count: activeClients }, { data: rawVisits }, { data: rawAppointments }, { data: recentClients }] =
-    await Promise.all([
-      supabase.from('clients').select('*', { count: 'exact', head: true }).eq('is_active', true),
-      supabase.from('visits').select('visit_date, service_types(name)').order('visit_date', { ascending: false }),
-      supabase
-        .from('appointments')
-        .select('id, scheduled_at, duration_minutes, clients(first_name, last_name), service_types(name), profiles(full_name), status')
-        .gte('scheduled_at', todayStart.toISOString())
-        .lt('scheduled_at', tomorrowStart.toISOString())
-        .neq('status', 'cancelled')
-        .order('scheduled_at'),
-      supabase
-        .from('clients')
-        .select('id, first_name, last_name, programs, is_active')
-        .order('created_at', { ascending: false })
-        .limit(4),
-    ])
+  const [
+    { count: activeClients },
+    { data: rawVisits },
+    { data: rawAppointments },
+    { data: recentClients },
+    { data: rawFollowUps },
+  ] = await Promise.all([
+    supabase.from('clients').select('*', { count: 'exact', head: true }).eq('is_active', true),
+    supabase.from('visits').select('visit_date, service_types(name)').order('visit_date', { ascending: false }),
+    supabase
+      .from('appointments')
+      .select('id, scheduled_at, duration_minutes, clients(first_name, last_name), service_types(name), profiles(full_name), status')
+      .gte('scheduled_at', todayStart.toISOString())
+      .lt('scheduled_at', tomorrowStart.toISOString())
+      .neq('status', 'cancelled')
+      .order('scheduled_at'),
+    supabase
+      .from('clients')
+      .select('id, first_name, last_name, programs, is_active')
+      .order('created_at', { ascending: false })
+      .limit(4),
+    supabase
+      .from('follow_ups')
+      .select('id, client_id, visit_id, description, category, suggested_due_date, created_at, clients(first_name, last_name), visits(visit_date)')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false })
+      .limit(10),
+  ])
 
   const visits = (rawVisits ?? []).map((v) => ({
     visit_date: v.visit_date,
@@ -104,6 +116,23 @@ export default async function DashboardPage() {
   }))
 
   const stats = computeDashboardStats(visits, activeClients ?? 0)
+
+  const pendingFollowUps: FollowUp[] = (rawFollowUps ?? []).map((f) => {
+    const client = f.clients as unknown as { first_name: string; last_name: string } | null
+    const visit = f.visits as unknown as { visit_date: string } | null
+    return {
+      id: f.id,
+      client_id: f.client_id,
+      visit_id: f.visit_id,
+      description: f.description,
+      category: f.category as FollowUp['category'],
+      suggested_due_date: f.suggested_due_date,
+      created_at: f.created_at,
+      client_first_name: client?.first_name ?? '—',
+      client_last_name: client?.last_name ?? '',
+      visit_date: visit?.visit_date ?? '',
+    }
+  })
 
   const dayName = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
@@ -214,6 +243,9 @@ export default async function DashboardPage() {
           <ServiceBreakdownChart data={stats.serviceBreakdown} />
         </div>
       </div>
+
+      {/* ── Pending follow-ups ─────────────────────────────── */}
+      <PendingFollowUps initialFollowUps={pendingFollowUps} />
 
       {/* ── Bottom row ─────────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">

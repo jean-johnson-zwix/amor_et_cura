@@ -2,20 +2,21 @@ import json
 import logging
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from models import EmbedRequest, ClientSummaryRequest, FunderReportRequest
+from models import EmbedRequest, ClientSummaryRequest, FunderReportRequest, ExtractFollowUpsRequest
 from dotenv import load_dotenv
 load_dotenv()
 from intelligence.llm import call_llm, call_llm_vision, transcribe_audio
-from intelligence.llm_config import PHOTO_INTAKE_EXTRACTION, NOTE_STRUCTURING, MULTILINGUAL_INTAKE, CLIENT_SUMMARY, FUNDER_REPORT
+from intelligence.llm_config import PHOTO_INTAKE_EXTRACTION, NOTE_STRUCTURING, MULTILINGUAL_INTAKE, CLIENT_SUMMARY, FUNDER_REPORT, FOLLOW_UP_EXTRACTION
 from intelligence.prompts import (
     INTAKE_SYSTEM_PROMPT,
     VOICE_NOTE_SYSTEM_PROMPT,
     MULTILINGUAL_INTAKE_SYSTEM_PROMPT,
     CLIENT_SUMMARY_GENERATOR_SYSTEM_PROMPT,
     FUNDER_REPORT_SYSTEM_PROMPT,
+    FOLLOW_UP_EXTRACTION_SYSTEM_PROMPT,
 )
 from intelligence.embedding import embed_text
-from data.supabase import fetch_client_context, fetch_report_context
+from data.supabase import fetch_client_context, fetch_report_context, insert_follow_ups
 
 # ── Logging setup (PII-safe: never log names/addresses) ──────────────────────
 logging.basicConfig(level=logging.INFO)
@@ -382,6 +383,55 @@ Program scope: {program_label}
         "stats": stats,
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
+
+
+@app.post("/ai/extract-followups")
+async def extract_followups(req: ExtractFollowUpsRequest):
+    """
+    Accepts visit text, extracts implied follow-up actions via Gemini Flash,
+    and inserts them into the follow_ups table with status='pending'.
+    Called fire-and-forget by the Next.js createVisit server action.
+    """
+    if not req.visit_text or not req.visit_text.strip():
+        raise HTTPException(status_code=422, detail="visit_text must not be empty.")
+
+    logger.info(
+        "extract-followups: analyzing visit | visit_id=%s char_count=%d",
+        req.visit_id, len(req.visit_text),
+    )
+
+    try:
+        raw = call_llm(
+            system_prompt=FOLLOW_UP_EXTRACTION_SYSTEM_PROMPT,
+            user_prompt=req.visit_text.strip(),
+            task=FOLLOW_UP_EXTRACTION,
+        )
+    except Exception as e:
+        logger.error("extract-followups: LLM call failed: %s", repr(e))
+        raise HTTPException(status_code=503, detail=_ai_error_message(e))
+
+    try:
+        parsed = json.loads(raw)
+        follow_ups = parsed.get("follow_ups", [])
+        if not isinstance(follow_ups, list):
+            follow_ups = []
+    except json.JSONDecodeError:
+        logger.error("extract-followups: JSON parse failed | raw=%s", raw[:200])
+        raise HTTPException(status_code=422, detail="Could not parse AI response as JSON.")
+
+    logger.info(
+        "extract-followups: found %d follow-up(s) | visit_id=%s",
+        len(follow_ups), req.visit_id,
+    )
+
+    if follow_ups:
+        try:
+            insert_follow_ups(follow_ups, visit_id=req.visit_id, client_id=req.client_id)
+        except (ValueError, RuntimeError) as e:
+            logger.error("extract-followups: insert failed: %s", repr(e))
+            raise HTTPException(status_code=502, detail="Failed to save follow-ups.")
+
+    return {"inserted": len(follow_ups), "visit_id": req.visit_id}
 
 
 @app.post("/ai/embed")

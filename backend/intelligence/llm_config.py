@@ -7,6 +7,7 @@ NOTE_STRUCTURING        = "note_structuring"
 MULTILINGUAL_INTAKE     = "multilingual_intake"
 CLIENT_SUMMARY          = "client_summary"
 FUNDER_REPORT           = "funder_report"
+FOLLOW_UP_EXTRACTION    = "follow_up_extraction"
 
 # Timeouts for different providers in seconds
 PROVIDER_TIMEOUTS = {
@@ -79,6 +80,18 @@ LLM_TASK_CONFIGS: Dict[str, Dict[str, Any]] = {
         "max_tokens": 4000,
         "temperature": 0.3,
         "response_format": "text",
+    },
+    FOLLOW_UP_EXTRACTION: {
+        "description": "Extract implied follow-up actions from a clinical case note",
+        "provider": "gemini",
+        "model": "gemini-2.5-flash",
+        "fallbacks": [
+            ("groq", "llama-3.3-70b-versatile"),
+            ("gemini", "gemini-3-flash-preview"),
+        ],
+        "max_tokens": 1024,
+        "temperature": 0.1,
+        "response_format": "json",
     },
 }
 

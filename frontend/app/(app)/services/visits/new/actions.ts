@@ -63,23 +63,33 @@ export async function createVisit(
   if (data?.id) {
     await logAudit({ actorId: session.user.id, action: 'CREATE', tableName: 'visits', recordId: data.id })
 
-    // Generate and store embedding for semantic search (best-effort — never block the save)
-    const textToEmbed = [caseNotes, notes].filter(Boolean).join('\n\n').trim()
-    if (textToEmbed) {
+    const aiUrl = process.env.NEXT_PUBLIC_AI_API_URL ?? 'http://localhost:8000'
+    const aiText = [caseNotes, notes].filter(Boolean).join('\n\n').trim()
+
+    if (aiText) {
+      // Generate embedding for semantic search (best-effort — never block the save)
       try {
-        const aiUrl = process.env.NEXT_PUBLIC_AI_API_URL ?? 'http://localhost:8000'
         const embedRes = await fetch(`${aiUrl}/ai/embed`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: textToEmbed }),
+          body: JSON.stringify({ text: aiText }),
         })
         if (embedRes.ok) {
           const { embedding } = await embedRes.json()
           await supabase.from('visits').update({ embedding: JSON.stringify(embedding) }).eq('id', data.id)
         }
       } catch {
-        // Embedding is non-critical — silently skip if backend is unavailable
+        // Non-critical — silently skip if backend is unavailable
       }
+
+      // Extract implied follow-ups (fire-and-forget — UI returns immediately)
+      fetch(`${aiUrl}/ai/extract-followups`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visit_id: data.id, client_id: clientId, visit_text: aiText }),
+      }).catch(() => {
+        // Non-critical — silently skip if backend is unavailable
+      })
     }
   }
 
