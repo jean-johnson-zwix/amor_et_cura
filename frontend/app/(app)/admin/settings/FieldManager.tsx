@@ -140,7 +140,7 @@ function EditFieldRow({
             <button
               onClick={handleSave}
               disabled={saving}
-              className="inline-flex h-7 items-center gap-1.5 rounded-lg bg-teal px-3 text-[12px] font-medium text-white hover:bg-[#009e77] disabled:opacity-60"
+              className="inline-flex h-7 items-center gap-1.5 rounded-lg bg-teal px-3 text-[12px] font-medium text-white hover:bg-[#D45228] disabled:opacity-60"
             >
               <Check className="size-3" />
               {saving ? 'Saving…' : 'Save'}
@@ -190,7 +190,7 @@ function FieldRow({
       </td>
       <td className="px-4 py-3">
         {field.is_active ? (
-          <span className="inline-flex h-5 items-center rounded-full bg-teal-light px-2 text-[10px] font-medium text-[#007b58]">Active</span>
+          <span className="inline-flex h-5 items-center rounded-full bg-teal-light px-2 text-[10px] font-medium text-[#16A34A]">Active</span>
         ) : (
           <span className="inline-flex h-5 items-center rounded-full bg-[#f3f4f6] px-2 text-[10px] font-medium text-[#6b7280]">Disabled</span>
         )}

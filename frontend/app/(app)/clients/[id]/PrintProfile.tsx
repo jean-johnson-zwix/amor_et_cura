@@ -57,20 +57,20 @@ function PrintDocument({
   return (
     <div className="print-document font-sans text-[#1a1a2e] bg-white">
       {/* ── Page header ───────────────────── */}
-      <div className="flex items-start justify-between border-b-2 border-[#00bd8e] pb-4 mb-6">
+      <div className="flex items-start justify-between border-b-2 border-[#F2673C] pb-4 mb-6">
         <div>
-          <h1 className="text-[22px] font-bold text-[#0a1e52]">{process.env.NEXT_PUBLIC_ORG_NAME ?? 'Amor et Cura'}</h1>
+          <h1 className="text-[22px] font-bold text-[#111827]">{process.env.NEXT_PUBLIC_ORG_NAME ?? 'Amor et Cura'}</h1>
           <p className="text-[13px] text-[#6b7280] mt-0.5">Client Profile Export · {exportDate}</p>
         </div>
         <div className="text-right">
           <p className="text-[11px] text-[#9ca3af] uppercase tracking-wide">Client ID</p>
-          <p className="text-[14px] font-mono font-semibold text-[#0a1e52]">{client.client_number}</p>
+          <p className="text-[14px] font-mono font-semibold text-[#111827]">{client.client_number}</p>
         </div>
       </div>
 
       {/* ── Identity ──────────────────────── */}
       <div className="mb-6">
-        <h2 className="text-[16px] font-bold text-[#0a1e52] mb-3 pb-1 border-b border-[#e2e8f0]">
+        <h2 className="text-[16px] font-bold text-[#111827] mb-3 pb-1 border-b border-[#e2e8f0]">
           Client Information
         </h2>
         <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-[13px]">
@@ -108,14 +108,14 @@ function PrintDocument({
       {/* ── Programs ──────────────────────── */}
       {(client.programs ?? []).length > 0 && (
         <div className="mb-6">
-          <h2 className="text-[16px] font-bold text-[#0a1e52] mb-2 pb-1 border-b border-[#e2e8f0]">
+          <h2 className="text-[16px] font-bold text-[#111827] mb-2 pb-1 border-b border-[#e2e8f0]">
             Enrolled Programs
           </h2>
           <div className="flex flex-wrap gap-2">
             {(client.programs as string[]).map((p) => (
               <span
                 key={p}
-                className="rounded border border-[#00bd8e] px-2.5 py-0.5 text-[12px] font-medium text-[#007b58]"
+                className="rounded border border-[#F2673C] px-2.5 py-0.5 text-[12px] font-medium text-[#16A34A]"
               >
                 {p}
               </span>
@@ -127,7 +127,7 @@ function PrintDocument({
       {/* ── Custom fields ─────────────────── */}
       {customFields.length > 0 && (
         <div className="mb-6">
-          <h2 className="text-[16px] font-bold text-[#0a1e52] mb-3 pb-1 border-b border-[#e2e8f0]">
+          <h2 className="text-[16px] font-bold text-[#111827] mb-3 pb-1 border-b border-[#e2e8f0]">
             Additional Information
           </h2>
           <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-[13px]">
@@ -147,18 +147,18 @@ function PrintDocument({
 
       {/* ── AI Summary ────────────────────── */}
       {summary?.confirmed_at && (
-        <div className="mb-6 rounded border border-[#00bd8e]/30 bg-[#f0fdf9] p-4">
-          <h2 className="text-[16px] font-bold text-[#0a1e52] mb-3 flex items-center gap-2">
+        <div className="mb-6 rounded border border-[#F2673C]/30 bg-[#f0fdf9] p-4">
+          <h2 className="text-[16px] font-bold text-[#111827] mb-3 flex items-center gap-2">
             Client Summary
-            <span className="text-[10px] font-semibold rounded-full bg-[#00bd8e]/20 px-2 py-0.5 text-[#007b58]">
+            <span className="text-[10px] font-semibold rounded-full bg-[#F2673C]/20 px-2 py-0.5 text-[#16A34A]">
               AI · Staff Confirmed
             </span>
           </h2>
           <div className="text-[13px] text-[#374151] leading-relaxed
-            [&_h3]:text-[12px] [&_h3]:font-bold [&_h3]:uppercase [&_h3]:tracking-wide [&_h3]:text-[#0a1e52] [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:first:mt-0
+            [&_h3]:text-[12px] [&_h3]:font-bold [&_h3]:uppercase [&_h3]:tracking-wide [&_h3]:text-[#111827] [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:first:mt-0
             [&_p]:mb-2 [&_p]:last:mb-0
             [&_ul]:pl-4 [&_li]:mb-0.5
-            [&_strong]:font-semibold [&_strong]:text-[#0a1e52]">
+            [&_strong]:font-semibold [&_strong]:text-[#111827]">
             <ReactMarkdown>{summary.summary_text}</ReactMarkdown>
           </div>
           <p className="mt-3 text-[11px] text-[#9ca3af]">
@@ -169,7 +169,7 @@ function PrintDocument({
 
       {/* ── Visit history ─────────────────── */}
       <div>
-        <h2 className="text-[16px] font-bold text-[#0a1e52] mb-3 pb-1 border-b border-[#e2e8f0]">
+        <h2 className="text-[16px] font-bold text-[#111827] mb-3 pb-1 border-b border-[#e2e8f0]">
           Service History ({visits.length} visit{visits.length !== 1 ? 's' : ''})
         </h2>
         {visits.length === 0 ? (
@@ -178,10 +178,10 @@ function PrintDocument({
           <table className="w-full text-[12px] border-collapse">
             <thead>
               <tr className="bg-[#f8fafc] text-left">
-                <th className="border border-[#e2e8f0] px-2 py-1.5 font-semibold text-[#0a1e52] w-24">Date</th>
-                <th className="border border-[#e2e8f0] px-2 py-1.5 font-semibold text-[#0a1e52] w-36">Service</th>
-                <th className="border border-[#e2e8f0] px-2 py-1.5 font-semibold text-[#0a1e52] w-32">Staff</th>
-                <th className="border border-[#e2e8f0] px-2 py-1.5 font-semibold text-[#0a1e52]">Case Notes</th>
+                <th className="border border-[#e2e8f0] px-2 py-1.5 font-semibold text-[#111827] w-24">Date</th>
+                <th className="border border-[#e2e8f0] px-2 py-1.5 font-semibold text-[#111827] w-36">Service</th>
+                <th className="border border-[#e2e8f0] px-2 py-1.5 font-semibold text-[#111827] w-32">Staff</th>
+                <th className="border border-[#e2e8f0] px-2 py-1.5 font-semibold text-[#111827]">Case Notes</th>
               </tr>
             </thead>
             <tbody>

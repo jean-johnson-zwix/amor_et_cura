@@ -13,7 +13,7 @@ type VisitRow = {
   case_worker_name: string
 }
 
-const AVATAR_COLORS = ['#00bd8e', '#eb3690', '#3960a3', '#7b3fa8']
+const AVATAR_COLORS = ['#F2673C']
 
 function getInitials(first: string, last: string) {
   return `${first[0] ?? ''}${last[0] ?? ''}`.toUpperCase()
@@ -137,8 +137,8 @@ export default function VisitsTable({
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className="rounded px-1.5 py-0.5 text-[10px] font-medium text-[#007b58]"
-                        style={{ background: '#e0f7f4', borderRadius: 4 }}
+                        className="rounded px-1.5 py-0.5 text-[10px] font-medium text-teal"
+                        style={{ background: '#FFF7ED', borderRadius: 4 }}
                       >
                         {visit.service_type_name}
                       </span>

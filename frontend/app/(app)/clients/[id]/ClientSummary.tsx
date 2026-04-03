@@ -197,7 +197,7 @@ export function ClientSummaryButton({
                     <button
                       onClick={confirm}
                       disabled={!editorValue.trim()}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-teal px-3 py-1.5 text-[12px] font-medium text-white hover:bg-[#009e77] disabled:opacity-60"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-teal px-3 py-1.5 text-[12px] font-medium text-white hover:bg-[#D45228] disabled:opacity-60"
                     >
                       <Check className="size-3.5" />
                       Confirm &amp; Save
@@ -237,7 +237,7 @@ export function ClientSummaryButton({
                 </div>
                 <button
                   onClick={generate}
-                  className="inline-flex items-center gap-2 rounded-lg bg-teal px-4 py-2 text-[13px] font-medium text-white hover:bg-[#009e77]"
+                  className="inline-flex items-center gap-2 rounded-lg bg-teal px-4 py-2 text-[13px] font-medium text-white hover:bg-[#D45228]"
                 >
                   <Sparkles className="size-4" />
                   Try Again

@@ -191,9 +191,9 @@ export default async function ClientProfilePage({
                 <div className="flex items-center gap-2.5 flex-wrap">
                   <h1 className="text-[20px] font-semibold text-navy">{clientName}</h1>
                   {client.is_active ? (
-                    <span className="rounded-full bg-teal-light px-2 py-0.5 text-[10px] font-medium text-[#007b58]">Active</span>
+                    <span className="rounded-full bg-teal-light px-2 py-0.5 text-[10px] font-medium text-teal">Active</span>
                   ) : (
-                    <span className="rounded-full bg-[#f3f4f6] px-2 py-0.5 text-[10px] font-medium text-[#6b7280]">Inactive</span>
+                    <span className="rounded-full bg-[#F0ECE8] px-2 py-0.5 text-[10px] font-medium text-[#6b7280]">Inactive</span>
                   )}
                 </div>
                 {client.dob && (
@@ -202,7 +202,7 @@ export default async function ClientProfilePage({
                 {(client.programs ?? []).length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1">
                     {(client.programs ?? []).map((p: string) => (
-                      <span key={p} className="rounded bg-teal-light px-1.5 py-0.5 text-[10px] font-medium text-[#007b58]" style={{ borderRadius: 4 }}>
+                      <span key={p} className="rounded bg-teal-light px-1.5 py-0.5 text-[10px] font-medium text-teal" style={{ borderRadius: 4 }}>
                         {p}
                       </span>
                     ))}

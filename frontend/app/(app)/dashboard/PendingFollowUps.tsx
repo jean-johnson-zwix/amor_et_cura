@@ -20,11 +20,11 @@ export type FollowUp = {
 }
 
 const CATEGORY_STYLES: Record<FollowUp['category'], { bg: string; color: string }> = {
-  Referral:   { bg: '#e0edff', color: '#1d4ed8' },
-  Medical:    { bg: '#fce4f0', color: '#be185d' },
-  Document:   { bg: '#fef9c3', color: '#92400e' },
-  Financial:  { bg: '#dcfce7', color: '#15803d' },
-  'Check-in': { bg: '#f3f4f6', color: '#374151' },
+  Referral:   { bg: '#FFF7ED', color: '#C2400A' },  // primary orange
+  Medical:    { bg: '#FEF2F2', color: '#DC2626' },  // danger red
+  Document:   { bg: '#FFFBEB', color: '#D97706' },  // amber
+  Financial:  { bg: '#FFF8E7', color: '#B58000' },  // gold
+  'Check-in': { bg: '#F0ECE8', color: '#6B7280' },  // warm neutral
 }
 
 function formatDate(iso: string) {
@@ -56,7 +56,7 @@ export default function PendingFollowUps({ initialFollowUps }: { initialFollowUp
           <Sparkles className="size-4 text-teal shrink-0" />
           <p className="text-base font-bold text-navy">Pending follow-ups</p>
           {followUps.length > 0 && (
-            <span className="rounded-full bg-[#fce4f0] px-2 py-0.5 text-xs font-bold text-[#be185d]">
+            <span className="rounded-full bg-teal-light px-2 py-0.5 text-xs font-bold text-[#C2400A]">
               {followUps.length}
             </span>
           )}
@@ -115,7 +115,7 @@ export default function PendingFollowUps({ initialFollowUps }: { initialFollowUp
                   <button
                     disabled={isProcessing}
                     onClick={() => handleAction(fu.id, 'active')}
-                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-teal px-3 text-sm font-semibold text-white hover:bg-[#009e77] disabled:opacity-50 transition-colors"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-teal px-3 text-sm font-semibold text-white hover:bg-[#D45228] disabled:opacity-50 transition-colors"
                   >
                     <CheckCircle className="size-3.5" />
                     {isProcessing ? 'Saving…' : 'Accept'}

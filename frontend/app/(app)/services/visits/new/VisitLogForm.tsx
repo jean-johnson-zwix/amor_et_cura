@@ -162,7 +162,7 @@ export default function VisitLogForm({
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           {clientId && (
             <a href={`/clients/${clientId}`}
-              className="inline-flex h-12 items-center justify-center gap-1.5 rounded-xl bg-teal px-6 text-base font-semibold text-white hover:bg-[#009e77]">
+              className="inline-flex h-12 items-center justify-center gap-1.5 rounded-xl bg-teal px-6 text-base font-semibold text-white hover:bg-[#D45228]">
               <ChevronLeft className="size-4" /> Back to {clientName}
             </a>
           )}
@@ -387,7 +387,7 @@ export default function VisitLogForm({
           Cancel
         </button>
         <button type="submit" disabled={isPending}
-          className="inline-flex h-9 items-center rounded-lg bg-teal px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77] disabled:opacity-60">
+          className="inline-flex h-9 items-center rounded-lg bg-teal px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#D45228] disabled:opacity-60">
           {isPending ? 'Saving…' : 'Save visit'}
         </button>
       </div>

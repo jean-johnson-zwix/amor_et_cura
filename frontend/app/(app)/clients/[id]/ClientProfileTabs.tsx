@@ -201,7 +201,7 @@ function LinkFamilyMemberModal({
                   <button
                     onClick={() => handleLink(c.id)}
                     disabled={linking === c.id}
-                    className="inline-flex h-7 items-center rounded-lg bg-teal px-3 text-[11px] font-medium text-white hover:bg-[#009e77] disabled:opacity-50"
+                    className="inline-flex h-7 items-center rounded-lg bg-teal px-3 text-[11px] font-medium text-white hover:bg-[#D45228] disabled:opacity-50"
                   >
                     {linking === c.id ? 'Linking…' : 'Link'}
                   </button>
@@ -226,17 +226,17 @@ const TABS = [
 ] as const
 
 const TASK_CATEGORY_STYLES: Record<TaskRow['category'], { bg: string; color: string }> = {
-  Referral:   { bg: '#e0edff', color: '#1d4ed8' },
-  Medical:    { bg: '#fce4f0', color: '#be185d' },
-  Document:   { bg: '#fef9c3', color: '#92400e' },
-  Financial:  { bg: '#dcfce7', color: '#15803d' },
-  'Check-in': { bg: '#f3f4f6', color: '#374151' },
+  Referral:   { bg: '#FFF7ED', color: '#C2400A' },  // primary orange
+  Medical:    { bg: '#FEF2F2', color: '#DC2626' },  // danger red
+  Document:   { bg: '#FFFBEB', color: '#D97706' },  // amber
+  Financial:  { bg: '#FFF8E7', color: '#B58000' },  // gold
+  'Check-in': { bg: '#F0ECE8', color: '#6B7280' },  // warm neutral
 }
 
 const TASK_URGENCY_STYLES: Record<TaskRow['urgency'], { bg: string; color: string; label: string }> = {
-  high:   { bg: '#fee2e2', color: '#b91c1c', label: 'High' },
-  medium: { bg: '#fef3c7', color: '#92400e', label: 'Medium' },
-  low:    { bg: '#f3f4f6', color: '#6b7280', label: 'Low' },
+  high:   { bg: '#FEF2F2', color: '#DC2626', label: 'High' },    // danger
+  medium: { bg: '#FFFBEB', color: '#D97706', label: 'Medium' },  // amber
+  low:    { bg: '#F0ECE8', color: '#6B7280', label: 'Low' },     // warm neutral
 }
 
 type TabId = (typeof TABS)[number]['id']
@@ -378,7 +378,7 @@ export default function ClientProfileTabs({
             onClick={() => setActiveTab(id)}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[12px] font-medium transition-colors ${
               activeTab === id
-                ? 'bg-[#00bd8e] text-white'
+                ? 'bg-teal text-white'
                 : 'text-[#6b7280] hover:bg-teal-tint hover:text-navy'
             }`}
           >
@@ -497,7 +497,7 @@ export default function ClientProfileTabs({
                 {canLogVisit && (
                   <a
                     href={`/services/visits/new?client_id=${client.id}`}
-                    className="mt-2 inline-flex h-8 items-center rounded-lg bg-teal px-4 text-[12px] font-medium text-white hover:bg-[#009e77]"
+                    className="mt-2 inline-flex h-8 items-center rounded-lg bg-teal px-4 text-[12px] font-medium text-white hover:bg-[#D45228]"
                   >
                     Log first visit
                   </a>
@@ -575,7 +575,7 @@ export default function ClientProfileTabs({
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-teal px-3 py-1.5 text-[11px] font-medium text-white hover:bg-[#009e77] disabled:opacity-60"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-teal px-3 py-1.5 text-[11px] font-medium text-white hover:bg-[#D45228] disabled:opacity-60"
                   >
                     <Upload className="size-3.5" />
                     {uploading ? 'Uploading…' : 'Upload'}
@@ -689,8 +689,8 @@ export default function ClientProfileTabs({
                       )}
                     </div>
                     <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium capitalize ${
-                      appt.status === 'scheduled' ? 'bg-teal-light text-[#007b58]' :
-                      appt.status === 'completed' ? 'bg-[#f3f4f6] text-[#6b7280]' : 'bg-red-50 text-red-600'
+                      appt.status === 'scheduled' ? 'bg-teal-light text-teal' :
+                      appt.status === 'completed' ? 'bg-[#F0ECE8] text-[#6b7280]' : 'bg-[#FEF2F2] text-[#DC2626]'
                     }`}>
                       {appt.status}
                     </span>

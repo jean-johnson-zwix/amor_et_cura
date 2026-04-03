@@ -27,8 +27,8 @@ type SemanticResult = {
 
 function SimilarityBadge({ score }: { score: number }) {
   const pct = Math.round(score * 100)
-  const bg = pct >= 80 ? '#e0f7f4' : pct >= 60 ? '#fef3c7' : '#f3f4f6'
-  const color = pct >= 80 ? '#007b58' : pct >= 60 ? '#92400e' : '#6b7280'
+  const bg = pct >= 80 ? '#FFF7ED' : pct >= 60 ? '#FFFBEB' : '#F0ECE8'
+  const color = pct >= 80 ? '#C2400A' : pct >= 60 ? '#D97706' : '#6b7280'
   return (
     <span
       className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
@@ -210,7 +210,7 @@ export function GlobalSearchBar() {
           <button
             type="submit"
             disabled={status === 'loading' || !query.trim()}
-            className="inline-flex h-8 items-center rounded-lg bg-teal px-2.5 text-[12px] font-medium text-white transition-colors hover:bg-[#009e77] disabled:opacity-60"
+            className="inline-flex h-8 items-center rounded-lg bg-teal px-2.5 text-[12px] font-medium text-white transition-colors hover:bg-[#D45228] disabled:opacity-60"
           >
             {status === 'loading' ? (
               <Loader2 className="size-3.5 animate-spin" />
@@ -355,7 +355,7 @@ export function GlobalSearchBar() {
                         <Link
                           href={`/services/schedule/new?client_id=${r.client_id}`}
                           onClick={() => setOpen(false)}
-                          className="inline-flex items-center gap-1 rounded-lg bg-teal px-2.5 py-1 text-[11px] font-medium text-white hover:bg-[#009e77] transition-colors whitespace-nowrap"
+                          className="inline-flex items-center gap-1 rounded-lg bg-teal px-2.5 py-1 text-[11px] font-medium text-white hover:bg-[#D45228] transition-colors whitespace-nowrap"
                         >
                           + Add Follow-up
                         </Link>

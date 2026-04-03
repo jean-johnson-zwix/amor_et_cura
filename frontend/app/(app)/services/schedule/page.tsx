@@ -13,23 +13,23 @@ import {
 } from '@/lib/appointments'
 
 const SERVICE_RULES: Array<{ match: string; bg: string; text: string }> = [
-  { match: 'food',       bg: '#e0f7f4', text: '#007b58' },
-  { match: 'case',       bg: '#fce4f0', text: '#eb3690' },
-  { match: 'counsel',    bg: '#e8ecf6', text: '#0a1e52' },
-  { match: 'mental',     bg: '#e8ecf6', text: '#0a1e52' },
-  { match: 'housing',    bg: '#e0f7f4', text: '#007b58' },
-  { match: 'employ',     bg: '#fce4f0', text: '#eb3690' },
-  { match: 'education',  bg: '#e8ecf6', text: '#0a1e52' },
-  { match: 'medical',    bg: '#e0f7f4', text: '#007b58' },
-  { match: 'transport',  bg: '#fce4f0', text: '#eb3690' },
-  { match: 'child',      bg: '#e0f7f4', text: '#007b58' },
-  { match: 'legal',      bg: '#fce4f0', text: '#eb3690' },
+  { match: 'food',       bg: '#FFFBEB', text: '#D97706' },  // amber
+  { match: 'case',       bg: '#FFF7ED', text: '#C2400A' },  // primary orange
+  { match: 'counsel',    bg: '#FFF0F8', text: '#C4006A' },  // pink
+  { match: 'mental',     bg: '#FFF0F8', text: '#C4006A' },  // pink
+  { match: 'housing',    bg: '#FFFBEB', text: '#D97706' },  // amber
+  { match: 'employ',     bg: '#FFF7ED', text: '#C2400A' },  // primary orange
+  { match: 'education',  bg: '#FFF7ED', text: '#C2400A' },  // primary orange
+  { match: 'medical',    bg: '#FEF2F2', text: '#DC2626' },  // danger red
+  { match: 'transport',  bg: '#FFFBEB', text: '#D97706' },  // amber
+  { match: 'child',      bg: '#FFF0F8', text: '#C4006A' },  // pink
+  { match: 'legal',      bg: '#FEF2F2', text: '#DC2626' },  // danger red
 ]
 
 function getServiceColor(name: string) {
   const lower = name.toLowerCase()
   const rule = SERVICE_RULES.find((r) => lower.includes(r.match))
-  return rule ?? { bg: '#e0f7f4', text: '#007b58' }
+  return rule ?? { bg: '#FFF7ED', text: '#C2400A' }
 }
 
 function AppointmentChip({ appt }: { appt: AppointmentWithDetails }) {
@@ -104,7 +104,7 @@ export default async function SchedulePage({
         actions={
           <Link
             href="/services/schedule/new"
-            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77]"
+            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#D45228]"
           >
             + New appointment
           </Link>
@@ -139,7 +139,7 @@ export default async function SchedulePage({
                 <div
                   key={date}
                   className="px-2 py-2.5 text-center text-[11px] font-medium text-[#6b7280]"
-                  style={isToday ? { background: '#e0f7f4' } : {}}
+                  style={isToday ? { background: '#F0FDF4' } : {}}
                 >
                   {formatDateHeading(date)}
                 </div>

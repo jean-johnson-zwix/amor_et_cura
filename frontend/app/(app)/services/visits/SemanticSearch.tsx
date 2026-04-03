@@ -42,8 +42,8 @@ function Snippet({ text }: { text: string }) {
 
 function SimilarityBadge({ score }: { score: number }) {
   const pct = Math.round(score * 100)
-  const bg = pct >= 80 ? '#e0f7f4' : pct >= 60 ? '#fef3c7' : '#f3f4f6'
-  const color = pct >= 80 ? '#007b58' : pct >= 60 ? '#92400e' : '#6b7280'
+  const bg = pct >= 80 ? '#FFF7ED' : pct >= 60 ? '#FFFBEB' : '#F0ECE8'
+  const color = pct >= 80 ? '#C2400A' : pct >= 60 ? '#D97706' : '#6b7280'
   return (
     <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
       style={{ background: bg, color }}>
@@ -120,7 +120,7 @@ export default function SemanticSearch() {
         <button
           type="submit"
           disabled={status === 'loading' || !query.trim()}
-          className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-teal px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77] disabled:opacity-60"
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-teal px-4 text-[13px] font-medium text-white transition-colors hover:bg-[#D45228] disabled:opacity-60"
         >
           {status === 'loading' ? <Loader2 className="size-4 animate-spin" /> : <Search className="size-4" />}
           {status === 'loading' ? 'Searching…' : 'Search'}

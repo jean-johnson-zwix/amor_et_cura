@@ -3,7 +3,8 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
 import type { ServiceBreakdown } from '@/lib/dashboard'
 
-const COLORS = ['#00bd8e', '#eb3690', '#0a1e52', '#f59e0b', '#0ea5e9', '#7b3fa8', '#10b981', '#ef4444']
+// Warm spectrum — no violet, no green
+const COLORS = ['#F2673C', '#F0B100', '#F6339A', '#DC2626', '#D97706', '#E8977A', '#B85030', '#F4A46A']
 
 export default function ServiceBreakdownChart({ data }: { data: ServiceBreakdown[] }) {
   if (data.length === 0) {

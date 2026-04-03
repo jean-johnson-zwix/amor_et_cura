@@ -6,9 +6,9 @@ import { Topbar } from '@/components/Topbar'
 const PAGE_SIZE = 50
 
 const ACTION_BADGE: Record<string, { bg: string; text: string }> = {
-  CREATE: { bg: '#e0f7f4', text: '#007b58' },
-  UPDATE: { bg: '#e8ecf6', text: '#0a1e52' },
-  DELETE: { bg: '#fce4f0', text: '#eb3690' },
+  CREATE: { bg: '#FFF8E7', text: '#B58000' },  // gold
+  UPDATE: { bg: '#FFF7ED', text: '#C2400A' },  // primary orange
+  DELETE: { bg: '#FEF2F2', text: '#DC2626' },  // danger red
 }
 
 const TABLE_LABELS: Record<string, string> = {
@@ -29,7 +29,7 @@ function getInitials(name: string) {
   return name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
 }
 
-const AVATAR_COLORS = ['#00bd8e', '#eb3690', '#3960a3', '#7b3fa8']
+const AVATAR_COLORS = ['#F2673C']
 
 export default async function AuditLogPage({
   searchParams,
@@ -107,7 +107,7 @@ export default async function AuditLogPage({
           </select>
           <button
             type="submit"
-            className="h-9 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77]"
+            className="h-9 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#D45228]"
           >
             Filter
           </button>

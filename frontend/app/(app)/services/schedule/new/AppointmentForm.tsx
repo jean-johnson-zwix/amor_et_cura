@@ -34,7 +34,7 @@ export default function AppointmentForm({
         <p className="text-[15px] font-semibold text-navy">Appointment scheduled!</p>
         <div className="mt-4 flex justify-center gap-3">
           <Link href="/services/schedule"
-            className="inline-flex h-9 items-center rounded-lg bg-teal px-4 text-[13px] font-medium text-white hover:bg-[#009e77]">
+            className="inline-flex h-9 items-center rounded-lg bg-teal px-4 text-[13px] font-medium text-white hover:bg-[#D45228]">
             View calendar
           </Link>
           <button onClick={() => window.location.reload()}
@@ -123,7 +123,7 @@ export default function AppointmentForm({
           Cancel
         </button>
         <button type="submit" disabled={isPending}
-          className="inline-flex h-9 items-center rounded-lg bg-teal px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77] disabled:opacity-60">
+          className="inline-flex h-9 items-center rounded-lg bg-teal px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#D45228] disabled:opacity-60">
           {isPending ? 'Scheduling…' : 'Book appointment'}
         </button>
       </div>

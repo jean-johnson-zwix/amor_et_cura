@@ -79,7 +79,7 @@ export default function DashboardAppointments({ appointments }: { appointments: 
                 <div className="flex gap-2 flex-wrap">
                   <button
                     onClick={() => { setError(null); setStep({ type: 'reschedule', appt }) }}
-                    className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-teal px-4 text-sm font-semibold text-white hover:bg-[#009e77] transition-colors"
+                    className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-teal px-4 text-sm font-semibold text-white hover:bg-[#D45228] transition-colors"
                   >
                     <Clock className="size-4" />
                     Pick a new time
@@ -225,7 +225,7 @@ export default function DashboardAppointments({ appointments }: { appointments: 
             <button
               type="submit"
               disabled={isPending}
-              className={`${btnPrimary} bg-teal hover:bg-[#009e77] flex-1`}
+              className={`${btnPrimary} bg-teal hover:bg-[#D45228] flex-1`}
             >
               {isPending ? 'Saving…' : 'Set new time'}
             </button>
@@ -253,7 +253,7 @@ export default function DashboardAppointments({ appointments }: { appointments: 
         <p className="text-base text-[#374151]">{step.message}</p>
         <button
           onClick={() => setStep({ type: 'list' })}
-          className="mt-6 inline-flex h-12 items-center justify-center rounded-xl bg-teal px-6 text-base font-semibold text-white hover:bg-[#009e77]"
+          className="mt-6 inline-flex h-12 items-center justify-center rounded-xl bg-teal px-6 text-base font-semibold text-white hover:bg-[#D45228]"
         >
           Back to appointments
         </button>

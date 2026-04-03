@@ -327,7 +327,7 @@ export default function ClientRegistrationForm({
           Cancel
         </button>
         <button type="submit" disabled={isPending}
-          className="inline-flex h-9 items-center rounded-lg bg-teal px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77] disabled:opacity-60">
+          className="inline-flex h-9 items-center rounded-lg bg-teal px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#D45228] disabled:opacity-60">
           {isPending ? 'Saving…' : 'Register client'}
         </button>
       </div>

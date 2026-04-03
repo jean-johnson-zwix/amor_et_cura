@@ -149,7 +149,7 @@ function PrintDocument({
       <div>
         <h2 className="text-[14px] font-bold text-navy mb-3 pb-1 border-b border-[#e2e8f0] flex items-center gap-2">
           Impact Narrative
-          <span className="text-[10px] font-semibold rounded-full bg-teal/20 px-2 py-0.5 text-[#007b58]">
+          <span className="text-[10px] font-semibold rounded-full bg-teal/20 px-2 py-0.5 text-[#16A34A]">
             AI · Staff Reviewed
           </span>
         </h2>
@@ -313,7 +313,7 @@ export function ReportsHub({ serviceTypes }: { serviceTypes: string[] }) {
         <button
           onClick={generate}
           disabled={status === 'loading'}
-          className="inline-flex items-center gap-2 rounded-lg bg-teal px-5 py-2 text-[13px] font-semibold text-white hover:bg-[#009e77] disabled:opacity-60 transition-colors self-end"
+          className="inline-flex items-center gap-2 rounded-lg bg-teal px-5 py-2 text-[13px] font-semibold text-white hover:bg-[#D45228] disabled:opacity-60 transition-colors self-end"
         >
           {status === 'loading' ? (
             <>

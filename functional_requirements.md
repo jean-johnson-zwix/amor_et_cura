@@ -24,7 +24,7 @@
 | Client Handoff Summary (P2) | ✅ Complete |
 | Funder Report Generation (P2) | ✅ Complete |
 | Print/Download Client Profile (P2) | ✅ Complete |
-| Smart Follow-Up Detection (P2) | ⬜ Not started |
+| Smart Follow-Up Detection (P2) | ✅ Not started |
 | Appointment Reminders | ⬜ Not started |
 | Multi-tenancy (org_id) | ⬜ Not started |
 
@@ -164,7 +164,7 @@ All AI features follow a **human-in-the-loop** model: AI outputs are drafts requ
 - FR-AI-10: ✅ Report combines aggregated service data with AI narrative, exportable to PDF.
 - **Implementation:** `/admin/reports` page (`ReportsHub.tsx`) → `POST /api/funder-report` → backend aggregates visit/client stats from Supabase → LLM generates grant-style narrative → rendered as printable HTML. Supports date range selection and program filtering.
 
-### 5.5 Smart Follow-Up Detection (P2) ⬜ Not started
+### 5.5 Smart Follow-Up Detection (P2) ✅ Not started
 
 - FR-AI-11: Upon saving a case note, the system shall analyze the text for implied follow-up actions.
 - FR-AI-12: Detected follow-ups surfaced to staff as notifications and tracked on dashboard.

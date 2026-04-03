@@ -39,17 +39,17 @@ export type PendingRow = {
 // ── Style maps ────────────────────────────────────────────────
 
 const CAT_STYLE: Record<TaskRow['category'], { bg: string; color: string }> = {
-  Referral:   { bg: '#e0edff', color: '#1d4ed8' },
-  Medical:    { bg: '#fce4f0', color: '#be185d' },
-  Document:   { bg: '#fef9c3', color: '#92400e' },
-  Financial:  { bg: '#dcfce7', color: '#15803d' },
-  'Check-in': { bg: '#f3f4f6', color: '#374151' },
+  Referral:   { bg: '#FFF7ED', color: '#C2400A' },  // primary orange
+  Medical:    { bg: '#FEF2F2', color: '#DC2626' },  // danger red
+  Document:   { bg: '#FFFBEB', color: '#D97706' },  // amber
+  Financial:  { bg: '#FFF8E7', color: '#B58000' },  // gold
+  'Check-in': { bg: '#F0ECE8', color: '#6B7280' },  // warm neutral
 }
 
 const URG_STYLE: Record<TaskRow['urgency'], { bg: string; color: string; label: string }> = {
-  high:   { bg: '#fee2e2', color: '#b91c1c', label: 'High' },
-  medium: { bg: '#fef3c7', color: '#92400e', label: 'Medium' },
-  low:    { bg: '#f3f4f6', color: '#6b7280', label: 'Low' },
+  high:   { bg: '#FEF2F2', color: '#DC2626', label: 'High' },    // danger
+  medium: { bg: '#FFFBEB', color: '#D97706', label: 'Medium' },  // amber
+  low:    { bg: '#F0ECE8', color: '#6B7280', label: 'Low' },     // warm neutral
 }
 
 function formatVisitDate(iso: string) {
@@ -190,7 +190,7 @@ function SuggestionsTab({
                 <button
                   disabled={isProcessing}
                   onClick={() => handleAccept(item)}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-teal px-3 text-[12px] font-semibold text-white hover:bg-[#009e77] disabled:opacity-50 transition-colors"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-teal px-3 text-[12px] font-semibold text-white hover:bg-[#D45228] disabled:opacity-50 transition-colors"
                 >
                   <CheckCircle className="size-3.5" />
                   {isProcessing ? 'Saving…' : 'Add to tasks'}
@@ -409,7 +409,7 @@ export default function TasksClient({
           <ListChecks className="size-3.5 shrink-0" />
           Active Tasks
           {tasks.length > 0 && (
-            <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${activeTab === 'active' ? 'bg-white/20 text-white' : 'bg-[#e0f7f4] text-[#007b58]'}`}>
+            <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${activeTab === 'active' ? 'bg-white/20 text-white' : 'bg-teal-light text-teal'}`}>
               {tasks.length}
             </span>
           )}

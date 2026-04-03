@@ -36,7 +36,7 @@ export default async function VisitsPage() {
         actions={
           <Link
             href="/services/visits/new"
-            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77]"
+            className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#D45228]"
           >
             + Log Visit
           </Link>

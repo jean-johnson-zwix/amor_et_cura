@@ -15,21 +15,21 @@ export function LoginForm({
   const error = state?.error ?? (callbackError ? 'Authentication failed. Please try again.' : null)
 
   const inputClass =
-    'h-9 w-full rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] text-navy outline-none transition-all focus:border-teal focus:ring-2 focus:ring-teal/20'
-  const labelClass = 'mb-1 block text-[11px] text-[#6b7280]'
+    'h-9 w-full rounded border border-[#E5E7EB] bg-white px-3 text-[13px] text-navy outline-none transition-all focus:border-teal focus:ring-2 focus:ring-teal/20'
+  const labelClass = 'mb-1 block text-[11px] font-medium text-[#6B7280]'
 
   return (
-    <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-8">
-      <h2 className="text-[20px] font-semibold text-navy">Welcome back</h2>
-      <p className="mt-0.5 text-[13px] text-[#6b7280]">Sign in to Amor Et Cura</p>
+    <div className="rounded border border-[#E5E7EB] bg-white p-8">
+      <h2 className="text-[20px] font-bold text-navy">Welcome back</h2>
+      <p className="mt-0.5 text-[13px] text-[#6B7280]">Sign in to Amor Et Cura</p>
 
       <div className="mt-6 space-y-4">
         <GoogleSignInButton />
 
         <div className="relative flex items-center gap-3">
-          <div className="flex-1 border-t border-[#e2e8f0]" />
+          <div className="flex-1 border-t border-[#E5E7EB]" />
           <span className="text-[12px] text-[#6b7280]">or</span>
-          <div className="flex-1 border-t border-[#e2e8f0]" />
+          <div className="flex-1 border-t border-[#E5E7EB]" />
         </div>
 
         <form action={action} className="space-y-4">
@@ -65,7 +65,7 @@ export function LoginForm({
           <button
             type="submit"
             disabled={pending}
-            className="h-9 w-full rounded-lg bg-teal text-[13px] font-medium text-white transition-colors hover:bg-[#009e77] disabled:opacity-60"
+            className="h-9 w-full rounded-lg bg-teal text-[13px] font-medium text-white transition-colors hover:bg-[#D45228] disabled:opacity-60"
           >
             {pending ? 'Signing in…' : 'Sign in'}
           </button>
