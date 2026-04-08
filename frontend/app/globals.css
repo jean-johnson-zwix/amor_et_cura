@@ -49,8 +49,8 @@
 
   /* ── Flat Design System tokens ───────────────────────────── */
   --color-navy:        #1C1C1C;   /* text / sidebar base */
-  --color-teal:        #F2673C;   /* primary orange */
-  --color-pink-accent: #8B5CF6;   /* secondary purple */
+  --color-teal:        var(--org-primary);    /* primary — org-branded */
+  --color-pink-accent: var(--org-secondary);  /* secondary — org-branded */
   --color-pink:        #F6339A;   /* card icon pink */
   --color-gold:        #F0B100;   /* card icon gold/amber */
   --color-teal-tint:   #F7F3EF;   /* warm off-white page background */
@@ -63,14 +63,18 @@
 }
 
 :root {
+  /* ── Org branding defaults (overridden server-side from org_settings) ── */
+  --org-primary:   #F2673C;
+  --org-secondary: #8B5CF6;
+
   --background: #F7F3EF;
   --foreground: #1C1C1C;
   --card: #ffffff;
   --card-foreground: #1C1C1C;
   --popover: #ffffff;
   --popover-foreground: #1C1C1C;
-  /* Primary = flat orange */
-  --primary: #F2673C;
+  /* Primary driven by org branding */
+  --primary: var(--org-primary);
   --primary-foreground: #ffffff;
   --secondary: #F3F0FF;
   --secondary-foreground: #1C1C1C;
@@ -82,9 +86,9 @@
   /* Inputs — warm border + orange focus ring */
   --border: #D1CCC8;
   --input: #D1CCC8;
-  --ring: #F2673C;
+  --ring: var(--org-primary);
   /* Chart palette — warm spectrum, no violet or green */
-  --chart-1: #F2673C;
+  --chart-1: var(--org-primary);
   --chart-2: #F0B100;
   --chart-3: #F6339A;
   --chart-4: #D97706;
@@ -94,7 +98,7 @@
   /* Sidebar */
   --sidebar: #1C1C1C;
   --sidebar-foreground: #9CA3AF;
-  --sidebar-primary: #F2673C;
+  --sidebar-primary: var(--org-primary);
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #2A2A2A;
   --sidebar-border: #333333;

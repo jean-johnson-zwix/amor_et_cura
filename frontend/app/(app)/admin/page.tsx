@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Users, Settings, FileText, BarChart3, ArrowRight } from 'lucide-react'
+import { Users, Settings, FileText, BarChart3, ArrowRight, Brain } from 'lucide-react'
 import { Topbar } from '@/components/Topbar'
 import { getAllProfiles } from '@/lib/supabase/queries'
 import type React from 'react'
@@ -10,10 +10,11 @@ const ADMIN_SECTIONS: {
   description: string
   Icon: React.ComponentType<{ className?: string }>
 }[] = [
-  { href: '/admin/users',     title: 'User Management', description: 'View all staff accounts, promote or demote roles.', Icon: Users },
-  { href: '/admin/settings',  title: 'Settings',        description: 'Configure service types and custom intake fields.', Icon: Settings },
-  { href: '/admin/audit-log', title: 'Audit Log',       description: 'Review all create, update, and delete actions.', Icon: FileText },
-  { href: '/admin/reports',   title: 'Impact Reports',  description: 'Generate AI-assisted funder narratives from program data.', Icon: BarChart3 },
+  { href: '/admin/users',        title: 'User Management',   description: 'View all staff accounts, promote or demote roles.',              Icon: Users },
+  { href: '/admin/settings',     title: 'Settings',          description: 'Configure service types and custom intake fields.',              Icon: Settings },
+  { href: '/admin/settings/ai',  title: 'AI Configuration',  description: 'Swap models, edit prompts, and enable or disable AI features.', Icon: Brain },
+  { href: '/admin/audit-log',    title: 'Audit Log',         description: 'Review all create, update, and delete actions.',                Icon: FileText },
+  { href: '/admin/reports',      title: 'Impact Reports',    description: 'Generate AI-assisted funder narratives from program data.',     Icon: BarChart3 },
 ]
 
 export default async function AdminPage() {
@@ -27,26 +28,6 @@ export default async function AdminPage() {
       <Topbar crumbs={[{ label: 'Admin' }, { label: 'Overview' }]} />
 
       <div className="p-6 flex flex-col gap-5">
-        {/* Stat cards */}
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-          {[
-            { label: 'Total users', value: profiles.length },
-            { label: 'Admins', value: adminCount },
-            { label: 'Case workers', value: workerCount },
-          ].map(({ label, value }) => (
-            <div key={label} className="rounded-2xl bg-white shadow-sm p-4">
-              <p className="text-2xl font-semibold tabular-nums text-navy">{value}</p>
-              <p className="mt-0.5 text-[12px] text-[#6b7280]">{label}</p>
-            </div>
-          ))}
-        </div>
-
-        <p className="text-[12px] text-[#6b7280]">
-          {profiles.length} total users — {adminCount} admin{adminCount !== 1 ? 's' : ''},{' '}
-          {workerCount} case worker{workerCount !== 1 ? 's' : ''},{' '}
-          {viewerCount} viewer{viewerCount !== 1 ? 's' : ''}
-        </p>
-
         {/* Section link cards */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {ADMIN_SECTIONS.map(({ href, title, description, Icon }) => (

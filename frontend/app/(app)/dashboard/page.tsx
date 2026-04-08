@@ -248,7 +248,6 @@ export default async function DashboardPage() {
                     href={`/clients/${c.id}`}
                     className="shrink-0 text-muted-foreground hover:text-teal transition-colors"
                   >
-                    <MessageSquare className="size-4" />
                   </Link>
                 </div>
               ))}

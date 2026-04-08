@@ -82,6 +82,50 @@ export interface AuditLog {
   created_at: string
 }
 
+export interface OrgSettings {
+  id: string
+  org_name: string
+  org_mission: string
+  contact_email: string
+  org_logo_url: string | null
+  primary_color: string
+  secondary_color: string
+  setup_complete: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface AiTask {
+  slug: string
+  display_name: string
+  description: string
+  task_type: 'chat' | 'vision' | 'audio'
+  system_prompt: string | null
+}
+
+export interface AiModel {
+  id: string
+  name: string
+  provider: string
+  model_id: string
+  supports_vision: boolean
+  supports_audio: boolean
+  is_active: boolean
+  created_at: string
+}
+
+export interface AiTaskConfig {
+  id: string
+  task_slug: string
+  model_id: string
+  priority: number
+  temperature: number
+  max_tokens: number
+  response_format: 'text' | 'json'
+  is_active: boolean
+  updated_at: string
+}
+
 export type FieldType = 'text' | 'number' | 'date' | 'boolean' | 'select' | 'multiselect'
 export type FieldAppliesTo = 'client' | 'visit'
 

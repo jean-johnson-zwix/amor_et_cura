@@ -44,9 +44,9 @@ const MAIN_NAV = [
   { href: '/clients',   label: 'Clients',   icon: Users },
 ]
 
-const SERVICES_NAV = [
-  { href: '/services/schedule', label: 'Upcoming Appointments', icon: CalendarDays },
-  { href: '/services/visits',   label: 'Past Visits',           icon: ClipboardList },
+const APPOINTMENTS_NAV = [
+  { href: '/services/schedule', label: 'Upcoming', icon: CalendarDays },
+  { href: '/services/visits',   label: 'Past', icon: ClipboardList },
 ]
 
 const ADMIN_NAV = [
@@ -115,12 +115,12 @@ export function NavBar({ profile }: { profile: Profile | null }) {
           })}
         </div>
 
-        {/* Clinical / Services section */}
+        {/* Appointments section */}
         <div className="mb-1 mt-5 px-2">
-          <span className="text-[9px] font-bold uppercase tracking-widest text-[#6B7280]">Clinical / Service</span>
+          <span className="text-[9px] font-bold uppercase tracking-widest text-[#6B7280]">Appointments</span>
         </div>
         <div className="flex flex-col gap-0.5">
-          {SERVICES_NAV.map(({ href, label, icon: Icon }) => {
+          {APPOINTMENTS_NAV.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || pathname.startsWith(href + '/')
             return (
               <Link
