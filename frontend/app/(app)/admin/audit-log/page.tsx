@@ -6,9 +6,9 @@ import { Topbar } from '@/components/Topbar'
 const PAGE_SIZE = 50
 
 const ACTION_BADGE: Record<string, { bg: string; text: string }> = {
-  CREATE: { bg: '#e0f7f4', text: '#007b58' },
-  UPDATE: { bg: '#e8ecf6', text: '#0a1e52' },
-  DELETE: { bg: '#fce4f0', text: '#eb3690' },
+  CREATE: { bg: '#FFF8E7', text: '#B58000' },  // gold
+  UPDATE: { bg: '#FFF7ED', text: '#C2400A' },  // primary orange
+  DELETE: { bg: '#FEF2F2', text: '#DC2626' },  // danger red
 }
 
 const TABLE_LABELS: Record<string, string> = {
@@ -29,7 +29,7 @@ function getInitials(name: string) {
   return name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
 }
 
-const AVATAR_COLORS = ['#00bd8e', '#eb3690', '#3960a3', '#7b3fa8']
+const AVATAR_COLORS = ['#F2673C']
 
 export default async function AuditLogPage({
   searchParams,
@@ -84,7 +84,7 @@ export default async function AuditLogPage({
       <div className="p-6 flex flex-col gap-4">
         {/* Filter bar */}
         <form method="GET" action="/admin/audit-log"
-          className="flex flex-wrap items-center gap-3 rounded-[14px] border border-[#e2e8f0] bg-white px-4 py-3"
+          className="flex flex-wrap items-center gap-3 rounded-2xl bg-white shadow-sm px-4 py-3"
         >
           <select name="table" defaultValue={table ?? ''} className={selectClass}>
             <option value="">All tables</option>
@@ -107,7 +107,7 @@ export default async function AuditLogPage({
           </select>
           <button
             type="submit"
-            className="h-9 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77]"
+            className="h-9 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#D45228]"
           >
             Filter
           </button>
@@ -127,7 +127,7 @@ export default async function AuditLogPage({
         </p>
 
         {/* Table */}
-        <div className="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
+        <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#e2e8f0]/50 bg-teal-tint text-left">

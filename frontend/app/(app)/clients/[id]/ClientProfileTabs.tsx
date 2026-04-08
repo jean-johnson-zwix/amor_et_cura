@@ -20,7 +20,12 @@ import {
   UserPlus,
   ArrowRight,
   X,
+  CheckSquare,
+  Square,
 } from 'lucide-react'
+import type { TaskRow } from '../../tasks/TasksClient'
+import { completeTask } from '../../tasks/task-actions'
+import { ClientSummaryPanel } from './ClientSummary'
 
 // ── Local types ──────────────────────────────────────────────
 
@@ -162,7 +167,7 @@ function LinkFamilyMemberModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <div
-        className="w-full max-w-sm rounded-[14px] border border-[#e2e8f0] bg-white shadow-xl"
+        className="w-full max-w-sm rounded-2xl bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
@@ -196,7 +201,7 @@ function LinkFamilyMemberModal({
                   <button
                     onClick={() => handleLink(c.id)}
                     disabled={linking === c.id}
-                    className="inline-flex h-7 items-center rounded-lg bg-teal px-3 text-[11px] font-medium text-white hover:bg-[#009e77] disabled:opacity-50"
+                    className="inline-flex h-7 items-center rounded-lg bg-teal px-3 text-[11px] font-medium text-white hover:bg-[#D45228] disabled:opacity-50"
                   >
                     {linking === c.id ? 'Linking…' : 'Link'}
                   </button>
@@ -217,11 +222,34 @@ const TABS = [
   { id: 'case-notes',   label: 'Case Notes',       icon: ClipboardList },
   { id: 'documents',    label: 'Documents',        icon: FileText },
   { id: 'appointments', label: 'Appointments',     icon: CalendarDays },
+  { id: 'tasks',        label: 'Tasks',            icon: CheckSquare },
 ] as const
+
+const TASK_CATEGORY_STYLES: Record<TaskRow['category'], { bg: string; color: string }> = {
+  Referral:   { bg: '#FFF7ED', color: '#C2400A' },  // primary orange
+  Medical:    { bg: '#FEF2F2', color: '#DC2626' },  // danger red
+  Document:   { bg: '#FFFBEB', color: '#D97706' },  // amber
+  Financial:  { bg: '#FFF8E7', color: '#B58000' },  // gold
+  'Check-in': { bg: '#F0ECE8', color: '#6B7280' },  // warm neutral
+}
+
+const TASK_URGENCY_STYLES: Record<TaskRow['urgency'], { bg: string; color: string; label: string }> = {
+  high:   { bg: '#FEF2F2', color: '#DC2626', label: 'High' },    // danger
+  medium: { bg: '#FFFBEB', color: '#D97706', label: 'Medium' },  // amber
+  low:    { bg: '#F0ECE8', color: '#6B7280', label: 'Low' },     // warm neutral
+}
 
 type TabId = (typeof TABS)[number]['id']
 
 // ── Main component ────────────────────────────────────────────
+
+type SummaryRow = {
+  id: string
+  summary_text: string
+  generated_at: string
+  confirmed_at: string | null
+  visit_count_at_generation: number
+}
 
 export default function ClientProfileTabs({
   client,
@@ -231,6 +259,8 @@ export default function ClientProfileTabs({
   documents: initialDocuments,
   householdMembers,
   allActiveClients,
+  existingSummary,
+  activeTasks,
   canLogVisit,
   canUploadDocuments,
   canDeleteDocuments,
@@ -243,6 +273,8 @@ export default function ClientProfileTabs({
   documents: Document[]
   householdMembers: HouseholdMember[]
   allActiveClients: HouseholdMember[]
+  existingSummary: SummaryRow | null
+  activeTasks: TaskRow[]
   canLogVisit: boolean
   canUploadDocuments: boolean
   canDeleteDocuments: boolean
@@ -250,6 +282,8 @@ export default function ClientProfileTabs({
 }) {
   const [activeTab, setActiveTab] = useState<TabId>('overview')
   const [documents, setDocuments] = useState<Document[]>(initialDocuments)
+  const [tasks, setTasks] = useState<TaskRow[]>(activeTasks)
+  const [completingTaskId, setCompletingTaskId] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [showLinkModal, setShowLinkModal] = useState(false)
@@ -344,7 +378,7 @@ export default function ClientProfileTabs({
             onClick={() => setActiveTab(id)}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-[12px] font-medium transition-colors ${
               activeTab === id
-                ? 'bg-[#00bd8e] text-white'
+                ? 'bg-teal text-white'
                 : 'text-[#6b7280] hover:bg-teal-tint hover:text-navy'
             }`}
           >
@@ -364,7 +398,7 @@ export default function ClientProfileTabs({
         {activeTab === 'overview' && (
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {/* Demographics */}
-            <div className="rounded-[14px] border border-[#e2e8f0] bg-white px-5 pt-4 pb-1">
+            <div className="rounded-2xl bg-white shadow-sm px-5 pt-4 pb-1 self-start">
               <p className="mb-1 text-[13px] font-semibold text-navy">Demographics</p>
               <dl>
                 <LabelValue label="Date of birth" value={formatDob(client.dob)} />
@@ -376,11 +410,14 @@ export default function ClientProfileTabs({
               </dl>
             </div>
 
-            {/* Custom fields */}
+            {/* Client Summary — right column, same row as Demographics */}
+            <ClientSummaryPanel summary={existingSummary} />
+
+            {/* Custom fields — full width if present */}
             {customFields.length > 0 && (
-              <div className="rounded-[14px] border border-[#e2e8f0] bg-white px-5 pt-4 pb-1">
+              <div className="rounded-2xl bg-white shadow-sm px-5 pt-4 pb-1 lg:col-span-2">
                 <p className="mb-1 text-[13px] font-semibold text-navy">Additional information</p>
-                <dl>
+                <dl className="grid grid-cols-2 gap-x-8">
                   {customFields.map((field) => {
                     const raw = (client.custom_fields as Record<string, unknown>)[field.name]
                     const display = Array.isArray(raw) ? raw.join(', ') : String(raw ?? '—')
@@ -392,7 +429,7 @@ export default function ClientProfileTabs({
 
             {/* Household / Family members — only shown when there are members or the user can add them */}
             {(householdMembers.length > 0 || canLinkFamily) && (
-            <div className="rounded-[14px] border border-[#e2e8f0] bg-white lg:col-span-2">
+            <div className="rounded-2xl bg-white shadow-sm lg:col-span-2">
               <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
                 <p className="text-[13px] font-semibold text-navy">Household / Family</p>
                 {canLinkFamily && (
@@ -441,7 +478,7 @@ export default function ClientProfileTabs({
         hidden={activeTab !== 'case-notes'}
       >
         {activeTab === 'case-notes' && (
-          <div className="rounded-[14px] border border-[#e2e8f0] bg-white">
+          <div className="rounded-2xl bg-white shadow-sm">
             <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
               <p className="text-[13px] font-semibold text-navy">Visit history ({visits.length})</p>
               {canLogVisit && (
@@ -460,7 +497,7 @@ export default function ClientProfileTabs({
                 {canLogVisit && (
                   <a
                     href={`/services/visits/new?client_id=${client.id}`}
-                    className="mt-2 inline-flex h-8 items-center rounded-lg bg-teal px-4 text-[12px] font-medium text-white hover:bg-[#009e77]"
+                    className="mt-2 inline-flex h-8 items-center rounded-lg bg-teal px-4 text-[12px] font-medium text-white hover:bg-[#D45228]"
                   >
                     Log first visit
                   </a>
@@ -530,7 +567,7 @@ export default function ClientProfileTabs({
         hidden={activeTab !== 'documents'}
       >
         {activeTab === 'documents' && (
-          <div className="rounded-[14px] border border-[#e2e8f0] bg-white">
+          <div className="rounded-2xl bg-white shadow-sm">
             <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
               <p className="text-[13px] font-semibold text-navy">Documents ({documents.length})</p>
               {canUploadDocuments && (
@@ -538,7 +575,7 @@ export default function ClientProfileTabs({
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-teal px-3 py-1.5 text-[11px] font-medium text-white hover:bg-[#009e77] disabled:opacity-60"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-teal px-3 py-1.5 text-[11px] font-medium text-white hover:bg-[#D45228] disabled:opacity-60"
                   >
                     <Upload className="size-3.5" />
                     {uploading ? 'Uploading…' : 'Upload'}
@@ -619,7 +656,7 @@ export default function ClientProfileTabs({
         hidden={activeTab !== 'appointments'}
       >
         {activeTab === 'appointments' && (
-          <div className="rounded-[14px] border border-[#e2e8f0] bg-white">
+          <div className="rounded-2xl bg-white shadow-sm">
             <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
               <p className="text-[13px] font-semibold text-navy">Appointments ({appointments.length})</p>
               <a
@@ -652,13 +689,93 @@ export default function ClientProfileTabs({
                       )}
                     </div>
                     <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium capitalize ${
-                      appt.status === 'scheduled' ? 'bg-teal-light text-[#007b58]' :
-                      appt.status === 'completed' ? 'bg-[#f3f4f6] text-[#6b7280]' : 'bg-red-50 text-red-600'
+                      appt.status === 'scheduled' ? 'bg-teal-light text-teal' :
+                      appt.status === 'completed' ? 'bg-[#F0ECE8] text-[#6b7280]' : 'bg-[#FEF2F2] text-[#DC2626]'
                     }`}>
                       {appt.status}
                     </span>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── TAB 5: Tasks ────────────────────────────────────── */}
+      <div
+        role="tabpanel"
+        id="tabpanel-tasks"
+        aria-labelledby="tab-tasks"
+        hidden={activeTab !== 'tasks'}
+      >
+        {activeTab === 'tasks' && (
+          <div className="rounded-2xl bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
+              <p className="text-[13px] font-semibold text-navy">
+                Active Tasks ({tasks.length})
+              </p>
+              <a href="/tasks" className="text-[11px] text-teal hover:underline">
+                View all tasks →
+              </a>
+            </div>
+            {tasks.length === 0 ? (
+              <p className="px-4 py-10 text-center text-[13px] text-[#6b7280]">
+                No active tasks for this client.
+              </p>
+            ) : (
+              <div className="divide-y divide-[#f1f5f9]">
+                {tasks.map((task) => {
+                  const catStyle = TASK_CATEGORY_STYLES[task.category]
+                  const urgStyle = TASK_URGENCY_STYLES[task.urgency]
+                  const isCompleting = completingTaskId === task.id
+
+                  return (
+                    <div key={task.id} className={`flex items-start gap-3 px-4 py-3 ${isCompleting ? 'opacity-50' : ''}`}>
+                      <button
+                        onClick={async () => {
+                          setCompletingTaskId(task.id)
+                          const result = await completeTask(task.id)
+                          if (!result.error) {
+                            setTasks((prev) => prev.filter((t) => t.id !== task.id))
+                            router.refresh()
+                          }
+                          setCompletingTaskId(null)
+                        }}
+                        disabled={isCompleting}
+                        title="Mark as complete"
+                        className="mt-0.5 shrink-0 text-[#d1d5db] hover:text-teal transition-colors disabled:opacity-50"
+                      >
+                        {isCompleting ? (
+                          <CheckSquare className="size-4 text-teal" />
+                        ) : (
+                          <Square className="size-4" />
+                        )}
+                      </button>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-medium text-navy">{task.description}</p>
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                          <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: catStyle.bg, color: catStyle.color }}>
+                            {task.category}
+                          </span>
+                          <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: urgStyle.bg, color: urgStyle.color }}>
+                            {urgStyle.label}
+                          </span>
+                          {task.suggested_due_date && (
+                            <span className="text-[11px] text-[#6b7280]">
+                              Due {new Date(task.suggested_due_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </span>
+                          )}
+                        </div>
+                        {task.visit_date && (
+                          <p className="mt-0.5 text-[11px] text-[#9ca3af]">
+                            From visit on {new Date(task.visit_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>

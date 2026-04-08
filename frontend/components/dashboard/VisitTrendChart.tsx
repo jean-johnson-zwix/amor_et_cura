@@ -19,16 +19,16 @@ export default function VisitTrendChart({ data }: { data: { date: string; visits
         <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} axisLine={false} tickLine={false} allowDecimals={false} />
         <Tooltip
           contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }}
-          labelStyle={{ color: '#0a1e52', fontWeight: 600 }}
+          labelStyle={{ color: '#111827', fontWeight: 600 }}
           formatter={(value) => [value, 'Visits']}
         />
         <Line
           type="monotone"
           dataKey="visits"
-          stroke="#00bd8e"
+          stroke="#F2673C"
           strokeWidth={2.5}
-          dot={<Dot r={4} fill="#00bd8e" strokeWidth={0} />}
-          activeDot={{ r: 6, fill: '#00bd8e', strokeWidth: 2, stroke: '#fff' }}
+          dot={<Dot r={4} fill="#F2673C" strokeWidth={0} />}
+          activeDot={{ r: 6, fill: '#F2673C', strokeWidth: 2, stroke: '#fff' }}
         />
       </LineChart>
     </ResponsiveContainer>

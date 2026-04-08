@@ -24,7 +24,7 @@ export default async function AdminSettingsPage() {
 
       <div className="p-6 flex flex-col gap-6 max-w-4xl">
         {/* Service Types */}
-        <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+        <div className="rounded-2xl bg-white shadow-sm p-5">
           <div className="mb-4 border-b border-[#e2e8f0] pb-3">
             <h2 className="text-[13px] font-semibold uppercase tracking-wide text-navy">Service Types</h2>
             <p className="mt-0.5 text-[12px] text-[#6b7280]">
@@ -35,7 +35,7 @@ export default async function AdminSettingsPage() {
         </div>
 
         {/* Custom Fields */}
-        <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+        <div className="rounded-2xl bg-white shadow-sm p-5">
           <div className="mb-4 border-b border-[#e2e8f0] pb-3">
             <h2 className="text-[13px] font-semibold uppercase tracking-wide text-navy">Custom Fields</h2>
             <p className="mt-0.5 text-[12px] text-[#6b7280]">

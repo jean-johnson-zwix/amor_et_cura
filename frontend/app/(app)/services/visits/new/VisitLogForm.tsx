@@ -151,7 +151,7 @@ export default function VisitLogForm({
 
   if (state.success) {
     return (
-      <div className="mx-auto max-w-2xl rounded-[14px] border-2 border-teal bg-white p-10 text-center">
+      <div className="mx-auto max-w-2xl rounded-2xl bg-white shadow-sm p-10 text-center">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-teal mx-auto mb-5">
           <svg className="size-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
@@ -162,7 +162,7 @@ export default function VisitLogForm({
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           {clientId && (
             <a href={`/clients/${clientId}`}
-              className="inline-flex h-12 items-center justify-center gap-1.5 rounded-xl bg-teal px-6 text-base font-semibold text-white hover:bg-[#009e77]">
+              className="inline-flex h-12 items-center justify-center gap-1.5 rounded-xl bg-teal px-6 text-base font-semibold text-white hover:bg-[#D45228]">
               <ChevronLeft className="size-4" /> Back to {clientName}
             </a>
           )}
@@ -184,7 +184,7 @@ export default function VisitLogForm({
       )}
 
       {/* ── Visit basics ─────────────────────────────────────── */}
-      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+      <div className="rounded-2xl bg-white shadow-sm p-5">
         <div className="mb-4 border-b border-[#e2e8f0] pb-3">
           <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">
             {clientName ? `Visit for ${clientName}` : 'Log a visit'}
@@ -233,7 +233,7 @@ export default function VisitLogForm({
       </div>
 
       {/* ── Case narrative ───────────────────────────────────── */}
-      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+      <div className="rounded-2xl bg-white shadow-sm p-5">
         <div className="mb-4 border-b border-[#e2e8f0] pb-3 flex items-start justify-between gap-3">
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Case Narrative</p>
@@ -371,7 +371,7 @@ export default function VisitLogForm({
 
       {/* ── Custom fields ────────────────────────────────────── */}
       {customFields.length > 0 && (
-        <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+        <div className="rounded-2xl bg-white shadow-sm p-5">
           <div className="mb-4 border-b border-[#e2e8f0] pb-3">
             <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Additional Information</p>
           </div>
@@ -387,7 +387,7 @@ export default function VisitLogForm({
           Cancel
         </button>
         <button type="submit" disabled={isPending}
-          className="inline-flex h-9 items-center rounded-lg bg-teal px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77] disabled:opacity-60">
+          className="inline-flex h-9 items-center rounded-lg bg-teal px-5 text-[13px] font-medium text-white transition-colors hover:bg-[#D45228] disabled:opacity-60">
           {isPending ? 'Saving…' : 'Save visit'}
         </button>
       </div>

@@ -5,9 +5,9 @@ import { RoleForm } from './role-form'
 import type { UserRole } from '@/types/database'
 
 const ROLE_BADGE: Record<UserRole, { bg: string; text: string }> = {
-  admin:       { bg: '#fce4f0', text: '#eb3690' },
-  case_worker: { bg: '#e0f7f4', text: '#007b58' },
-  viewer:      { bg: '#e8ecf6', text: '#0a1e52' },
+  admin:       { bg: '#FFF7ED', text: '#C2400A' },  // primary orange
+  case_worker: { bg: '#FFFBEB', text: '#D97706' },  // amber
+  viewer:      { bg: '#F0ECE8', text: '#6B7280' },  // warm neutral
 }
 
 const ROLE_LABELS: Record<UserRole, string> = {
@@ -20,7 +20,7 @@ function getInitials(name: string) {
   return name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
 }
 
-const AVATAR_COLORS = ['#00bd8e', '#eb3690', '#3960a3', '#7b3fa8']
+const AVATAR_COLORS = ['#F2673C']
 
 export default async function UsersPage() {
   const [session, profiles] = await Promise.all([getSession(), getAllProfiles()])
@@ -35,7 +35,7 @@ export default async function UsersPage() {
           demote any account. You cannot change your own role.
         </p>
 
-        <div className="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
+        <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#e2e8f0]/50 bg-teal-tint text-left">

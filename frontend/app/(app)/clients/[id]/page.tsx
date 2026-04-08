@@ -5,6 +5,9 @@ import { getSession } from '@/lib/supabase/session'
 import { can } from '@/lib/auth/permissions'
 import ClientActions from './ClientActions'
 import ClientProfileTabs from './ClientProfileTabs'
+import { ClientSummaryButton } from './ClientSummary'
+import { PrintProfileButton } from './PrintProfile'
+import type { TaskRow } from '../../../tasks/TasksClient'
 
 function getInitials(first: string, last: string) {
   return `${first[0] ?? ''}${last[0] ?? ''}`.toUpperCase()
@@ -46,6 +49,7 @@ export default async function ClientProfilePage({
     { data: rawAppointments },
     { data: rawDocuments },
     { data: allActiveClients },
+    { data: rawTasks },
   ] = await Promise.all([
     supabase
       .from('visits')
@@ -74,7 +78,32 @@ export default async function ClientProfilePage({
       .select('id, first_name, last_name, client_number, household_id')
       .eq('is_active', true)
       .order('last_name'),
+    supabase
+      .from('follow_ups')
+      .select('id, client_id, visit_id, description, category, urgency, suggested_due_date, created_at, visits(visit_date)')
+      .eq('client_id', id)
+      .eq('status', 'active')
+      .order('suggested_due_date', { ascending: true, nullsFirst: false }),
   ])
+
+  // Isolated — table may not exist yet if migration hasn't been run
+  let existingSummary: {
+    id: string
+    summary_text: string
+    generated_at: string
+    confirmed_at: string | null
+    visit_count_at_generation: number
+  } | null = null
+  try {
+    const { data } = await supabase
+      .from('client_summaries' as string)
+      .select('id, summary_text, generated_at, confirmed_at, visit_count_at_generation')
+      .eq('client_id', id)
+      .maybeSingle()
+    existingSummary = data as typeof existingSummary
+  } catch {
+    // Table doesn't exist yet — run the migration to enable this feature
+  }
 
   // Household members — other clients sharing the same household_id
   const householdMembers =
@@ -109,6 +138,23 @@ export default async function ClientProfilePage({
     case_worker_name: (a.profiles as { full_name: string } | null)?.full_name ?? '—',
   }))
 
+  const activeTasks: TaskRow[] = (rawTasks ?? []).map((t) => {
+    const visit = t.visits as unknown as { visit_date: string } | null
+    return {
+      id: t.id,
+      client_id: t.client_id,
+      visit_id: t.visit_id,
+      description: t.description,
+      category: t.category as TaskRow['category'],
+      urgency: (t.urgency ?? 'medium') as TaskRow['urgency'],
+      suggested_due_date: t.suggested_due_date,
+      created_at: t.created_at,
+      client_first_name: client.first_name,
+      client_last_name: client.last_name,
+      visit_date: visit?.visit_date ?? '',
+    }
+  })
+
   const clientName = `${client.first_name} ${client.last_name}`
 
   return (
@@ -116,44 +162,59 @@ export default async function ClientProfilePage({
       <Topbar
         crumbs={[{ label: 'Clients', href: '/clients' }, { label: clientName }]}
         actions={
-          <ClientActions
-            clientId={client.id}
-            isActive={client.is_active}
-            canEdit={can.editClient(role)}
-            canDeactivate={can.deactivateClient(role)}
-          />
+          <>
+            <PrintProfileButton
+              client={client}
+              customFields={activeCustomFields}
+              visits={visits}
+              summary={existingSummary}
+            />
+            <ClientActions
+              clientId={client.id}
+              isActive={client.is_active}
+              canEdit={can.editClient(role)}
+              canDeactivate={can.deactivateClient(role)}
+            />
+          </>
         }
       />
 
       <div className="p-6 flex flex-col gap-4">
         {/* Profile header card */}
-        <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-teal text-[18px] font-semibold text-white">
-              {getInitials(client.first_name, client.last_name)}
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-[20px] font-semibold text-navy">{clientName}</h1>
-                {client.is_active ? (
-                  <span className="rounded-full bg-teal-light px-2 py-0.5 text-[10px] font-medium text-[#007b58]">Active</span>
-                ) : (
-                  <span className="rounded-full bg-[#f3f4f6] px-2 py-0.5 text-[10px] font-medium text-[#6b7280]">Inactive</span>
+        <div className="rounded-2xl bg-white shadow-sm p-5">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-teal text-[18px] font-semibold text-white">
+                {getInitials(client.first_name, client.last_name)}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h1 className="text-[20px] font-semibold text-navy">{clientName}</h1>
+                  {client.is_active ? (
+                    <span className="rounded-full bg-teal-light px-2 py-0.5 text-[10px] font-medium text-teal">Active</span>
+                  ) : (
+                    <span className="rounded-full bg-[#F0ECE8] px-2 py-0.5 text-[10px] font-medium text-[#6b7280]">Inactive</span>
+                  )}
+                </div>
+                {client.dob && (
+                  <p className="mt-0.5 text-[12px] text-[#6b7280]">{formatDob(client.dob)}</p>
+                )}
+                {(client.programs ?? []).length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {(client.programs ?? []).map((p: string) => (
+                      <span key={p} className="rounded bg-teal-light px-1.5 py-0.5 text-[10px] font-medium text-teal" style={{ borderRadius: 4 }}>
+                        {p}
+                      </span>
+                    ))}
+                  </div>
                 )}
               </div>
-              {client.dob && (
-                <p className="mt-0.5 text-[12px] text-[#6b7280]">{formatDob(client.dob)}</p>
-              )}
-              {(client.programs ?? []).length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {(client.programs ?? []).map((p: string) => (
-                    <span key={p} className="rounded bg-teal-light px-1.5 py-0.5 text-[10px] font-medium text-[#007b58]" style={{ borderRadius: 4 }}>
-                      {p}
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
+            <ClientSummaryButton
+              clientId={client.id}
+              visitCount={visits.length}
+              initialSummary={existingSummary ?? null}
+            />
           </div>
         </div>
 
@@ -171,6 +232,8 @@ export default async function ClientProfilePage({
             last_name: c.last_name,
             client_number: c.client_number,
           }))}
+          existingSummary={existingSummary ?? null}
+          activeTasks={activeTasks}
           canLogVisit={can.logVisit(role)}
           canUploadDocuments={can.editClient(role)}
           canDeleteDocuments={can.deleteClient(role)}

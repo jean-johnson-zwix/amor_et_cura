@@ -10,7 +10,7 @@ import type { Client } from '@/types/database'
 type SortKey = 'name' | 'dob' | 'programs' | 'status'
 type SortDir = 'asc' | 'desc'
 
-const AVATAR_COLORS = ['#00bd8e', '#eb3690', '#3960a3', '#7b3fa8']
+const AVATAR_COLORS = ['#F2673C']
 
 function getInitials(first: string, last: string) {
   return `${first[0] ?? ''}${last[0] ?? ''}`.toUpperCase()
@@ -19,8 +19,8 @@ function getInitials(first: string, last: string) {
 function SortIcon({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; sortDir: SortDir }) {
   if (col !== sortKey) return <ChevronsUpDown className="inline size-3.5 ml-0.5 text-[#6b7280]/50" />
   return sortDir === 'asc'
-    ? <ChevronUp className="inline size-3.5 ml-0.5 text-[#0a1e52]" />
-    : <ChevronDown className="inline size-3.5 ml-0.5 text-[#0a1e52]" />
+    ? <ChevronUp className="inline size-3.5 ml-0.5 text-[#111827]" />
+    : <ChevronDown className="inline size-3.5 ml-0.5 text-[#111827]" />
 }
 
 export default function ClientsTable({ clients }: { clients: Client[] }) {
@@ -101,7 +101,7 @@ export default function ClientsTable({ clients }: { clients: Client[] }) {
   }
 
   const thClass =
-    'px-4 py-3 text-[11px] font-medium uppercase tracking-[0.05em] cursor-pointer select-none whitespace-nowrap text-[#6b7280] hover:text-[#0a1e52]'
+    'px-4 py-3 text-[11px] font-medium uppercase tracking-[0.05em] cursor-pointer select-none whitespace-nowrap text-[#6b7280] hover:text-[#111827]'
 
   return (
     <div className="flex flex-col gap-4">
@@ -149,7 +149,7 @@ export default function ClientsTable({ clients }: { clients: Client[] }) {
       </p>
 
       {/* Table card */}
-      <div className="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
+      <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
         <table className="w-full">
           <thead>
             <tr className="border-b border-[#e2e8f0]/50 bg-teal-tint text-left">
@@ -211,7 +211,7 @@ export default function ClientsTable({ clients }: { clients: Client[] }) {
                       <div className="min-w-0">
                         <Link
                           href={`/clients/${client.id}`}
-                          className="block truncate text-[13px] font-semibold text-[#0a1e52] hover:underline"
+                          className="block truncate text-[13px] font-semibold text-[#111827] hover:underline"
                         >
                           {client.first_name} {client.last_name}
                         </Link>
@@ -228,14 +228,14 @@ export default function ClientsTable({ clients }: { clients: Client[] }) {
                       {visiblePrograms.map((p) => (
                         <span
                           key={p}
-                          className="rounded bg-teal-light px-1.5 py-0.5 text-[10px] font-medium text-[#007b58]"
+                          className="rounded bg-teal-light px-1.5 py-0.5 text-[10px] font-medium text-teal"
                           style={{ borderRadius: 4 }}
                         >
                           {p}
                         </span>
                       ))}
                       {extraCount > 0 && (
-                        <span className="rounded bg-teal-light px-1.5 py-0.5 text-[10px] font-medium text-[#007b58]" style={{ borderRadius: 4 }}>
+                        <span className="rounded bg-teal-light px-1.5 py-0.5 text-[10px] font-medium text-teal" style={{ borderRadius: 4 }}>
                           +{extraCount} more
                         </span>
                       )}
@@ -244,11 +244,11 @@ export default function ClientsTable({ clients }: { clients: Client[] }) {
                   </td>
                   <td className="px-4 py-2">
                     {client.is_active ? (
-                      <span className="inline-flex items-center rounded-full bg-teal-light px-2 py-0.5 text-[10px] font-medium text-[#007b58]">
+                      <span className="inline-flex items-center rounded-full bg-teal-light px-2 py-0.5 text-[10px] font-medium text-teal">
                         Active
                       </span>
                     ) : (
-                      <span className="inline-flex items-center rounded-full bg-[#f3f4f6] px-2 py-0.5 text-[10px] font-medium text-[#6b7280]">
+                      <span className="inline-flex items-center rounded-full bg-[#F0ECE8] px-2 py-0.5 text-[10px] font-medium text-[#6b7280]">
                         Inactive
                       </span>
                     )}

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Users, Settings, FileText, ArrowRight } from 'lucide-react'
+import { Users, Settings, FileText, BarChart3, ArrowRight } from 'lucide-react'
 import { Topbar } from '@/components/Topbar'
 import { getAllProfiles } from '@/lib/supabase/queries'
 import type React from 'react'
@@ -13,6 +13,7 @@ const ADMIN_SECTIONS: {
   { href: '/admin/users',     title: 'User Management', description: 'View all staff accounts, promote or demote roles.', Icon: Users },
   { href: '/admin/settings',  title: 'Settings',        description: 'Configure service types and custom intake fields.', Icon: Settings },
   { href: '/admin/audit-log', title: 'Audit Log',       description: 'Review all create, update, and delete actions.', Icon: FileText },
+  { href: '/admin/reports',   title: 'Impact Reports',  description: 'Generate AI-assisted funder narratives from program data.', Icon: BarChart3 },
 ]
 
 export default async function AdminPage() {
@@ -33,7 +34,7 @@ export default async function AdminPage() {
             { label: 'Admins', value: adminCount },
             { label: 'Case workers', value: workerCount },
           ].map(({ label, value }) => (
-            <div key={label} className="rounded-[14px] border border-[#e2e8f0] bg-white p-4">
+            <div key={label} className="rounded-2xl bg-white shadow-sm p-4">
               <p className="text-2xl font-semibold tabular-nums text-navy">{value}</p>
               <p className="mt-0.5 text-[12px] text-[#6b7280]">{label}</p>
             </div>
@@ -52,7 +53,7 @@ export default async function AdminPage() {
             <Link
               key={href}
               href={href}
-              className="group flex items-start justify-between gap-3 rounded-[14px] border border-[#e2e8f0] bg-white p-5 transition-shadow hover:shadow-sm"
+              className="group flex items-start justify-between gap-3 rounded-2xl bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
             >
               <div className="flex flex-col gap-1">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-light">

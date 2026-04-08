@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   Users,
   Activity,
+  BarChart3,
   CalendarDays,
   ClipboardList,
   ShieldCheck,
@@ -18,6 +19,7 @@ import {
   FileText,
   LogOut,
   ChevronDown,
+  CheckSquare,
 } from 'lucide-react'
 
 const ROLE_LABELS: Record<string, string> = {
@@ -38,6 +40,7 @@ function getInitials(name: string | null | undefined): string {
 
 const MAIN_NAV = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/tasks',     label: 'My Tasks',  icon: CheckSquare },
   { href: '/clients',   label: 'Clients',   icon: Users },
 ]
 
@@ -47,10 +50,11 @@ const SERVICES_NAV = [
 ]
 
 const ADMIN_NAV = [
-  { href: '/admin',             label: 'Overview',  icon: ShieldCheck },
-  { href: '/admin/users',       label: 'Users',     icon: UserCog },
-  { href: '/admin/settings',    label: 'Settings',  icon: Settings },
-  { href: '/admin/audit-log',   label: 'Audit Log', icon: FileText },
+  { href: '/admin',             label: 'Overview',        icon: ShieldCheck },
+  { href: '/admin/users',       label: 'Users',           icon: UserCog },
+  { href: '/admin/settings',    label: 'Settings',        icon: Settings },
+  { href: '/admin/audit-log',   label: 'Audit Log',       icon: FileText },
+  { href: '/admin/reports',     label: 'Impact Reports',  icon: BarChart3 },
 ]
 
 export function NavBar({ profile }: { profile: Profile | null }) {
@@ -62,10 +66,10 @@ export function NavBar({ profile }: { profile: Profile | null }) {
   const [adminOpen, setAdminOpen] = useState(inAdmin)
 
   return (
-    <aside className="flex h-screen w-52 shrink-0 flex-col bg-[#0a1e52] overflow-hidden">
+    <aside className="flex h-screen w-52 shrink-0 flex-col bg-navy overflow-hidden">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-4 py-5 shrink-0">
-        <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-lg bg-[#00bd8e]">
+        <div className="flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded bg-teal">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path
               d="M8 13.5C8 13.5 1.5 9.5 1.5 5.5C1.5 3.567 3.067 2 5 2C6.15 2 7.17 2.57 7.83 3.44L8 3.67L8.17 3.44C8.83 2.57 9.85 2 11 2C12.933 2 14.5 3.567 14.5 5.5C14.5 9.5 8 13.5 8 13.5Z"
@@ -75,7 +79,7 @@ export function NavBar({ profile }: { profile: Profile | null }) {
         </div>
         <div className="flex flex-col leading-tight">
           <span className="text-[12px] font-semibold text-white">Amor Et Cura</span>
-          <span className="text-[9px] text-[#7890c4]">Case Management</span>
+          <span className="text-[9px] text-[#6B7280]">Case Management</span>
         </div>
       </div>
 
@@ -83,26 +87,28 @@ export function NavBar({ profile }: { profile: Profile | null }) {
       <nav className="flex-1 overflow-y-auto px-3 pb-2">
         {/* Main section */}
         <div className="mb-1 px-2 pt-2">
-          <span className="text-[9px] font-semibold uppercase tracking-widest text-[#4a62a0]">Main</span>
+          <span className="text-[9px] font-semibold uppercase tracking-widest text-[#6B7280]">Main</span>
         </div>
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-0.5">
           {MAIN_NAV.map(({ href, label, icon: Icon }) => {
             const active =
               href === '/clients'
                 ? pathname.startsWith('/clients')
+                : href === '/tasks'
+                ? pathname.startsWith('/tasks')
                 : pathname === '/dashboard' || pathname === '/'
             return (
               <Link
                 key={href}
                 href={href}
                 className={cn(
-                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors min-h-[44px]',
+                  'flex items-center gap-3 rounded px-3 py-2.5 text-[13px] font-medium transition-colors min-h-10',
                   active
-                    ? 'bg-[#00bd8e] text-white'
-                    : 'text-[#c5d0e4] hover:bg-[#1f3e80] hover:text-white'
+                    ? 'bg-teal text-white'
+                    : 'text-[#9CA3AF] hover:bg-[#1F2937] hover:text-white'
                 )}
               >
-                <Icon className="size-5 shrink-0" />
+                <Icon className="size-4 shrink-0" />
                 {label}
               </Link>
             )
@@ -111,9 +117,9 @@ export function NavBar({ profile }: { profile: Profile | null }) {
 
         {/* Clinical / Services section */}
         <div className="mb-1 mt-5 px-2">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#4a62a0]">Clinical / Service</span>
+          <span className="text-[9px] font-bold uppercase tracking-widest text-[#6B7280]">Clinical / Service</span>
         </div>
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-0.5">
           {SERVICES_NAV.map(({ href, label, icon: Icon }) => {
             const active = pathname === href || pathname.startsWith(href + '/')
             return (
@@ -121,13 +127,13 @@ export function NavBar({ profile }: { profile: Profile | null }) {
                 key={href}
                 href={href}
                 className={cn(
-                  'flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-semibold transition-colors min-h-[44px]',
+                  'flex items-center gap-3 rounded px-3 py-2.5 text-[13px] font-medium transition-colors min-h-10',
                   active
-                    ? 'bg-[#00bd8e] text-white'
-                    : 'text-[#c5d0e4] hover:bg-[#1f3e80] hover:text-white'
+                    ? 'bg-teal text-white'
+                    : 'text-[#9CA3AF] hover:bg-[#1F2937] hover:text-white'
                 )}
               >
-                <Icon className="size-5 shrink-0" />
+                <Icon className="size-4 shrink-0" />
                 {label}
               </Link>
             )
@@ -139,7 +145,7 @@ export function NavBar({ profile }: { profile: Profile | null }) {
           <div className="mt-4">
             <button
               onClick={() => setAdminOpen((v) => !v)}
-              className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-[15px] font-semibold text-[#c5d0e4] transition-colors hover:bg-[#1f3e80] hover:text-white min-h-[44px]"
+              className="flex w-full items-center justify-between rounded px-3 py-2.5 text-[13px] font-medium text-[#9CA3AF] transition-colors hover:bg-[#1F2937] hover:text-white min-h-10"
               aria-expanded={adminOpen}
             >
               <span className="flex items-center gap-2.5">
@@ -155,7 +161,7 @@ export function NavBar({ profile }: { profile: Profile | null }) {
             </button>
 
             {adminOpen && (
-              <div className="mt-0.5 ml-4 flex flex-col gap-0.5 border-l border-[#1f3e80] pl-2">
+              <div className="mt-0.5 ml-4 flex flex-col gap-0.5 border-l border-[#374151] pl-2">
                 {ADMIN_NAV.map(({ href, label, icon: Icon }) => {
                   const active =
                     href === '/admin'
@@ -166,10 +172,10 @@ export function NavBar({ profile }: { profile: Profile | null }) {
                       key={href}
                       href={href}
                       className={cn(
-                        'flex items-center gap-2.5 rounded-xl px-3 py-2 text-[14px] font-semibold transition-colors min-h-[40px]',
+                        'flex items-center gap-2.5 rounded px-3 py-2 text-[12px] font-medium transition-colors min-h-9',
                         active
-                          ? 'bg-[#00bd8e] text-white'
-                          : 'text-[#c5d0e4] hover:bg-[#1f3e80] hover:text-white'
+                          ? 'bg-teal text-white'
+                          : 'text-[#9CA3AF] hover:bg-[#1F2937] hover:text-white'
                       )}
                     >
                       <Icon className="size-3.5 shrink-0" />
@@ -184,14 +190,14 @@ export function NavBar({ profile }: { profile: Profile | null }) {
       </nav>
 
       {/* Bottom user info */}
-      <div className="shrink-0 border-t border-[#1f3e80] px-4 py-3">
+      <div className="shrink-0 border-t border-[#374151] px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#00bd8e] text-[11px] font-semibold text-white">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-teal text-[11px] font-semibold text-white">
             {getInitials(profile?.full_name)}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[11px] font-medium text-[#c5d0e4]">{profile?.full_name ?? '—'}</p>
-            <p className="text-[9px] text-[#4a62a0]">
+            <p className="truncate text-[11px] font-medium text-[#D1D5DB]">{profile?.full_name ?? '—'}</p>
+            <p className="text-[9px] text-[#6B7280]">
               {profile ? (ROLE_LABELS[profile.role] ?? profile.role) : ''}
             </p>
           </div>
@@ -199,7 +205,7 @@ export function NavBar({ profile }: { profile: Profile | null }) {
             <button
               type="submit"
               title="Sign out"
-              className="text-[#4a62a0] transition-colors hover:text-[#c5d0e4]"
+              className="text-[#6B7280] transition-colors hover:text-[#D1D5DB]"
             >
               <LogOut className="size-3.5" />
             </button>

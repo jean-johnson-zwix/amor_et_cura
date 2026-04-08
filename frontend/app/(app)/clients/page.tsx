@@ -19,13 +19,13 @@ export default async function ClientsPage() {
           <>
             <Link
               href="/clients/import"
-              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-pink-light px-3 text-[13px] font-medium text-pink-accent transition-colors hover:bg-pink-100"
+              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg border border-[#D1CCC8] bg-white px-3 text-[13px] font-medium text-navy transition-colors hover:bg-[#F0ECE8]"
             >
               + Import CSV
             </Link>
             <Link
               href="/clients/new"
-              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#009e77]"
+              className="inline-flex h-8 items-center justify-center gap-1.5 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#D45228]"
             >
               + New Client
             </Link>
