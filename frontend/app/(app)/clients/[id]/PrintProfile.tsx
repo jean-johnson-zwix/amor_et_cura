@@ -109,7 +109,7 @@ function PrintDocument({
       {(client.programs ?? []).length > 0 && (
         <div className="mb-6">
           <h2 className="text-[16px] font-bold text-[#111827] mb-2 pb-1 border-b border-[#e2e8f0]">
-            Enrolled Programs
+            Enrolled Services
           </h2>
           <div className="flex flex-wrap gap-2">
             {(client.programs as string[]).map((p) => (

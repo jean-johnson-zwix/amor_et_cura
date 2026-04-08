@@ -216,7 +216,7 @@ export default async function DashboardPage() {
         {/* Recently Interacted */}
         <div className="rounded-2xl bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-[#F0ECE8] px-5 py-4">
-            <p className="text-base font-bold text-navy">Recently Interacted</p>
+            <p className="text-base font-bold text-navy">Recent Clients</p>
             <Link href="/clients" className="inline-flex items-center gap-1 text-sm font-medium text-teal hover:underline">
               View all <ChevronRight className="size-4" />
             </Link>

@@ -77,7 +77,7 @@ function PrintDocument({
           <h1 className="text-[22px] font-bold text-navy">{process.env.NEXT_PUBLIC_ORG_NAME ?? 'Amor et Cura'}</h1>
           <p className="text-[13px] text-[#6b7280] mt-0.5">
             Impact Report · {dateRange.from} – {dateRange.to}
-            {programFilter !== 'All Programs' ? ` · ${programFilter}` : ''}
+            {programFilter !== 'All Services' ? ` · ${programFilter}` : ''}
           </p>
         </div>
         <div className="text-right text-[11px] text-[#9ca3af]">
@@ -264,7 +264,7 @@ export function ReportsHub({ serviceTypes }: { serviceTypes: string[] }) {
       ? (((stats.total_visits - stats.prev_period_visits) / stats.prev_period_visits) * 100).toFixed(1)
       : null
 
-  const programLabel = programFilter || 'All Programs'
+  const programLabel = programFilter || 'All Services'
 
   return (
     <div className="p-6 flex flex-col gap-6">
@@ -295,13 +295,13 @@ export function ReportsHub({ serviceTypes }: { serviceTypes: string[] }) {
 
         <div className="flex flex-col gap-1 sm:w-56">
           <label className="text-[11px] font-semibold uppercase tracking-wide text-[#6b7280]">
-            Program Filter
+            Service Filter
           </label>
           <Select
             value={programFilter}
             onChange={(e) => setProgramFilter(e.target.value)}
           >
-            <option value="">All Programs</option>
+            <option value="">All Services</option>
             {serviceTypes.map((s) => (
               <option key={s} value={s}>
                 {s}

@@ -282,7 +282,7 @@ export default function ClientRegistrationForm({
       {/* Programs */}
       <div className="rounded-2xl bg-white shadow-sm p-5">
         <div className="mb-4 border-b border-[#e2e8f0] pb-3">
-          <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Programs</p>
+          <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Services</p>
         </div>
         <div className="flex flex-col divide-y divide-[#f1f5f9]">
           {serviceTypes.map((s) => (
@@ -301,7 +301,7 @@ export default function ClientRegistrationForm({
             </label>
           ))}
           {serviceTypes.length === 0 && (
-            <p className="text-[12px] text-[#6b7280]">No programs configured yet.</p>
+            <p className="text-[12px] text-[#6b7280]">No services configured yet.</p>
           )}
         </div>
       </div>

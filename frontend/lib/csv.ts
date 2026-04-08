@@ -22,7 +22,7 @@ export function clientsToCsv(clients: Client[]): string {
     'Phone',
     'Email',
     'Address',
-    'Programs',
+    'Services',
     'Status',
     'Registered',
   ])

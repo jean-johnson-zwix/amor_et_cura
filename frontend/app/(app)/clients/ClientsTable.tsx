@@ -121,7 +121,7 @@ export default function ClientsTable({ clients }: { clients: Client[] }) {
           value={programFilter}
           onChange={(e) => setProgramFilter(e.target.value)}
         >
-          <option value="">All programs</option>
+          <option value="">All services</option>
           {allPrograms.map((p) => <option key={p} value={p}>{p}</option>)}
         </Select>
 
@@ -169,7 +169,7 @@ export default function ClientsTable({ clients }: { clients: Client[] }) {
               </th>
               <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-[0.05em] text-[#6b7280]">Phone</th>
               <th className={thClass} onClick={() => toggleSort('programs')}>
-                Programs <SortIcon col="programs" sortKey={sortKey} sortDir={sortDir} />
+                Services <SortIcon col="programs" sortKey={sortKey} sortDir={sortDir} />
               </th>
               <th className={thClass} onClick={() => toggleSort('status')}>
                 Status <SortIcon col="status" sortKey={sortKey} sortDir={sortDir} />
