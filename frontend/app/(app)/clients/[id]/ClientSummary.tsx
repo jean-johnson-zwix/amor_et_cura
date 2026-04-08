@@ -26,7 +26,7 @@ const PROSE =
 export function ClientSummaryPanel({ summary }: { summary: SummaryRow | null }) {
   if (!summary) {
     return (
-      <div className="rounded-[14px] border border-dashed border-[#e2e8f0] bg-white flex flex-col items-center justify-center gap-2 py-10 px-5 self-start w-full">
+      <div className="rounded-2xl border border-dashed border-[#D1CCC8] bg-white flex flex-col items-center justify-center gap-2 py-10 px-5 self-start w-full">
         <Sparkles className="size-5 text-[#d1d5db]" />
         <p className="text-[12px] text-[#9ca3af] text-center">
           No summary yet — click <span className="font-medium text-navy">Summarize</span> to generate one
@@ -36,7 +36,7 @@ export function ClientSummaryPanel({ summary }: { summary: SummaryRow | null }) 
   }
 
   return (
-    <div className="rounded-[14px] border border-[#e2e8f0] bg-white flex flex-col max-h-110">
+    <div className="rounded-2xl bg-white shadow-sm flex flex-col max-h-110">
       <div className="flex items-center gap-2 border-b border-[#f1f5f9] px-4 py-3">
         <Sparkles className="size-3.5 text-teal" />
         <p className="text-[13px] font-semibold text-navy">Client Summary</p>
@@ -166,7 +166,7 @@ export function ClientSummaryButton({
           onClick={handleClose}
         >
           <div
-            className="flex h-[80vh] w-full max-w-5xl flex-col rounded-[14px] border border-[#e2e8f0] bg-white shadow-2xl"
+            className="flex h-[80vh] w-full max-w-5xl flex-col rounded-2xl bg-white shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal header */}

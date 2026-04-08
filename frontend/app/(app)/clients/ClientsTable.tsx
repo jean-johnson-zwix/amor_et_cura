@@ -149,7 +149,7 @@ export default function ClientsTable({ clients }: { clients: Client[] }) {
       </p>
 
       {/* Table card */}
-      <div className="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
+      <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
         <table className="w-full">
           <thead>
             <tr className="border-b border-[#e2e8f0]/50 bg-teal-tint text-left">

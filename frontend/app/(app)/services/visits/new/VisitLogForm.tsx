@@ -151,7 +151,7 @@ export default function VisitLogForm({
 
   if (state.success) {
     return (
-      <div className="mx-auto max-w-2xl rounded-[14px] border-2 border-teal bg-white p-10 text-center">
+      <div className="mx-auto max-w-2xl rounded-2xl bg-white shadow-sm p-10 text-center">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-teal mx-auto mb-5">
           <svg className="size-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
@@ -184,7 +184,7 @@ export default function VisitLogForm({
       )}
 
       {/* ── Visit basics ─────────────────────────────────────── */}
-      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+      <div className="rounded-2xl bg-white shadow-sm p-5">
         <div className="mb-4 border-b border-[#e2e8f0] pb-3">
           <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">
             {clientName ? `Visit for ${clientName}` : 'Log a visit'}
@@ -233,7 +233,7 @@ export default function VisitLogForm({
       </div>
 
       {/* ── Case narrative ───────────────────────────────────── */}
-      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+      <div className="rounded-2xl bg-white shadow-sm p-5">
         <div className="mb-4 border-b border-[#e2e8f0] pb-3 flex items-start justify-between gap-3">
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Case Narrative</p>
@@ -371,7 +371,7 @@ export default function VisitLogForm({
 
       {/* ── Custom fields ────────────────────────────────────── */}
       {customFields.length > 0 && (
-        <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+        <div className="rounded-2xl bg-white shadow-sm p-5">
           <div className="mb-4 border-b border-[#e2e8f0] pb-3">
             <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Additional Information</p>
           </div>

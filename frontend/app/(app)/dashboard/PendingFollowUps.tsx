@@ -50,7 +50,7 @@ export default function PendingFollowUps({ initialFollowUps }: { initialFollowUp
   }
 
   return (
-    <div className="rounded-2xl border border-[#e2e8f0] bg-white">
+    <div className="rounded-2xl bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-[#e2e8f0] px-5 py-4">
         <div className="flex items-center gap-2">
           <Sparkles className="size-4 text-teal shrink-0" />

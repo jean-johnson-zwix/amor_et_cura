@@ -84,7 +84,7 @@ export default async function AuditLogPage({
       <div className="p-6 flex flex-col gap-4">
         {/* Filter bar */}
         <form method="GET" action="/admin/audit-log"
-          className="flex flex-wrap items-center gap-3 rounded-[14px] border border-[#e2e8f0] bg-white px-4 py-3"
+          className="flex flex-wrap items-center gap-3 rounded-2xl bg-white shadow-sm px-4 py-3"
         >
           <select name="table" defaultValue={table ?? ''} className={selectClass}>
             <option value="">All tables</option>
@@ -127,7 +127,7 @@ export default async function AuditLogPage({
         </p>
 
         {/* Table */}
-        <div className="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
+        <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#e2e8f0]/50 bg-teal-tint text-left">

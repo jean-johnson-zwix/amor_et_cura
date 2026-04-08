@@ -88,7 +88,7 @@ export default function EditClientForm({
       )}
 
       {/* Basic information */}
-      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+      <div className="rounded-2xl bg-white shadow-sm p-5">
         <div className="mb-4 border-b border-[#e2e8f0] pb-3">
           <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Basic information</p>
         </div>
@@ -141,7 +141,7 @@ export default function EditClientForm({
       </div>
 
       {/* Programs */}
-      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+      <div className="rounded-2xl bg-white shadow-sm p-5">
         <div className="mb-4 border-b border-[#e2e8f0] pb-3">
           <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Programs</p>
         </div>
@@ -163,7 +163,7 @@ export default function EditClientForm({
 
       {/* Custom fields */}
       {customFields.length > 0 && (
-        <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+        <div className="rounded-2xl bg-white shadow-sm p-5">
           <div className="mb-4 border-b border-[#e2e8f0] pb-3">
             <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Additional information</p>
           </div>

@@ -90,7 +90,7 @@ export default function SemanticSearch() {
   }
 
   return (
-    <div className="mb-6 rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+    <div className="mb-6 rounded-2xl bg-white shadow-sm p-5">
       {/* Header */}
       <div className="mb-3 flex items-center gap-2">
         <Sparkles className="size-4 text-teal" />

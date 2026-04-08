@@ -167,7 +167,7 @@ function LinkFamilyMemberModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <div
-        className="w-full max-w-sm rounded-[14px] border border-[#e2e8f0] bg-white shadow-xl"
+        className="w-full max-w-sm rounded-2xl bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
@@ -398,7 +398,7 @@ export default function ClientProfileTabs({
         {activeTab === 'overview' && (
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {/* Demographics */}
-            <div className="rounded-[14px] border border-[#e2e8f0] bg-white px-5 pt-4 pb-1 self-start">
+            <div className="rounded-2xl bg-white shadow-sm px-5 pt-4 pb-1 self-start">
               <p className="mb-1 text-[13px] font-semibold text-navy">Demographics</p>
               <dl>
                 <LabelValue label="Date of birth" value={formatDob(client.dob)} />
@@ -415,7 +415,7 @@ export default function ClientProfileTabs({
 
             {/* Custom fields — full width if present */}
             {customFields.length > 0 && (
-              <div className="rounded-[14px] border border-[#e2e8f0] bg-white px-5 pt-4 pb-1 lg:col-span-2">
+              <div className="rounded-2xl bg-white shadow-sm px-5 pt-4 pb-1 lg:col-span-2">
                 <p className="mb-1 text-[13px] font-semibold text-navy">Additional information</p>
                 <dl className="grid grid-cols-2 gap-x-8">
                   {customFields.map((field) => {
@@ -429,7 +429,7 @@ export default function ClientProfileTabs({
 
             {/* Household / Family members — only shown when there are members or the user can add them */}
             {(householdMembers.length > 0 || canLinkFamily) && (
-            <div className="rounded-[14px] border border-[#e2e8f0] bg-white lg:col-span-2">
+            <div className="rounded-2xl bg-white shadow-sm lg:col-span-2">
               <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
                 <p className="text-[13px] font-semibold text-navy">Household / Family</p>
                 {canLinkFamily && (
@@ -478,7 +478,7 @@ export default function ClientProfileTabs({
         hidden={activeTab !== 'case-notes'}
       >
         {activeTab === 'case-notes' && (
-          <div className="rounded-[14px] border border-[#e2e8f0] bg-white">
+          <div className="rounded-2xl bg-white shadow-sm">
             <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
               <p className="text-[13px] font-semibold text-navy">Visit history ({visits.length})</p>
               {canLogVisit && (
@@ -567,7 +567,7 @@ export default function ClientProfileTabs({
         hidden={activeTab !== 'documents'}
       >
         {activeTab === 'documents' && (
-          <div className="rounded-[14px] border border-[#e2e8f0] bg-white">
+          <div className="rounded-2xl bg-white shadow-sm">
             <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
               <p className="text-[13px] font-semibold text-navy">Documents ({documents.length})</p>
               {canUploadDocuments && (
@@ -656,7 +656,7 @@ export default function ClientProfileTabs({
         hidden={activeTab !== 'appointments'}
       >
         {activeTab === 'appointments' && (
-          <div className="rounded-[14px] border border-[#e2e8f0] bg-white">
+          <div className="rounded-2xl bg-white shadow-sm">
             <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
               <p className="text-[13px] font-semibold text-navy">Appointments ({appointments.length})</p>
               <a
@@ -710,7 +710,7 @@ export default function ClientProfileTabs({
         hidden={activeTab !== 'tasks'}
       >
         {activeTab === 'tasks' && (
-          <div className="rounded-[14px] border border-[#e2e8f0] bg-white">
+          <div className="rounded-2xl bg-white shadow-sm">
             <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-3">
               <p className="text-[13px] font-semibold text-navy">
                 Active Tasks ({tasks.length})

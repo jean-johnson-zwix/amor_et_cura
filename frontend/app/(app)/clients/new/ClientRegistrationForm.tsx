@@ -146,7 +146,7 @@ export default function ClientRegistrationForm({
       )}
 
       {/* AI scan card */}
-      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+      <div className="rounded-2xl bg-white shadow-sm p-5">
         <div className="mb-3 flex items-start justify-between gap-3">
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Scan paper form</p>
@@ -213,7 +213,7 @@ export default function ClientRegistrationForm({
       </div>
 
       {/* Basic information */}
-      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+      <div className="rounded-2xl bg-white shadow-sm p-5">
         <div className="mb-4 border-b border-[#e2e8f0] pb-3">
           <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Basic information</p>
         </div>
@@ -280,7 +280,7 @@ export default function ClientRegistrationForm({
       </div>
 
       {/* Programs */}
-      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+      <div className="rounded-2xl bg-white shadow-sm p-5">
         <div className="mb-4 border-b border-[#e2e8f0] pb-3">
           <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Programs</p>
         </div>
@@ -308,7 +308,7 @@ export default function ClientRegistrationForm({
 
       {/* Custom fields */}
       {customFields.length > 0 && (
-        <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+        <div className="rounded-2xl bg-white shadow-sm p-5">
           <div className="mb-4 border-b border-[#e2e8f0] pb-3">
             <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Additional information</p>
           </div>

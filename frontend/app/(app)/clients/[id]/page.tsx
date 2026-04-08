@@ -181,7 +181,7 @@ export default async function ClientProfilePage({
 
       <div className="p-6 flex flex-col gap-4">
         {/* Profile header card */}
-        <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+        <div className="rounded-2xl bg-white shadow-sm p-5">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4 min-w-0">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-teal text-[18px] font-semibold text-white">

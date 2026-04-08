@@ -25,7 +25,7 @@ export default function AppointmentForm({
 
   if (state.success) {
     return (
-      <div className="mx-auto max-w-lg rounded-[14px] border border-[#e2e8f0] bg-white p-8 text-center">
+      <div className="mx-auto max-w-lg rounded-2xl bg-white shadow-sm p-8 text-center">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-light mx-auto mb-3">
           <svg className="size-5 text-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -52,7 +52,7 @@ export default function AppointmentForm({
         <div className="rounded-lg bg-red-50 px-3 py-2.5 text-[12px] text-red-700">{state.error}</div>
       )}
 
-      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+      <div className="rounded-2xl bg-white shadow-sm p-5">
         <div className="mb-4 border-b border-[#e2e8f0] pb-3">
           <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Appointment details</p>
         </div>

@@ -113,7 +113,7 @@ export default function CsvImporter() {
     <div className="mx-auto max-w-2xl flex flex-col gap-4">
 
       {/* Template download */}
-      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+      <div className="rounded-2xl bg-white shadow-sm p-5">
         <div className="mb-4 border-b border-[#e2e8f0] pb-3">
           <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Download template</p>
         </div>
@@ -141,7 +141,7 @@ export default function CsvImporter() {
       </div>
 
       {/* Upload */}
-      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+      <div className="rounded-2xl bg-white shadow-sm p-5">
         <div className="mb-4 border-b border-[#e2e8f0] pb-3">
           <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Upload CSV</p>
         </div>
@@ -231,7 +231,7 @@ export default function CsvImporter() {
 
       {/* Results */}
       {results && (
-        <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5">
+        <div className="rounded-2xl bg-white shadow-sm p-5">
           <div className="mb-4 border-b border-[#e2e8f0] pb-3 flex items-center gap-2">
             <p className="text-[13px] font-semibold uppercase tracking-wide text-navy">Import complete</p>
             <span className="rounded-full bg-teal-light px-2 py-0.5 text-[11px] font-medium text-[#16A34A]">

@@ -130,7 +130,7 @@ export default async function SchedulePage({
         </div>
 
         {/* Calendar grid */}
-        <div className="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
+        <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
           {/* Day headers */}
           <div className="grid grid-cols-7 border-b border-[#e2e8f0]">
             {weekDays.map((date) => {

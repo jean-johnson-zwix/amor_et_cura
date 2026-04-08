@@ -187,7 +187,7 @@ function StatCard({
   icon: React.ComponentType<{ className?: string }>
 }) {
   return (
-    <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-4">
+    <div className="rounded-2xl bg-white shadow-sm p-4">
       <div className="flex items-center gap-2 mb-2">
         <div className="flex h-7 w-7 items-center justify-center rounded-full bg-teal/10">
           <Icon className="size-3.5 text-teal" />
@@ -268,7 +268,7 @@ export function ReportsHub({ serviceTypes }: { serviceTypes: string[] }) {
   return (
     <div className="p-6 flex flex-col gap-6">
       {/* ── Controls ──────────────────────────────────────── */}
-      <div className="rounded-[14px] border border-[#e2e8f0] bg-white p-5 flex flex-col gap-4 sm:flex-row sm:items-end">
+      <div className="rounded-2xl bg-white shadow-sm p-5 flex flex-col gap-4 sm:flex-row sm:items-end">
         <div className="flex flex-col gap-1 flex-1">
           <label className="text-[11px] font-semibold uppercase tracking-wide text-[#6b7280]">
             Date Range
@@ -331,7 +331,7 @@ export function ReportsHub({ serviceTypes }: { serviceTypes: string[] }) {
 
       {/* ── Loading state ─────────────────────────────────── */}
       {status === 'loading' && (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-[14px] border border-[#e2e8f0] bg-white py-16">
+        <div className="flex flex-col items-center justify-center gap-3 rounded-2xl bg-white shadow-sm py-16">
           <Loader2 className="size-8 animate-spin text-teal" />
           <p className="text-[13px] text-[#6b7280]">
             Aggregating data and generating narrative…
@@ -342,7 +342,7 @@ export function ReportsHub({ serviceTypes }: { serviceTypes: string[] }) {
 
       {/* ── Error state ───────────────────────────────────── */}
       {status === 'error' && error && (
-        <div className="flex items-start gap-3 rounded-[14px] border border-amber-200 bg-amber-50 p-5">
+        <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5">
           <AlertCircle className="size-5 shrink-0 text-amber-500 mt-0.5" />
           <div>
             <p className="text-[13px] font-semibold text-amber-800">Generation failed</p>
@@ -390,7 +390,7 @@ export function ReportsHub({ serviceTypes }: { serviceTypes: string[] }) {
 
           {/* Service breakdown */}
           {stats.visit_breakdown.length > 0 && (
-            <div className="rounded-[14px] border border-[#e2e8f0] bg-white overflow-hidden">
+            <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
               <div className="px-5 py-3 border-b border-[#f1f5f9]">
                 <p className="text-[13px] font-semibold text-navy">Service Breakdown</p>
               </div>
@@ -425,7 +425,7 @@ export function ReportsHub({ serviceTypes }: { serviceTypes: string[] }) {
           )}
 
           {/* AI Narrative editor */}
-          <div className="rounded-[14px] border border-[#e2e8f0] bg-white overflow-hidden">
+          <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
             <div className="flex items-center justify-between border-b border-[#f1f5f9] px-5 py-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="size-3.5 text-teal" />

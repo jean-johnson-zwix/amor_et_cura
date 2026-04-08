@@ -437,7 +437,7 @@ function FormPicker({
           <button
             key={form.id}
             onClick={() => onSelect(form.id)}
-            className="group flex flex-col gap-3 rounded-[14px] border border-[#e2e8f0] bg-white p-5 text-left transition-all hover:border-teal hover:shadow-sm"
+            className="group flex flex-col gap-3 rounded-2xl bg-white shadow-sm p-5 text-left transition-all hover:shadow-md"
           >
             <div className="flex items-center justify-between">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-light">

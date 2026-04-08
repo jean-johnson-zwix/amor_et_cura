@@ -90,7 +90,7 @@ function SuggestionsTab({
 
   if (items.length === 0) {
     return (
-      <div className="rounded-2xl border border-[#e2e8f0] bg-white px-6 py-12 text-center">
+      <div className="rounded-2xl bg-white shadow-sm px-6 py-12 text-center">
         <Sparkles className="mx-auto mb-3 size-8 text-[#d1d5db]" />
         <p className="text-base text-[#6b7280]">No pending AI suggestions.</p>
         <p className="mt-1 text-sm text-[#9ca3af]">New suggestions appear here after saving a visit note.</p>
@@ -141,7 +141,7 @@ function SuggestionsTab({
   const selClass = 'h-8 rounded-lg border border-[#e2e8f0] bg-white px-2 text-[12px] text-navy outline-none focus:border-teal'
 
   return (
-    <div className="rounded-2xl border border-[#e2e8f0] bg-white overflow-hidden">
+    <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
       <div className="divide-y divide-[#f1f5f9]">
         {items.map((item) => {
           const isProcessing = processingId === item.id
@@ -289,7 +289,7 @@ function ActiveTasksTab({ tasks, onCompleted }: { tasks: TaskRow[]; onCompleted:
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-[#e2e8f0] bg-white px-6 py-12 text-center">
+        <div className="rounded-2xl bg-white shadow-sm px-6 py-12 text-center">
           <p className="text-base text-[#6b7280]">
             {tasks.length === 0
               ? 'No active tasks. Go to "AI Suggestions" to review and add tasks.'
@@ -297,7 +297,7 @@ function ActiveTasksTab({ tasks, onCompleted }: { tasks: TaskRow[]; onCompleted:
           </p>
         </div>
       ) : (
-        <div className="rounded-2xl border border-[#e2e8f0] bg-white overflow-hidden">
+        <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#e2e8f0] bg-[#f8fafc]">
@@ -399,7 +399,7 @@ export default function TasksClient({
   return (
     <div className="flex flex-col gap-4">
       {/* Tab bar */}
-      <div className="flex gap-1 rounded-[10px] border border-[#e2e8f0] bg-white p-1 self-start">
+      <div className="flex gap-1 rounded-xl bg-white shadow-sm p-1 self-start">
         <button
           onClick={() => setActiveTab('active')}
           className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-[13px] font-semibold transition-colors ${

@@ -48,7 +48,7 @@ export default function DashboardAppointments({ appointments }: { appointments: 
 
   if (step.type === 'list') {
     return (
-      <div className="rounded-2xl border border-[#e2e8f0] bg-white">
+      <div className="rounded-2xl bg-white shadow-sm">
         <div className="flex items-center justify-between border-b border-[#e2e8f0] px-5 py-4">
           <p className="text-base font-bold text-navy">Today&apos;s appointments</p>
           <Link href="/services/schedule" className="inline-flex items-center gap-1 text-sm font-medium text-teal hover:underline">
@@ -105,7 +105,7 @@ export default function DashboardAppointments({ appointments }: { appointments: 
   if (step.type === 'confirm-cancel') {
     const { appt } = step
     return (
-      <div className="rounded-2xl border-2 border-red-200 bg-white">
+      <div className="rounded-2xl border border-red-200 bg-white shadow-sm">
         <div className="border-b border-red-100 px-5 py-4">
           <p className="text-base font-bold text-navy">Cancel this appointment?</p>
         </div>
@@ -162,7 +162,7 @@ export default function DashboardAppointments({ appointments }: { appointments: 
       .slice(0, 5)
 
     return (
-      <div className="rounded-2xl border-2 border-teal bg-white">
+      <div className="rounded-2xl border border-teal/30 bg-white shadow-sm">
         <div className="border-b border-[#e2e8f0] px-5 py-4">
           <p className="text-base font-bold text-navy">Pick a new time</p>
           <p className="mt-0.5 text-sm text-[#6b7280]">For {appt.client_name} — {appt.service_type_name}</p>
@@ -247,7 +247,7 @@ export default function DashboardAppointments({ appointments }: { appointments: 
 
   if (step.type === 'success') {
     return (
-      <div className="rounded-2xl border-2 border-teal bg-white px-5 py-8 text-center">
+      <div className="rounded-2xl bg-white shadow-sm px-5 py-8 text-center">
         <CheckCircle className="mx-auto mb-4 size-14 text-teal" />
         <p className="text-xl font-bold text-navy mb-2">Done!</p>
         <p className="text-base text-[#374151]">{step.message}</p>
