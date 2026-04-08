@@ -12,7 +12,7 @@ const ADMIN_SECTIONS: {
 }[] = [
   { href: '/admin/users',        title: 'User Management',   description: 'View/Manage all user accounts.',              Icon: Users },
   { href: '/admin/settings',     title: 'Manage Forms & Services',          description: 'Configure service types and forms.',              Icon: Settings },
-  { href: '/admin/settings/ai',  title: 'AI Configuration',  description: 'Swap models, edit prompts, and enable/disable AI features.', Icon: Brain },
+  { href: '/admin/settings/ai',  title: 'AI Configuration',  description: 'Manage AI features, models, and system prompts.', Icon: Brain },
   { href: '/admin/audit-log',    title: 'Audit Log',         description: 'Review all create, update, and delete actions.',                Icon: FileText },
   { href: '/admin/reports',      title: 'Impact Reports',    description: 'Generate reports for funder reporting.',     Icon: BarChart3 },
 ]

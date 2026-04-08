@@ -252,8 +252,8 @@ function TaskCard({ task, availableModels }: { task: TaskWithConfigs; availableM
           <p className="mt-0.5 text-[12px] text-gray-500 truncate">{task.description}</p>
           {primaryConfig && (
             <p className="mt-0.5 text-[11px] text-gray-400">
-              Primary: {primaryConfig.ai_models?.name ?? '—'}
-              {task.configs.length > 1 && ` · ${task.configs.length - 1} fallback${task.configs.length > 2 ? 's' : ''}`}
+              Model: {primaryConfig.ai_models?.name ?? '—'}
+              {task.configs.length > 1 && ` with ${task.configs.length - 1} fallback${task.configs.length > 2 ? 's' : ''}`}
             </p>
           )}
         </div>
