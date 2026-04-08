@@ -308,7 +308,7 @@ export function GlobalSearchBar() {
                     onClick={() => setOpen(false)}
                     className="inline-flex items-center gap-1 rounded-lg border border-[#e2e8f0] px-2.5 py-1 text-[11px] font-medium text-[#6b7280] hover:border-teal hover:text-teal transition-colors whitespace-nowrap"
                   >
-                    + Add Follow-up
+                    Schedule Appointment
                   </Link>
                 </div>
               ))}
@@ -357,7 +357,7 @@ export function GlobalSearchBar() {
                           onClick={() => setOpen(false)}
                           className="inline-flex items-center gap-1 rounded-lg bg-teal px-2.5 py-1 text-[11px] font-medium text-white hover:bg-[#D45228] transition-colors whitespace-nowrap"
                         >
-                          + Add Follow-up
+                          Schedule Appointment
                         </Link>
                         <Link
                           href={`/clients/${r.client_id}`}

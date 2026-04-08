@@ -184,7 +184,7 @@ export default function ClientRegistrationForm({
               className="size-4 rounded border-[#e2e8f0] accent-teal"
             />
             <Globe className="size-3.5" />
-            Form is in another language
+            Enable multilingual mode
           </label>
           {detectedLanguage && (
             <span className="rounded-full bg-navy/10 px-2.5 py-1 text-[11px] font-medium text-navy">

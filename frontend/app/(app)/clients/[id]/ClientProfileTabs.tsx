@@ -663,7 +663,7 @@ export default function ClientProfileTabs({
                 href={`/services/schedule/new?client_id=${client.id}`}
                 className="text-[11px] text-teal hover:underline"
               >
-                + Schedule
+                Schedule Appointment
               </a>
             </div>
             {appointments.length === 0 ? (
