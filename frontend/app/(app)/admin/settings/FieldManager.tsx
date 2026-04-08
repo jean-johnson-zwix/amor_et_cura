@@ -4,6 +4,7 @@ import { useState, useTransition, useActionState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select } from '@/components/ui/select'
 import {
   addFieldDefinition,
   toggleFieldActive,
@@ -98,10 +99,10 @@ function EditFieldRow({
 
             <div className="flex flex-col gap-1">
               <label className="text-[11px] font-medium text-[#6b7280]">Field type *</label>
-              <select
+              <Select
+                size="sm"
                 value={fieldType}
                 onChange={(e) => setFieldType(e.target.value as FieldType)}
-                className="h-8 rounded-lg border border-[#e2e8f0] px-2.5 text-[13px] text-navy outline-none focus:border-teal focus:ring-2 focus:ring-teal/20"
               >
                 <option value="text">Text</option>
                 <option value="number">Number</option>
@@ -109,7 +110,7 @@ function EditFieldRow({
                 <option value="boolean">Yes / No</option>
                 <option value="select">Dropdown (single)</option>
                 <option value="multiselect">Multi-select</option>
-              </select>
+              </Select>
             </div>
 
             {showOptions && (
@@ -273,13 +274,13 @@ function AddFieldForm({
 
           <div className="flex flex-col gap-1">
             <label htmlFor="add-type" className="text-[11px] font-medium text-[#6b7280]">Field type *</label>
-            <select
+            <Select
+              size="sm"
               id="add-type"
               name="field_type"
               required
               value={fieldType}
               onChange={(e) => setFieldType(e.target.value)}
-              className="h-8 rounded-lg border border-[#e2e8f0] bg-white px-2.5 text-[13px] text-navy outline-none focus:border-teal focus:ring-2 focus:ring-teal/20"
             >
               <option value="">Select…</option>
               <option value="text">Text</option>
@@ -288,7 +289,7 @@ function AddFieldForm({
               <option value="boolean">Yes / No</option>
               <option value="select">Dropdown (single)</option>
               <option value="multiselect">Multi-select</option>
-            </select>
+            </Select>
           </div>
 
           {showOptions && (

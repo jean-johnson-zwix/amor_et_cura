@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import { updateUserRole } from './actions'
 import { Button } from '@/components/ui/button'
+import { Select } from '@/components/ui/select'
 import type { UserRole } from '@/types/database'
 
 const ROLES: { value: UserRole; label: string }[] = [
@@ -25,16 +26,15 @@ export function RoleForm({
   return (
     <form action={action} className="flex items-center gap-2">
       <input type="hidden" name="userId" value={userId} />
-      <select
+      <Select
         name="role"
         defaultValue={currentRole}
         disabled={isSelf || pending}
-        className="rounded-md border border-input bg-background px-2 py-1 text-sm focus:border-ring focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       >
         {ROLES.map(({ value, label }) => (
           <option key={value} value={value}>{label}</option>
         ))}
-      </select>
+      </Select>
       <Button type="submit" size="sm" variant="outline" disabled={isSelf || pending}>
         {pending ? 'Saving…' : 'Save'}
       </Button>

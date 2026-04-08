@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react'
 import { useReactToPrint } from 'react-to-print'
 import ReactMarkdown from 'react-markdown'
+import { Select } from '@/components/ui/select'
 import {
   Sparkles,
   Loader2,
@@ -296,10 +297,9 @@ export function ReportsHub({ serviceTypes }: { serviceTypes: string[] }) {
           <label className="text-[11px] font-semibold uppercase tracking-wide text-[#6b7280]">
             Program Filter
           </label>
-          <select
+          <Select
             value={programFilter}
             onChange={(e) => setProgramFilter(e.target.value)}
-            className="rounded-lg border border-[#e2e8f0] px-3 py-1.5 text-[13px] text-navy outline-none focus:ring-2 focus:ring-teal/30 bg-white"
           >
             <option value="">All Programs</option>
             {serviceTypes.map((s) => (
@@ -307,7 +307,7 @@ export function ReportsHub({ serviceTypes }: { serviceTypes: string[] }) {
                 {s}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         <button

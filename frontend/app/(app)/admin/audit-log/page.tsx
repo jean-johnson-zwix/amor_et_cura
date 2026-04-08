@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { Topbar } from '@/components/Topbar'
+import { Select } from '@/components/ui/select'
 
 const PAGE_SIZE = 50
 
@@ -75,8 +76,6 @@ export default async function AuditLogPage({
     return `/admin/audit-log?${params.toString()}`
   }
 
-  const selectClass = 'h-9 rounded-lg border border-[#e2e8f0] bg-white px-2.5 text-[13px] text-[#1f2937] outline-none focus:border-teal'
-
   return (
     <>
       <Topbar crumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Audit log' }]} />
@@ -86,25 +85,25 @@ export default async function AuditLogPage({
         <form method="GET" action="/admin/audit-log"
           className="flex flex-wrap items-center gap-3 rounded-2xl bg-white shadow-sm px-4 py-3"
         >
-          <select name="table" defaultValue={table ?? ''} className={selectClass}>
+          <Select name="table" defaultValue={table ?? ''}>
             <option value="">All tables</option>
             <option value="clients">Clients</option>
             <option value="visits">Visits</option>
             <option value="appointments">Appointments</option>
             <option value="profiles">Users</option>
-          </select>
-          <select name="action" defaultValue={action ?? ''} className={selectClass}>
+          </Select>
+          <Select name="action" defaultValue={action ?? ''}>
             <option value="">All actions</option>
             <option value="CREATE">Create</option>
             <option value="UPDATE">Update</option>
             <option value="DELETE">Delete</option>
-          </select>
-          <select name="actor" defaultValue={actor ?? ''} className={selectClass}>
+          </Select>
+          <Select name="actor" defaultValue={actor ?? ''}>
             <option value="">All users</option>
             {(actors ?? []).map((a) => (
               <option key={a.id} value={a.id}>{a.full_name}</option>
             ))}
-          </select>
+          </Select>
           <button
             type="submit"
             className="h-9 rounded-lg bg-teal px-3 text-[13px] font-medium text-white transition-colors hover:bg-[#D45228]"

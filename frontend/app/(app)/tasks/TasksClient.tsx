@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { CheckSquare, Square, Filter, Sparkles, CheckCircle, X, ListChecks, Pencil, Trash2, Plus, Loader2 } from 'lucide-react'
 import { acceptFollowUp, dismissFollowUp } from '../dashboard/follow-up-actions'
 import { completeTask, updateTask, deleteTask, createTask } from './task-actions'
+import { Select } from '@/components/ui/select'
 
 // ── Shared types ──────────────────────────────────────────────
 
@@ -138,8 +139,6 @@ function SuggestionsTab({
     })
   }
 
-  const selClass = 'h-8 rounded-lg border border-[#e2e8f0] bg-white px-2 text-[12px] text-navy outline-none focus:border-teal'
-
   return (
     <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
       <div className="divide-y divide-[#f1f5f9]">
@@ -167,16 +166,16 @@ function SuggestionsTab({
 
               {/* Editable fields + actions */}
               <div className="flex items-center gap-2 flex-wrap">
-                <select
+                <Select
+                  size="sm"
                   value={urgencies[item.id]}
                   onChange={(e) => setUrgencies((p) => ({ ...p, [item.id]: e.target.value as TaskRow['urgency'] }))}
                   disabled={isProcessing}
-                  className={selClass}
                 >
                   <option value="high">High urgency</option>
                   <option value="medium">Medium urgency</option>
                   <option value="low">Low urgency</option>
-                </select>
+                </Select>
 
                 <input
                   type="date"
@@ -324,18 +323,18 @@ function CreateTaskForm({ onCreated, onCancel }: { onCreated: (task: TaskRow) =>
 
         {/* Urgency + Category + Due date */}
         <div className="flex flex-wrap gap-2">
-          <select value={form.urgency} onChange={e => set('urgency', e.target.value as TaskRow['urgency'])} className={SEL}>
+          <Select value={form.urgency} onChange={e => set('urgency', e.target.value as TaskRow['urgency'])}>
             <option value="high">High urgency</option>
             <option value="medium">Medium urgency</option>
             <option value="low">Low urgency</option>
-          </select>
-          <select value={form.category} onChange={e => set('category', e.target.value as TaskRow['category'])} className={SEL}>
+          </Select>
+          <Select value={form.category} onChange={e => set('category', e.target.value as TaskRow['category'])}>
             <option value="Check-in">Check-in</option>
             <option value="Referral">Referral</option>
             <option value="Medical">Medical</option>
             <option value="Document">Document</option>
             <option value="Financial">Financial</option>
-          </select>
+          </Select>
           <input
             type="date"
             value={form.dueDate}
@@ -497,26 +496,26 @@ function ActiveTasksTab({
       {/* Toolbar: filters + New Task */}
       <div className="flex items-center gap-2 flex-wrap">
         <Filter className="size-4 text-[#6b7280] shrink-0" />
-        <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value as CategoryFilter)} className={SEL}>
+        <Select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value as CategoryFilter)}>
           <option value="all">All categories</option>
           <option value="Referral">Referral</option>
           <option value="Medical">Medical</option>
           <option value="Document">Document</option>
           <option value="Financial">Financial</option>
           <option value="Check-in">Check-in</option>
-        </select>
-        <select value={urgencyFilter} onChange={(e) => setUrgencyFilter(e.target.value as UrgencyFilter)} className={SEL}>
+        </Select>
+        <Select value={urgencyFilter} onChange={(e) => setUrgencyFilter(e.target.value as UrgencyFilter)}>
           <option value="all">All urgencies</option>
           <option value="high">High</option>
           <option value="medium">Medium</option>
           <option value="low">Low</option>
-        </select>
-        <select value={dueFilter} onChange={(e) => setDueFilter(e.target.value as DueFilter)} className={SEL}>
+        </Select>
+        <Select value={dueFilter} onChange={(e) => setDueFilter(e.target.value as DueFilter)}>
           <option value="all">Any due date</option>
           <option value="overdue">Overdue</option>
           <option value="today">Due today</option>
           <option value="this-week">Due this week</option>
-        </select>
+        </Select>
         {filtered.length !== tasks.length && (
           <span className="text-[13px] text-[#6b7280]">{filtered.length} of {tasks.length} shown</span>
         )}
@@ -586,18 +585,18 @@ function ActiveTasksTab({
                             className="w-full resize-none rounded-lg border border-teal/40 px-3 py-2 text-[13px] text-navy outline-none focus:ring-2 focus:ring-teal/20"
                           />
                           <div className="flex flex-wrap items-center gap-2">
-                            <select value={editUrgency} onChange={e => setEditUrgency(e.target.value as TaskRow['urgency'])} className={SEL}>
+                            <Select value={editUrgency} onChange={e => setEditUrgency(e.target.value as TaskRow['urgency'])}>
                               <option value="high">High urgency</option>
                               <option value="medium">Medium urgency</option>
                               <option value="low">Low urgency</option>
-                            </select>
-                            <select value={editCategory} onChange={e => setEditCategory(e.target.value as TaskRow['category'])} className={SEL}>
+                            </Select>
+                            <Select value={editCategory} onChange={e => setEditCategory(e.target.value as TaskRow['category'])}>
                               <option value="Check-in">Check-in</option>
                               <option value="Referral">Referral</option>
                               <option value="Medical">Medical</option>
                               <option value="Document">Document</option>
                               <option value="Financial">Financial</option>
-                            </select>
+                            </Select>
                             <input
                               type="date"
                               value={editDueDate}
