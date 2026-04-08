@@ -112,7 +112,7 @@ export default function ClientsTable({ clients }: { clients: Client[] }) {
             placeholder="Search by name…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="h-9 rounded-lg border-[#e2e8f0] bg-teal-tint text-[13px] placeholder:text-[#6b7280] focus-visible:border-teal focus-visible:ring-teal/20"
+            className="h-9 rounded-lg border-[#e2e8f0] bg-white text-[13px] placeholder:text-[#6b7280] focus-visible:border-teal focus-visible:ring-teal/20"
           />
         </div>
 
