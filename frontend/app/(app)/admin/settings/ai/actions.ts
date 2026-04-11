@@ -84,3 +84,47 @@ export async function updateConfigModel(configId: string, modelId: string): Prom
   revalidatePath('/admin/settings/ai')
   return { success: true }
 }
+
+/**
+ * Move a config up or down in the fallback chain by swapping priorities
+ * with its immediate neighbour.
+ */
+export async function reorderConfig(
+  configId: string,
+  taskSlug: string,
+  direction: 'up' | 'down'
+): Promise<AiConfigFormState> {
+  await requireAdmin()
+  const supabase = await createClient()
+
+  const { data: configs, error: fetchError } = await supabase
+    .from('ai_task_configs')
+    .select('id, priority')
+    .eq('task_slug', taskSlug)
+    .order('priority', { ascending: true })
+
+  if (fetchError) return { error: fetchError.message }
+  if (!configs) return { error: 'No configs found.' }
+
+  const idx = configs.findIndex(c => c.id === configId)
+  if (idx === -1) return { error: 'Config not found.' }
+
+  const swapIdx = direction === 'up' ? idx - 1 : idx + 1
+  if (swapIdx < 0 || swapIdx >= configs.length) return { success: true } // already at boundary
+
+  const a = configs[idx]
+  const b = configs[swapIdx]
+
+  // Swap priorities using a temporary value to avoid unique constraint conflict
+  const tmpPriority = Math.max(...configs.map(c => c.priority)) + 1
+
+  const { error: e1 } = await supabase.from('ai_task_configs').update({ priority: tmpPriority }).eq('id', a.id)
+  if (e1) return { error: e1.message }
+  const { error: e2 } = await supabase.from('ai_task_configs').update({ priority: a.priority }).eq('id', b.id)
+  if (e2) return { error: e2.message }
+  const { error: e3 } = await supabase.from('ai_task_configs').update({ priority: b.priority }).eq('id', a.id)
+  if (e3) return { error: e3.message }
+
+  revalidatePath('/admin/settings/ai')
+  return { success: true }
+}

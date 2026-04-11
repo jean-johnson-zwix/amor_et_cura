@@ -1,7 +1,6 @@
 -- ============================================================
 -- Amor et Cura — Demo Seed Data
--- Run this AFTER the migration (20260328000001_init.sql)
--- in Supabase: SQL Editor → paste → Run
+-- Run this AFTER schema.sql in Supabase SQL Editor.
 -- ============================================================
 
 -- ── Profiles (demo staff accounts) ──────────────────────────
@@ -13,25 +12,25 @@ insert into public.profiles (id, full_name, role) values
   ('00000000-0000-0000-0000-000000000001', 'Alex Rivera',   'admin'),
   ('00000000-0000-0000-0000-000000000002', 'Jordan Kim',    'case_worker'),
   ('00000000-0000-0000-0000-000000000003', 'Taylor Brooks', 'case_worker'),
-  ('00000000-0000-0000-0000-000000000004', 'Sam Patel',     'read_only')
+  ('00000000-0000-0000-0000-000000000004', 'Sam Patel',     'viewer')
 on conflict (id) do nothing;
 
 -- ── Clients ──────────────────────────────────────────────────
 insert into public.clients
-  (id, first_name, last_name, dob, phone, email, address, program, created_by)
+  (id, first_name, last_name, dob, phone, email, address, programs, created_by)
 values
-  ('c0000001-0000-0000-0000-000000000001', 'Maria',     'Garcia',     '1985-04-12', '(602) 555-0101', 'mgarcia@example.com',    '123 Main St, Chandler, AZ 85224',   'Family Services',         '00000000-0000-0000-0000-000000000002'),
-  ('c0000001-0000-0000-0000-000000000002', 'James',     'Thompson',   '1972-09-30', '(602) 555-0102', null,                     '456 Oak Ave, Chandler, AZ 85225',   'Housing Support',         '00000000-0000-0000-0000-000000000002'),
-  ('c0000001-0000-0000-0000-000000000003', 'Aisha',     'Patel',      '1991-02-18', '(602) 555-0103', 'apatel@example.com',     '789 Elm Blvd, Gilbert, AZ 85234',   'Food Assistance',         '00000000-0000-0000-0000-000000000003'),
-  ('c0000001-0000-0000-0000-000000000004', 'Carlos',    'Rivera',     '1968-11-05', null,             'crivera@example.com',    '321 Pine St, Mesa, AZ 85201',       'Employment Support',      '00000000-0000-0000-0000-000000000002'),
-  ('c0000001-0000-0000-0000-000000000005', 'Linda',     'Nguyen',     '1999-07-22', '(602) 555-0105', 'lnguyen@example.com',    '654 Cedar Rd, Tempe, AZ 85281',     'Mental Health Services',  '00000000-0000-0000-0000-000000000003'),
-  ('c0000001-0000-0000-0000-000000000006', 'David',     'Okonkwo',    '1983-03-14', '(602) 555-0106', 'dokonkwo@example.com',   '99 Birch Ln, Chandler, AZ 85226',   'Case Management',         '00000000-0000-0000-0000-000000000002'),
-  ('c0000001-0000-0000-0000-000000000007', 'Rosa',      'Mendez',     '2001-12-01', '(602) 555-0107', null,                     '200 Maple Dr, Gilbert, AZ 85296',   'Child & Family Services', '00000000-0000-0000-0000-000000000003'),
-  ('c0000001-0000-0000-0000-000000000008', 'Kevin',     'Johnson',    '1975-06-19', '(602) 555-0108', 'kjohnson@example.com',   '550 Spruce Way, Mesa, AZ 85202',    'Housing Support',         '00000000-0000-0000-0000-000000000002'),
-  ('c0000001-0000-0000-0000-000000000009', 'Fatima',    'Al-Hassan',  '1994-08-27', '(602) 555-0109', 'falhassan@example.com',  '17 Willow Ct, Tempe, AZ 85282',     'Medical Referral',        '00000000-0000-0000-0000-000000000003'),
-  ('c0000001-0000-0000-0000-000000000010', 'Marcus',    'Williams',   '1989-01-08', null,             'mwilliams@example.com',  '403 Aspen Ave, Chandler, AZ 85224', 'Employment Support',      '00000000-0000-0000-0000-000000000002'),
-  ('c0000001-0000-0000-0000-000000000011', 'Priya',     'Sharma',     '2003-05-30', '(602) 555-0111', 'psharma@example.com',    '88 Sycamore St, Gilbert, AZ 85233', 'Education Support',       '00000000-0000-0000-0000-000000000003'),
-  ('c0000001-0000-0000-0000-000000000012', 'Darius',    'Mitchell',   '1960-10-22', '(602) 555-0112', null,                     '77 Juniper Pl, Mesa, AZ 85203',     'Food Assistance',         '00000000-0000-0000-0000-000000000002')
+  ('c0000001-0000-0000-0000-000000000001', 'Maria',     'Garcia',     '1985-04-12', '(555) 555-0101', 'mgarcia@example.com',    '123 Main St, Springfield, IL 62701',   array['Family Services'],         '00000000-0000-0000-0000-000000000002'),
+  ('c0000001-0000-0000-0000-000000000002', 'James',     'Thompson',   '1972-09-30', '(555) 555-0102', null,                     '456 Oak Ave, Springfield, IL 62702',   array['Housing Support'],         '00000000-0000-0000-0000-000000000002'),
+  ('c0000001-0000-0000-0000-000000000003', 'Aisha',     'Patel',      '1991-02-18', '(555) 555-0103', 'apatel@example.com',     '789 Elm Blvd, Riverside, CA 92501',    array['Food Assistance'],         '00000000-0000-0000-0000-000000000003'),
+  ('c0000001-0000-0000-0000-000000000004', 'Carlos',    'Rivera',     '1968-11-05', null,             'crivera@example.com',    '321 Pine St, Springfield, IL 62703',   array['Employment Support'],      '00000000-0000-0000-0000-000000000002'),
+  ('c0000001-0000-0000-0000-000000000005', 'Linda',     'Nguyen',     '1999-07-22', '(555) 555-0105', 'lnguyen@example.com',    '654 Cedar Rd, Riverside, CA 92502',    array['Mental Health Services'],  '00000000-0000-0000-0000-000000000003'),
+  ('c0000001-0000-0000-0000-000000000006', 'David',     'Okonkwo',    '1983-03-14', '(555) 555-0106', 'dokonkwo@example.com',   '99 Birch Ln, Springfield, IL 62704',   array['Case Management'],         '00000000-0000-0000-0000-000000000002'),
+  ('c0000001-0000-0000-0000-000000000007', 'Rosa',      'Mendez',     '2001-12-01', '(555) 555-0107', null,                     '200 Maple Dr, Riverside, CA 92503',    array['Child & Family Services'], '00000000-0000-0000-0000-000000000003'),
+  ('c0000001-0000-0000-0000-000000000008', 'Kevin',     'Johnson',    '1975-06-19', '(555) 555-0108', 'kjohnson@example.com',   '550 Spruce Way, Springfield, IL 62705', array['Housing Support'],         '00000000-0000-0000-0000-000000000002'),
+  ('c0000001-0000-0000-0000-000000000009', 'Fatima',    'Al-Hassan',  '1994-08-27', '(555) 555-0109', 'falhassan@example.com',  '17 Willow Ct, Riverside, CA 92504',    array['Medical Referral'],        '00000000-0000-0000-0000-000000000003'),
+  ('c0000001-0000-0000-0000-000000000010', 'Marcus',    'Williams',   '1989-01-08', null,             'mwilliams@example.com',  '403 Aspen Ave, Springfield, IL 62706',  array['Employment Support'],      '00000000-0000-0000-0000-000000000002'),
+  ('c0000001-0000-0000-0000-000000000011', 'Priya',     'Sharma',     '2003-05-30', '(555) 555-0111', 'psharma@example.com',    '88 Sycamore St, Riverside, CA 92505',  array['Education Support'],       '00000000-0000-0000-0000-000000000003'),
+  ('c0000001-0000-0000-0000-000000000012', 'Darius',    'Mitchell',   '1960-10-22', '(555) 555-0112', null,                     '77 Juniper Pl, Springfield, IL 62707', array['Food Assistance'],         '00000000-0000-0000-0000-000000000002')
 on conflict (id) do nothing;
 
 -- ── Visits ───────────────────────────────────────────────────
@@ -74,12 +73,12 @@ values
   ('c0000001-0000-0000-0000-000000000007', '00000000-0000-0000-0000-000000000003', (select id from public.service_types where name = 'Education Support'),     '2026-03-12', 40,  'Assisted with school enrollment paperwork for both children. Follow-up with district office scheduled.'),
 
   -- Kevin Johnson (c08)
-  ('c0000001-0000-0000-0000-000000000008', '00000000-0000-0000-0000-000000000002', (select id from public.service_types where name = 'Housing Support'),       '2026-03-16', 55,  'Emergency shelter referral provided. Client lost housing after building fire. Coordinating with Red Cross.'),
-  ('c0000001-0000-0000-0000-000000000008', '00000000-0000-0000-0000-000000000002', (select id from public.service_types where name = 'Housing Support'),       '2026-03-09', 40,  'Reviewed transitional housing options. Client approved for 90-day program at Crossroads shelter.'),
+  ('c0000001-0000-0000-0000-000000000008', '00000000-0000-0000-0000-000000000002', (select id from public.service_types where name = 'Housing Support'),       '2026-03-16', 55,  'Emergency shelter referral provided. Client lost housing after building fire. Coordinating with local disaster relief agency.'),
+  ('c0000001-0000-0000-0000-000000000008', '00000000-0000-0000-0000-000000000002', (select id from public.service_types where name = 'Housing Support'),       '2026-03-09', 40,  'Reviewed transitional housing options. Client approved for 90-day program at local transitional shelter.'),
   ('c0000001-0000-0000-0000-000000000008', '00000000-0000-0000-0000-000000000003', (select id from public.service_types where name = 'Case Management'),       '2026-02-25', 30,  'First contact. Client self-referred. Completed intake paperwork and service assessment.'),
 
   -- Fatima Al-Hassan (c09)
-  ('c0000001-0000-0000-0000-000000000009', '00000000-0000-0000-0000-000000000003', (select id from public.service_types where name = 'Medical Referral'),      '2026-03-20', 25,  'Referred to Maricopa County FQHC for primary care. Client uninsured. Assisted with enrollment in AHCCCS.'),
+  ('c0000001-0000-0000-0000-000000000009', '00000000-0000-0000-0000-000000000003', (select id from public.service_types where name = 'Medical Referral'),      '2026-03-20', 25,  'Referred to local Federally Qualified Health Center for primary care. Client uninsured. Assisted with enrollment in state Medicaid program.'),
   ('c0000001-0000-0000-0000-000000000009', '00000000-0000-0000-0000-000000000002', (select id from public.service_types where name = 'Transportation Assistance'),'2026-03-08', 15,'Bus pass issued for medical appointments. 30-day pass provided.'),
   ('c0000001-0000-0000-0000-000000000009', '00000000-0000-0000-0000-000000000003', (select id from public.service_types where name = 'Case Management'),       '2026-02-22', 40,  'Intake and assessment. Client recently relocated. Language support (Arabic) arranged for next visit.'),
 
@@ -88,7 +87,7 @@ values
   ('c0000001-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000002', (select id from public.service_types where name = 'Employment Support'),    '2026-03-04', 45,  'Interview coaching session. Worked on answering behavioral questions. Client feeling more confident.'),
 
   -- Priya Sharma (c11)
-  ('c0000001-0000-0000-0000-000000000011', '00000000-0000-0000-0000-000000000003', (select id from public.service_types where name = 'Education Support'),     '2026-03-25', 60,  'SAT prep resources provided. Discussed college options. Client interested in nursing program at MCC.'),
+  ('c0000001-0000-0000-0000-000000000011', '00000000-0000-0000-0000-000000000003', (select id from public.service_types where name = 'Education Support'),     '2026-03-25', 60,  'SAT prep resources provided. Discussed college options. Client interested in nursing program at local community college.'),
   ('c0000001-0000-0000-0000-000000000011', '00000000-0000-0000-0000-000000000003', (select id from public.service_types where name = 'Education Support'),     '2026-03-11', 45,  'Scholarship research session. Identified 4 applicable scholarships. Application deadlines tracked.'),
 
   -- Darius Mitchell (c12)

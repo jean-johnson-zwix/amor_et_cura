@@ -3,14 +3,15 @@
 import { useState, useTransition } from 'react'
 import {
   Mic, FileText, Globe, Brain, BarChart3, ScanLine, ClipboardList, ListChecks,
-  ChevronDown, ChevronUp, Power, PowerOff,
+  ChevronDown, ChevronUp, Power, PowerOff, ArrowUp, ArrowDown, Play, Loader2,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
-import { toggleTaskActive, updateTaskPrompt, updateTaskConfig, updateConfigModel } from './actions'
+import { toggleTaskActive, updateTaskPrompt, updateTaskConfig, updateConfigModel, reorderConfig } from './actions'
 import type { AiTask, AiTaskConfig, AiModel } from '@/types/database'
 
 // ── Local types ────────────────────────────────────────────────
@@ -102,16 +103,96 @@ function PromptEditor({ task }: { task: TaskWithConfigs }) {
   )
 }
 
+// ── Test prompt panel ─────────────────────────────────────────
+
+function TestPromptPanel({ taskSlug, taskType }: { taskSlug: string; taskType: string }) {
+  const [userPrompt, setUserPrompt] = useState('')
+  const [result, setResult] = useState<{ response: string; model: string; provider: string } | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
+
+  if (taskType === 'audio') {
+    return (
+      <p className="text-xs text-gray-400 italic px-1">
+        Audio tasks (Whisper) cannot be tested with a text prompt.
+      </p>
+    )
+  }
+
+  function run() {
+    if (!userPrompt.trim()) return
+    setResult(null)
+    setError(null)
+    startTransition(async () => {
+      try {
+        const res = await fetch('/api/test-prompt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ task_slug: taskSlug, user_prompt: userPrompt }),
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          setError(data.error ?? 'AI service error')
+        } else {
+          setResult(data)
+        }
+      } catch {
+        setError('Could not reach the AI service.')
+      }
+    })
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <Label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Test Prompt</Label>
+      <textarea
+        value={userPrompt}
+        onChange={e => setUserPrompt(e.target.value)}
+        rows={4}
+        placeholder={taskType === 'vision'
+          ? 'Describe an image or paste extracted text to test the prompt logic…'
+          : 'Enter a sample input to test how the model responds…'}
+        className="w-full rounded-lg border border-input bg-white px-3 py-2 text-xs font-mono text-gray-800 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 resize-y"
+      />
+      <div className="flex justify-end">
+        <Button size="sm" variant="outline" onClick={run} disabled={isPending || !userPrompt.trim()}>
+          {isPending ? <Loader2 className="size-3.5 animate-spin mr-1" /> : <Play className="size-3.5 mr-1" />}
+          {isPending ? 'Running…' : 'Run'}
+        </Button>
+      </div>
+      {error && (
+        <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-1.5">{error}</p>
+      )}
+      {result && (
+        <div className="flex flex-col gap-1">
+          <p className="text-[11px] text-gray-400">
+            Response from <span className="font-medium text-gray-600">{result.model}</span> ({result.provider})
+          </p>
+          <pre className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-800 whitespace-pre-wrap font-mono overflow-auto max-h-64">
+            {result.response}
+          </pre>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Single model-chain row (params only, no prompt) ────────────
 
 function ConfigRow({
   config,
   taskType,
   availableModels,
+  isFirst,
+  isLast,
+  taskSlug,
 }: {
   config: ConfigWithModel
   taskType: string
   availableModels: AiModel[]
+  isFirst: boolean
+  isLast: boolean
+  taskSlug: string
 }) {
   const [isPending, startTransition]    = useTransition()
   const [selectedModelId, setSelectedModelId] = useState(config.model_id)
@@ -148,15 +229,21 @@ function ConfigRow({
     })
   }
 
+  const [reorderPending, startReorderTransition] = useTransition()
+
+  function move(direction: 'up' | 'down') {
+    startReorderTransition(() => reorderConfig(config.id, taskSlug, direction))
+  }
+
   return (
     <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 flex flex-col gap-3">
-      {/* Model selector row */}
-      <div className="flex items-center gap-3">
+      {/* Model selector + reorder row */}
+      <div className="flex items-center gap-2">
         <PriorityBadge priority={config.priority} />
-        <select
+        <Select
           value={selectedModelId}
           onChange={e => setSelectedModelId(e.target.value)}
-          className="flex-1 rounded-lg border border-input bg-white px-2.5 py-1.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-ring/50"
+          className="flex-1"
         >
           {compatibleModels.map(m => (
             <option key={m.id} value={m.id}>{m.name}</option>
@@ -164,7 +251,25 @@ function ConfigRow({
           {!compatibleModels.find(m => m.id === selectedModelId) && (
             <option value={config.ai_models.id}>{config.ai_models.name} (incompatible)</option>
           )}
-        </select>
+        </Select>
+        <div className="flex flex-col gap-0.5 shrink-0">
+          <button
+            onClick={() => move('up')}
+            disabled={isFirst || reorderPending}
+            title="Move up"
+            className="flex items-center justify-center rounded border border-gray-200 bg-white p-1 text-gray-400 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <ArrowUp className="size-3" />
+          </button>
+          <button
+            onClick={() => move('down')}
+            disabled={isLast || reorderPending}
+            title="Move down"
+            className="flex items-center justify-center rounded border border-gray-200 bg-white p-1 text-gray-400 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <ArrowDown className="size-3" />
+          </button>
+        </div>
       </div>
 
       {/* Params row */}
@@ -189,14 +294,14 @@ function ConfigRow({
         </div>
         <div className="flex flex-col gap-1">
           <Label className="text-[11px] text-gray-500">Format</Label>
-          <select
+          <Select
+            size="sm"
             value={responseFormat}
             onChange={e => setResponseFormat(e.target.value as 'text' | 'json')}
-            className="h-8 rounded-lg border border-input bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50"
           >
             <option value="text">Text</option>
             <option value="json">JSON</option>
-          </select>
+          </Select>
         </div>
       </div>
 
@@ -284,7 +389,7 @@ function TaskCard({ task, availableModels }: { task: TaskWithConfigs; availableM
         </div>
       </div>
 
-      {/* Expanded body — prompt above, model chain below */}
+      {/* Expanded body — prompt, model chain, test prompt */}
       {expanded && (
         <div className="border-t border-gray-100 px-5 py-5 flex flex-col gap-6">
 
@@ -299,15 +404,23 @@ function TaskCard({ task, availableModels }: { task: TaskWithConfigs; availableM
             {task.configs.length === 0 ? (
               <p className="text-sm text-gray-400 italic">No models configured.</p>
             ) : (
-              task.configs.map(cfg => (
+              task.configs.map((cfg, idx) => (
                 <ConfigRow
                   key={cfg.id}
                   config={cfg}
                   taskType={task.task_type}
                   availableModels={availableModels}
+                  isFirst={idx === 0}
+                  isLast={idx === task.configs.length - 1}
+                  taskSlug={task.slug}
                 />
               ))
             )}
+          </div>
+
+          {/* Test prompt section */}
+          <div className="border-t border-gray-100 pt-4">
+            <TestPromptPanel taskSlug={task.slug} taskType={task.task_type} />
           </div>
         </div>
       )}

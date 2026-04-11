@@ -1,5 +1,5 @@
 # Developer Notes
-*Last updated: 2026-03-29*
+*Last updated: 2026-04-08*
 
 A running log of what's built, what's not, and where to start next. Keep this updated as features land.
 
@@ -85,20 +85,25 @@ nonprofit_client_and_case_management/
 │   └── proxy.ts                     # Next.js 16 proxy: session refresh + auth guard
 │
 ├── backend/                         # FastAPI Python AI backend
-│   ├── main.py                      # 3 endpoints + _ai_error_message() helper
+│   ├── main.py                      # Endpoints + _ai_error_message() helper + test-prompt + invalidate-cache
 │   ├── intelligence/
-│   │   ├── llm.py                   # LLMClient: multi-provider call_with_fallback, 1.5s 429 back-off
-│   │   ├── llm_config.py            # Task configs: primary model + fallbacks per task
-│   │   └── prompts.py               # System prompts for each AI task
+│   │   ├── llm.py                   # LLMClient: DB-first config, multi-provider fallback, 1.5s 429 back-off
+│   │   ├── llm_router.py            # get_db_task_config(): DB-fetched LLM config with 5-min cache + variable injection
+│   │   ├── llm_config.py            # Static fallback configs (used when Supabase is unreachable)
+│   │   └── prompts.py               # System prompts for each AI task (static fallback)
+│   ├── models.py                    # Pydantic request/response models
 │   ├── requirements.txt
 │   ├── render.yaml                  # Render deployment config (auto-detected)
-│   └── .env                         # GEMINI_API_KEY, GROQ_API_KEY, SAMBANOVA_API_KEY
+│   ├── Dockerfile                   # Docker image for local/self-hosted backend
+│   └── .env                         # GEMINI_API_KEY, GROQ_API_KEY, SAMBANOVA_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 │
 ├── supabase/
-│   ├── migrations/                  # 12 migrations — apply in numbered order
-│   ├── seed.sql                     # Default service types + starter custom fields
+│   ├── migrations/                  # 14 migrations — apply in numbered order
+│   ├── seed.sql                     # Default service types + starter custom fields (generic placeholders)
 │   └── demo_seed.sql                # 12 clients, 32 visits, 16 appointments, 4 staff
 │
+├── docker-compose.yml               # Local backend (docker compose up)
+├── vercel.json                      # Vercel one-click deploy config
 ├── .github/workflows/ci.yml         # CI: lint + type-check on every PR
 ├── .env.example
 ├── README.md
@@ -194,6 +199,9 @@ DB triggers + server action logging. PII-safe (field names only, never values). 
 | Photo-to-Intake | `POST /ai/photo-to-intake` | ✅ Wired in ClientRegistrationForm |
 | Multilingual Intake | `POST /ai/multilingual-intake` | ✅ Wired in ClientRegistrationForm (language toggle) |
 | Voice-to-Case Notes | `POST /ai/voice-to-note` | ✅ Wired in VisitLogForm (live record + file upload) |
+| Client Handoff Summary | `POST /ai/client-summary` | ✅ Wired in ClientProfileTabs Overview tab |
+| Funder Report | `POST /api/funder-report` | ✅ Wired in AdminReports |
+| Semantic Search | `POST /api/semantic-search` | ✅ pgvector embeddings on visit save |
 
 **AI model chain:**
 ```
@@ -203,12 +211,26 @@ Vision tasks (photo/multilingual intake):
 Voice-to-Note:
   Step 1 Transcription: Groq Whisper large-v3-turbo → Whisper large-v3
   Step 2 Structuring:   Groq Llama 3.3 70B → Gemini 3 Flash → SambaNova Llama 3.3 70B
+
+Client Summary / Funder Report:
+  Fetches data from Supabase → LLM generates structured Markdown narrative
 ```
+
+**Dynamic AI Orchestrator:** All AI tasks are configurable from the Admin → AI Lab panel:
+- Per-task model chain with priority-ordered fallbacks
+- Kill-switch toggle per task
+- Live test-prompt panel with raw response + model attribution
+- `{{org_name}}` / `{{org_mission}}` variable injection in system prompts
+- DB-fetched config with 5-min in-memory cache; static `llm_config.py` fallback if DB unreachable
+- `TaskDisabledError` propagates to a friendly 503 message when all configs are disabled
 
 **Error handling:** 1.5s back-off on 429 before trying next provider. User-facing errors are plain English, not stack traces.
 
-### Database Migrations
-Apply in order via Supabase SQL Editor:
+### Database Setup
+
+**For a fresh install:** run `supabase/schema.sql` — single file, all tables + RLS + triggers + seed data.
+
+**Individual migrations** are preserved in `supabase/migrations/` for reference and for teams using the Supabase CLI (`supabase db push`). The cumulative history:
 
 | # | File | Purpose |
 |---|------|---------|
@@ -225,36 +247,26 @@ Apply in order via Supabase SQL Editor:
 | 10 | `20260328000010_programs_array.sql` | `programs text[]`, drop old `program text` |
 | 11 | `20260329000001_visits_custom_fields.sql` | Add `custom_fields jsonb` to visits |
 | 12 | `20260329000002_care_work_features.sql` | Additional care workflow fields |
+| 13 | `20260407000001_org_settings.sql` | `org_settings` table — org identity, branding, setup wizard state |
+| 14 | `20260407000002_ai_orchestrator.sql` | `ai_models`, `ai_tasks`, `ai_task_configs` tables — Dynamic AI Orchestrator |
+| 14b | `20260408000002_reset_ai_tables.sql` | Repopulate AI tables with corrected display names/descriptions |
 
 ---
 
 ## What's NOT Built Yet (Recommended Next)
 
-See **functional_requirements.md** for full FR details. Ordered by impact:
+All P0, P1, and P2 features are complete. See **functional_requirements.md** for full FR details.
 
-### Next up — High value, moderate effort
-
-| Feature | FR | Notes |
-|---------|-----|-------|
-| **Semantic search** | FR-AI-4/5 | Natural language search across case notes. Needs pgvector on Supabase + embedding generation. High demo value. |
-| **Client handoff summary** | FR-AI-6/7/8 | One-click AI summary of a client's full history from their profile page. Backend endpoint + button on `clients/[id]/page.tsx`. |
-| **Multi-tenancy (org_id)** | NFR | Add `org_id` to all tables + RLS policies. Required before this can serve multiple real nonprofits simultaneously. |
-
-### Medium priority
+### Remaining / post-launch
 
 | Feature | FR | Notes |
 |---------|-----|-------|
+| **Multi-tenancy (org_id)** | NFR | Add `org_id` to all tables + RLS policies. Required before this can serve multiple real nonprofits simultaneously without data bleed. |
 | **Smart follow-up detection** | FR-AI-11/12 | Analyze case note on save → surface action items. Can run in `createVisit` action after insert. |
 | **Appointment reminders** | FR-SCH-3 | Email or in-app. Supabase edge functions + cron, or Resend for email. |
-| **Funder report generation** | FR-AI-9/10 | AI narrative + aggregated stats → PDF. High nonprofit value, moderate complexity. |
-
-### Lower priority / post-launch
-
-| Feature | Notes |
-|---------|-------|
-| **FR-AI-17 label caching** | Cache translated form labels for multilingual intake (noted in backend README as planned). |
-| **Supabase CLI + migration management** | Currently requires manual SQL Editor steps. `supabase link` + `supabase db push` would streamline this. |
-| **Appointment status auto-update** | Mark past `scheduled` appointments as `completed` via a Supabase cron function. |
+| **FR-AI-17 label caching** | FR-AI-17 | Cache translated form labels for multilingual intake. |
+| **Supabase CLI + migration management** | — | Currently requires manual SQL Editor steps. `supabase link` + `supabase db push` would streamline this. |
+| **Appointment status auto-update** | — | Mark past `scheduled` appointments as `completed` via a Supabase cron function. |
 
 ---
 
@@ -262,16 +274,24 @@ See **functional_requirements.md** for full FR details. Ordered by impact:
 
 ### Frontend → Vercel
 See README.md for full step-by-step. Key points:
-- Root Directory must be set to `frontend`
+- Root Directory must be set to `frontend` (enforced by `vercel.json`)
 - After deploy, set `NEXT_PUBLIC_AI_API_URL` to the Render backend URL
 - After deploy, add `https://your-app.vercel.app/auth/callback` to Supabase → Auth → Redirect URLs
 
 ### AI Backend → Render
-`backend/render.yaml` is auto-detected. Set `GEMINI_API_KEY` and `GROQ_API_KEY` in the Render environment.
+`backend/render.yaml` is auto-detected. Set `GEMINI_API_KEY`, `GROQ_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` in the Render environment.
 
 Health check: `GET /health` → `{"status": "ok"}`
 
 Free tier cold-starts after 15 min idle (~30s delay). Upgrade to Starter ($7/mo) for always-on.
+
+### AI Backend → Docker (local / self-hosted)
+```bash
+# From the project root
+cp backend/.env backend/.env  # already populated? or fill in the values
+docker compose up --build
+```
+Backend runs at `http://localhost:8000`. Set `NEXT_PUBLIC_AI_API_URL=http://localhost:8000` in `frontend/.env.local`.
 
 ---
 
@@ -348,4 +368,7 @@ npm run build         # Full production build (TypeScript errors skipped — see
 |----------|----------|-------|
 | `GEMINI_API_KEY` | Yes | Google AI Studio — vision tasks |
 | `GROQ_API_KEY` | Yes | Groq — Whisper + Llama |
+| `SUPABASE_URL` | Yes | Supabase project URL — used by `llm_router.py` to fetch DB-stored AI configs |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Service role key — bypasses RLS for AI config reads |
 | `SAMBANOVA_API_KEY` | No | SambaNova — fallback for note structuring |
+| `OPENROUTER_API_KEY` | No | OpenRouter — additional fallback |
