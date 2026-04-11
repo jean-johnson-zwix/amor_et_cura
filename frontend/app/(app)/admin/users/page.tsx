@@ -24,18 +24,31 @@ const AVATAR_COLORS = ['#F2673C']
 
 export default async function UsersPage() {
   const [session, profiles] = await Promise.all([getSession(), getAllProfiles()])
+    const adminCount  = profiles.filter((p) => p.role === 'admin').length
+    const workerCount = profiles.filter((p) => p.role === 'case_worker').length
+    const viewerCount = profiles.filter((p) => p.role === 'viewer').length
 
   return (
     <>
       <Topbar crumbs={[{ label: 'Admin', href: '/admin' }, { label: 'Users' }]} />
 
       <div className="p-6 flex flex-col gap-4">
-        <p className="text-[12px] text-[#6b7280]">
-          {profiles.length} {profiles.length === 1 ? 'user' : 'users'} · Admins can promote or
-          demote any account. You cannot change your own role.
-        </p>
 
-        <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+        {/* Stat cards */}
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+          {[
+            { label: 'Total users', value: profiles.length },
+            { label: 'Admins', value: adminCount },
+            { label: 'Case workers', value: workerCount },
+          ].map(({ label, value }) => (
+            <div key={label} className="rounded-2xl bg-white shadow-sm p-4">
+              <p className="text-2xl font-semibold tabular-nums text-navy">{value}</p>
+              <p className="mt-0.5 text-[12px] text-[#6b7280]">{label}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="overflow-hidden rounded-[14px] border border-[#e2e8f0] bg-white">
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#e2e8f0]/50 bg-teal-tint text-left">

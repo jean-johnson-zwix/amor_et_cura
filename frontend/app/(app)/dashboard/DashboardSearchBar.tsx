@@ -2,14 +2,21 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Search, Loader2, Sparkles, X, AlertCircle } from 'lucide-react'
+import { Search, Loader2, Sparkles, X, AlertCircle, CheckSquare } from 'lucide-react'
 
 type ClientResult = {
   id: string
   first_name: string
   last_name: string
   client_number: string
-  status: string
+}
+
+type TaskResult = {
+  id: string
+  client_id: string
+  description: string
+  urgency: 'high' | 'medium' | 'low'
+  client_name: string | null
 }
 
 type SemanticResult = {
@@ -36,11 +43,18 @@ function SimilarityBadge({ score }: { score: number }) {
   )
 }
 
+const URGENCY_COLORS: Record<string, { bg: string; color: string; label: string }> = {
+  high:   { bg: '#FEE2E2', color: '#DC2626', label: 'High' },
+  medium: { bg: '#FFF7ED', color: '#C2400A', label: 'Normal' },
+  low:    { bg: '#F0ECE8', color: '#6B7280', label: 'Low' },
+}
+
 export default function DashboardSearchBar() {
   const [query, setQuery] = useState('')
   const [smartSearch, setSmartSearch] = useState(false)
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [clientResults, setClientResults] = useState<ClientResult[]>([])
+  const [taskResults, setTaskResults] = useState<TaskResult[]>([])
   const [semanticResults, setSemanticResults] = useState<SemanticResult[]>([])
   const [open, setOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -59,12 +73,15 @@ export default function DashboardSearchBar() {
   }, [])
 
   const searchClients = useCallback(async (q: string) => {
-    if (!q.trim()) { setClientResults([]); setStatus('idle'); return }
+    if (!q.trim()) { setClientResults([]); setTaskResults([]); setStatus('idle'); return }
     setStatus('loading')
+    setError(null)
     try {
       const res = await fetch(`/api/clients/search?q=${encodeURIComponent(q.trim())}`)
+      if (!res.ok) throw new Error(`Error ${res.status}`)
       const data = await res.json()
-      setClientResults(data.results ?? [])
+      setClientResults(data.clients ?? [])
+      setTaskResults(data.tasks ?? [])
       setStatus('done')
     } catch {
       setStatus('error')
@@ -103,6 +120,7 @@ export default function DashboardSearchBar() {
         debounceRef.current = setTimeout(() => searchClients(val), 300)
       } else {
         setClientResults([])
+        setTaskResults([])
         setStatus('idle')
       }
     } else {
@@ -110,7 +128,7 @@ export default function DashboardSearchBar() {
     }
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!query.trim()) return
     if (smartSearch) searchSemantic(query)
@@ -120,6 +138,7 @@ export default function DashboardSearchBar() {
   function clear() {
     setQuery('')
     setClientResults([])
+    setTaskResults([])
     setSemanticResults([])
     setStatus('idle')
     setError(null)
@@ -131,13 +150,14 @@ export default function DashboardSearchBar() {
     setSmartSearch(v => !v)
     setSemanticResults([])
     setClientResults([])
+    setTaskResults([])
     setStatus('idle')
     setError(null)
   }
 
   const hasResults =
     (smartSearch && semanticResults.length > 0) ||
-    (!smartSearch && clientResults.length > 0)
+    (!smartSearch && (clientResults.length > 0 || taskResults.length > 0))
 
   const showDropdown =
     open &&
@@ -157,7 +177,7 @@ export default function DashboardSearchBar() {
             placeholder={
               smartSearch
                 ? 'Ask anything — e.g. "Who needs housing help?" or "Clients with food insecurity"'
-                : 'Search for a client, visit, or task (e.g., "Who needs housing help?")'
+                : 'Search for a client or task (e.g., "Who needs housing help?")'
             }
             className="h-14 flex-1 bg-transparent px-4 text-base text-navy outline-none placeholder:text-[#9ca3af]"
           />
@@ -205,14 +225,15 @@ export default function DashboardSearchBar() {
               ) : (
                 <>
                   <Search className="size-3.5 text-[#9ca3af]" />
-                  <span className="text-sm font-semibold text-navy">Clients</span>
+                  <span className="text-sm font-semibold text-navy">Clients &amp; Tasks</span>
                 </>
               )}
             </div>
             {hasResults && (
               <span className="text-xs text-[#9ca3af]">
-                {smartSearch ? semanticResults.length : clientResults.length} result
-                {(smartSearch ? semanticResults.length : clientResults.length) !== 1 ? 's' : ''}
+                {smartSearch
+                  ? `${semanticResults.length} result${semanticResults.length !== 1 ? 's' : ''}`
+                  : `${clientResults.length + taskResults.length} result${clientResults.length + taskResults.length !== 1 ? 's' : ''}`}
               </span>
             )}
           </div>
@@ -238,36 +259,80 @@ export default function DashboardSearchBar() {
               <p className="py-6 text-center text-sm text-[#6b7280]">
                 {smartSearch
                   ? 'No matching case notes found. Try different wording.'
-                  : `No clients found for "${query}"`}
+                  : `No clients or tasks found for "${query}"`}
               </p>
             )}
 
-            {!smartSearch && clientResults.map(c => (
-              <div key={c.id} className="flex items-center justify-between rounded-lg px-3 py-3 hover:bg-[#f8fafc] transition-colors">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-navy/10 text-sm font-semibold text-navy">
-                    {c.first_name[0]}{c.last_name[0]}
-                  </div>
-                  <div>
+            {!smartSearch && clientResults.length > 0 && (
+              <>
+                <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[#9ca3af]">Clients</p>
+                {clientResults.map(c => (
+                  <div key={c.id} className="flex items-center justify-between rounded-lg px-3 py-3 hover:bg-[#f8fafc] transition-colors">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-navy/10 text-sm font-semibold text-navy">
+                        {c.first_name[0]}{c.last_name[0]}
+                      </div>
+                      <div>
+                        <Link
+                          href={`/clients/${c.id}`}
+                          onClick={() => setOpen(false)}
+                          className="block text-sm font-semibold text-navy hover:text-teal hover:underline leading-tight"
+                        >
+                          {c.first_name} {c.last_name}
+                        </Link>
+                        <span className="text-xs text-[#9ca3af]">{c.client_number}</span>
+                      </div>
+                    </div>
                     <Link
-                      href={`/clients/${c.id}`}
+                      href={`/services/schedule/new?client_id=${c.id}`}
                       onClick={() => setOpen(false)}
-                      className="block text-sm font-semibold text-navy hover:text-teal hover:underline leading-tight"
+                      className="inline-flex items-center gap-1 rounded-lg border border-[#e2e8f0] px-2.5 py-1 text-xs font-medium text-[#6b7280] hover:border-teal hover:text-teal transition-colors whitespace-nowrap"
                     >
-                      {c.first_name} {c.last_name}
+                      Schedule Appointment
                     </Link>
-                    <span className="text-xs text-[#9ca3af]">{c.client_number}</span>
                   </div>
-                </div>
-                <Link
-                  href={`/services/schedule/new?client_id=${c.id}`}
-                  onClick={() => setOpen(false)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-[#e2e8f0] px-2.5 py-1 text-xs font-medium text-[#6b7280] hover:border-teal hover:text-teal transition-colors whitespace-nowrap"
-                >
-                  + Add Follow-up
-                </Link>
-              </div>
-            ))}
+                ))}
+              </>
+            )}
+
+            {!smartSearch && taskResults.length > 0 && (
+              <>
+                <p className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-widest text-[#9ca3af]">Tasks</p>
+                {taskResults.map(t => {
+                  const style = URGENCY_COLORS[t.urgency] ?? URGENCY_COLORS.medium
+                  return (
+                    <div key={t.id} className="flex items-center justify-between gap-3 rounded-lg px-3 py-3 hover:bg-[#f8fafc] transition-colors">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-teal/10">
+                          <CheckSquare className="size-4 text-teal" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-navy">{t.description}</p>
+                          {t.client_name && (
+                            <span className="text-xs text-[#9ca3af]">{t.client_name}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <span
+                          className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                          style={{ background: style.bg, color: style.color }}
+                        >
+                          {style.label}
+                        </span>
+                        <Link
+                          href={`/tasks`}
+                          onClick={() => setOpen(false)}
+                          className="text-xs font-medium text-teal hover:underline whitespace-nowrap"
+                        >
+                          View →
+                        </Link>
+                      </div>
+                    </div>
+                  )
+                })}
+              </>
+            )}
 
             {smartSearch && semanticResults.map(r => {
               const snippet = r.case_notes || r.notes

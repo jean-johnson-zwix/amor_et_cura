@@ -1,6 +1,5 @@
 import Link from 'next/link'
-import { ClipboardList, UserPlus, CalendarPlus, ChevronRight, MessageSquare, ArrowRight } from 'lucide-react'
-
+import { LayoutDashboard, ClipboardList, UserPlus, CalendarPlus, ChevronRight, MessageSquare, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getSession } from '@/lib/supabase/session'
 import DashboardSearchBar from './DashboardSearchBar'
@@ -98,11 +97,10 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-6 p-6">
 
-      {/* ── Heading ────────────────────────────────────────── */}
-      <div>
-        <h1 className="text-2xl font-bold text-navy">Dashboard</h1>
-        <p className="mt-0.5 text-sm text-muted-foreground">Welcome back, {firstName}</p>
-      </div>
+      <h1 className="flex items-center gap-2 text-2xl font-bold text-navy">
+            <LayoutDashboard className="size-6 text-teal shrink-0" />
+            Dashboard
+          </h1>
 
       {/* ── Search ─────────────────────────────────────────── */}
       <div>
@@ -248,7 +246,6 @@ export default async function DashboardPage() {
                     href={`/clients/${c.id}`}
                     className="shrink-0 text-muted-foreground hover:text-teal transition-colors"
                   >
-                    <MessageSquare className="size-4" />
                   </Link>
                 </div>
               ))}

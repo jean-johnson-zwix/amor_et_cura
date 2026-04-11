@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useRef, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { CheckSquare, Square, Filter, Sparkles, CheckCircle, X, ListChecks } from 'lucide-react'
+import { CheckSquare, Square, Filter, Sparkles, CheckCircle, X, ListChecks, Pencil, Trash2, Plus, Loader2 } from 'lucide-react'
 import { acceptFollowUp, dismissFollowUp } from '../dashboard/follow-up-actions'
-import { completeTask } from './task-actions'
+import { completeTask, updateTask, deleteTask, createTask } from './task-actions'
 
 // ── Shared types ──────────────────────────────────────────────
 
@@ -213,17 +213,220 @@ function SuggestionsTab({
   )
 }
 
+// ── Shared select class ───────────────────────────────────────
+const SEL = 'h-9 rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] text-navy outline-none focus:border-teal focus:ring-2 focus:ring-teal/20'
+
+// ── Create Task modal / inline form ───────────────────────────
+
+type CreateFormState = {
+  description: string
+  urgency: TaskRow['urgency']
+  category: TaskRow['category']
+  dueDate: string
+  clientQuery: string
+  clientId: string
+  clientName: string
+}
+
+type ClientOption = { id: string; first_name: string; last_name: string; client_number: string }
+
+function CreateTaskForm({ onCreated, onCancel }: { onCreated: (task: TaskRow) => void; onCancel: () => void }) {
+  const [form, setForm] = useState<CreateFormState>({
+    description: '', urgency: 'medium', category: 'Check-in',
+    dueDate: '', clientQuery: '', clientId: '', clientName: '',
+  })
+  const [clientOptions, setClientOptions] = useState<ClientOption[]>([])
+  const [clientOpen, setClientOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [, startTransition] = useTransition()
+
+  function set<K extends keyof CreateFormState>(k: K, v: CreateFormState[K]) {
+    setForm(f => ({ ...f, [k]: v }))
+  }
+
+  function handleClientInput(val: string) {
+    set('clientQuery', val)
+    set('clientId', '')
+    setClientOpen(true)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (val.trim()) {
+      debounceRef.current = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/clients/search?q=${encodeURIComponent(val.trim())}`)
+          const data = await res.json()
+          setClientOptions(data.clients ?? [])
+        } catch { /* ignore */ }
+      }, 300)
+    } else {
+      setClientOptions([])
+    }
+  }
+
+  function selectClient(c: ClientOption) {
+    set('clientId', c.id)
+    set('clientName', `${c.first_name} ${c.last_name}`)
+    set('clientQuery', `${c.first_name} ${c.last_name}`)
+    setClientOpen(false)
+    setClientOptions([])
+  }
+
+  function handleSubmit(e: React.SyntheticEvent) {
+    e.preventDefault()
+    if (!form.description.trim() || !form.clientId) return
+    setSaving(true)
+    setError(null)
+    startTransition(async () => {
+      const result = await createTask({
+        description: form.description.trim(),
+        urgency: form.urgency,
+        category: form.category,
+        client_id: form.clientId,
+        suggested_due_date: form.dueDate || null,
+      })
+      if (result.error) {
+        setError(result.error)
+        setSaving(false)
+      } else {
+        const [firstName, ...rest] = form.clientName.split(' ')
+        onCreated({
+          id: result.id!,
+          client_id: form.clientId,
+          visit_id: '',
+          description: form.description.trim(),
+          category: form.category,
+          urgency: form.urgency,
+          suggested_due_date: form.dueDate || null,
+          created_at: new Date().toISOString(),
+          client_first_name: firstName,
+          client_last_name: rest.join(' '),
+          visit_date: '',
+        })
+      }
+    })
+  }
+
+  return (
+    <div className="rounded-2xl border border-teal/20 bg-white shadow-sm p-5">
+      <p className="mb-4 text-[15px] font-bold text-navy">New Task</p>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        {/* Description */}
+        <textarea
+          value={form.description}
+          onChange={e => set('description', e.target.value)}
+          placeholder="Task description…"
+          rows={2}
+          required
+          autoFocus
+          className="w-full resize-none rounded-lg border border-[#e2e8f0] px-3 py-2.5 text-[13px] text-navy outline-none focus:border-teal focus:ring-2 focus:ring-teal/20"
+        />
+
+        {/* Urgency + Category + Due date */}
+        <div className="flex flex-wrap gap-2">
+          <select value={form.urgency} onChange={e => set('urgency', e.target.value as TaskRow['urgency'])} className={SEL}>
+            <option value="high">High urgency</option>
+            <option value="medium">Medium urgency</option>
+            <option value="low">Low urgency</option>
+          </select>
+          <select value={form.category} onChange={e => set('category', e.target.value as TaskRow['category'])} className={SEL}>
+            <option value="Check-in">Check-in</option>
+            <option value="Referral">Referral</option>
+            <option value="Medical">Medical</option>
+            <option value="Document">Document</option>
+            <option value="Financial">Financial</option>
+          </select>
+          <input
+            type="date"
+            value={form.dueDate}
+            onChange={e => set('dueDate', e.target.value)}
+            min={new Date().toISOString().split('T')[0]}
+            className={SEL}
+          />
+        </div>
+
+        {/* Client picker */}
+        <div className="relative">
+          <input
+            value={form.clientQuery}
+            onChange={e => handleClientInput(e.target.value)}
+            onFocus={() => { if (clientOptions.length > 0) setClientOpen(true) }}
+            placeholder="Search client…"
+            autoComplete="off"
+            required
+            className={`w-full ${SEL}`}
+          />
+          {clientOpen && clientOptions.length > 0 && (
+            <div className="absolute left-0 right-0 top-full z-10 mt-1 rounded-xl border border-[#e2e8f0] bg-white shadow-lg overflow-hidden">
+              {clientOptions.map(c => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => selectClient(c)}
+                  className="w-full px-4 py-2.5 text-left hover:bg-[#f8fafc] transition-colors"
+                >
+                  <span className="text-[13px] font-semibold text-navy">{c.first_name} {c.last_name}</span>
+                  <span className="ml-2 text-[12px] text-[#9ca3af]">{c.client_number}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {error && <p className="text-[12px] text-red-600">{error}</p>}
+
+        <div className="flex gap-2 pt-1">
+          <button
+            type="submit"
+            disabled={saving || !form.description.trim() || !form.clientId}
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-teal px-4 text-[13px] font-semibold text-white hover:bg-[#D45228] disabled:opacity-50 transition-colors"
+          >
+            {saving ? <Loader2 className="size-4 animate-spin" /> : 'Create Task'}
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="h-9 rounded-lg border border-[#e2e8f0] px-4 text-[13px] font-medium text-[#6b7280] hover:bg-[#f9fafb] transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
 // ── Active tasks tab ──────────────────────────────────────────
 
 type CategoryFilter = 'all' | TaskRow['category']
 type UrgencyFilter  = 'all' | TaskRow['urgency']
 type DueFilter      = 'all' | 'overdue' | 'today' | 'this-week'
 
-function ActiveTasksTab({ tasks, onCompleted }: { tasks: TaskRow[]; onCompleted: (id: string) => void }) {
+function ActiveTasksTab({
+  tasks,
+  onCompleted,
+  onUpdated,
+  onDeleted,
+  onCreated,
+}: {
+  tasks: TaskRow[]
+  onCompleted: (id: string) => void
+  onUpdated: (id: string, updates: Partial<TaskRow>) => void
+  onDeleted: (id: string) => void
+  onCreated: (task: TaskRow) => void
+}) {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all')
   const [urgencyFilter,  setUrgencyFilter]  = useState<UrgencyFilter>('all')
   const [dueFilter,      setDueFilter]      = useState<DueFilter>('all')
   const [completingId,   setCompletingId]   = useState<string | null>(null)
+  const [deletingId,     setDeletingId]     = useState<string | null>(null)
+  const [editingId,      setEditingId]      = useState<string | null>(null)
+  const [editDesc,       setEditDesc]       = useState('')
+  const [editUrgency,    setEditUrgency]    = useState<TaskRow['urgency']>('medium')
+  const [editCategory,   setEditCategory]   = useState<TaskRow['category']>('Check-in')
+  const [editDueDate,    setEditDueDate]    = useState('')
+  const [savingId,       setSavingId]       = useState<string | null>(null)
+  const [showCreate,     setShowCreate]     = useState(false)
   const [, startTransition] = useTransition()
   const router = useRouter()
 
@@ -248,22 +451,53 @@ function ActiveTasksTab({ tasks, onCompleted }: { tasks: TaskRow[]; onCompleted:
     setCompletingId(id)
     startTransition(async () => {
       const result = await completeTask(id)
-      if (!result.error) {
-        onCompleted(id)
-        router.refresh()
-      }
+      if (!result.error) { onCompleted(id); router.refresh() }
       setCompletingId(null)
     })
   }
 
-  const selClass = 'h-9 rounded-lg border border-[#e2e8f0] bg-white px-3 text-[13px] text-navy outline-none focus:border-teal focus:ring-2 focus:ring-teal/20'
+  function startEdit(task: TaskRow) {
+    setEditingId(task.id)
+    setEditDesc(task.description)
+    setEditUrgency(task.urgency)
+    setEditCategory(task.category)
+    setEditDueDate(task.suggested_due_date ?? '')
+  }
+
+  function cancelEdit() { setEditingId(null) }
+
+  function handleSave(id: string) {
+    setSavingId(id)
+    startTransition(async () => {
+      const result = await updateTask(id, {
+        description: editDesc,
+        urgency: editUrgency,
+        suggested_due_date: editDueDate || null,
+      })
+      if (!result.error) {
+        onUpdated(id, { description: editDesc, urgency: editUrgency, category: editCategory, suggested_due_date: editDueDate || null })
+        setEditingId(null)
+        router.refresh()
+      }
+      setSavingId(null)
+    })
+  }
+
+  function handleDelete(id: string) {
+    setDeletingId(id)
+    startTransition(async () => {
+      const result = await deleteTask(id)
+      if (!result.error) { onDeleted(id); router.refresh() }
+      else setDeletingId(null)
+    })
+  }
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Filters */}
+      {/* Toolbar: filters + New Task */}
       <div className="flex items-center gap-2 flex-wrap">
         <Filter className="size-4 text-[#6b7280] shrink-0" />
-        <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value as CategoryFilter)} className={selClass}>
+        <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value as CategoryFilter)} className={SEL}>
           <option value="all">All categories</option>
           <option value="Referral">Referral</option>
           <option value="Medical">Medical</option>
@@ -271,13 +505,13 @@ function ActiveTasksTab({ tasks, onCompleted }: { tasks: TaskRow[]; onCompleted:
           <option value="Financial">Financial</option>
           <option value="Check-in">Check-in</option>
         </select>
-        <select value={urgencyFilter} onChange={(e) => setUrgencyFilter(e.target.value as UrgencyFilter)} className={selClass}>
+        <select value={urgencyFilter} onChange={(e) => setUrgencyFilter(e.target.value as UrgencyFilter)} className={SEL}>
           <option value="all">All urgencies</option>
           <option value="high">High</option>
           <option value="medium">Medium</option>
           <option value="low">Low</option>
         </select>
-        <select value={dueFilter} onChange={(e) => setDueFilter(e.target.value as DueFilter)} className={selClass}>
+        <select value={dueFilter} onChange={(e) => setDueFilter(e.target.value as DueFilter)} className={SEL}>
           <option value="all">Any due date</option>
           <option value="overdue">Overdue</option>
           <option value="today">Due today</option>
@@ -286,13 +520,30 @@ function ActiveTasksTab({ tasks, onCompleted }: { tasks: TaskRow[]; onCompleted:
         {filtered.length !== tasks.length && (
           <span className="text-[13px] text-[#6b7280]">{filtered.length} of {tasks.length} shown</span>
         )}
+        <div className="ml-auto">
+          <button
+            onClick={() => setShowCreate(v => !v)}
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-teal px-4 text-[13px] font-semibold text-white hover:bg-[#D45228] transition-colors"
+          >
+            <Plus className="size-4" />
+            New Task
+          </button>
+        </div>
       </div>
+
+      {/* Create form */}
+      {showCreate && (
+        <CreateTaskForm
+          onCreated={(task) => { onCreated(task); setShowCreate(false) }}
+          onCancel={() => setShowCreate(false)}
+        />
+      )}
 
       {filtered.length === 0 ? (
         <div className="rounded-2xl bg-white shadow-sm px-6 py-12 text-center">
           <p className="text-base text-[#6b7280]">
             {tasks.length === 0
-              ? 'No active tasks. Go to "AI Suggestions" to review and add tasks.'
+              ? 'No active tasks. Click "New Task" to create one, or go to "AI Suggestions" to review.'
               : 'No tasks match the current filters.'}
           </p>
         </div>
@@ -308,6 +559,7 @@ function ActiveTasksTab({ tasks, onCompleted }: { tasks: TaskRow[]; onCompleted:
                 <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-[#6b7280] hidden md:table-cell">Urgency</th>
                 <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-[#6b7280] hidden lg:table-cell">Due</th>
                 <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-[#6b7280] hidden lg:table-cell">Date</th>
+                <th className="w-20 px-4 py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-[#f1f5f9]">
@@ -315,14 +567,68 @@ function ActiveTasksTab({ tasks, onCompleted }: { tasks: TaskRow[]; onCompleted:
                 const catStyle = CAT_STYLE[task.category]
                 const urgStyle = URG_STYLE[task.urgency]
                 const isCompleting = completingId === task.id
+                const isDeleting   = deletingId   === task.id
+                const isEditing    = editingId    === task.id
+                const isSaving     = savingId     === task.id
                 const due = task.suggested_due_date ? dueBadge(task.suggested_due_date) : null
 
+                if (isEditing) {
+                  return (
+                    <tr key={task.id} className="bg-[#f8fffd]">
+                      <td className="px-4 py-3" />
+                      <td colSpan={6} className="px-4 py-3">
+                        <div className="flex flex-col gap-2">
+                          <textarea
+                            value={editDesc}
+                            onChange={e => setEditDesc(e.target.value)}
+                            rows={2}
+                            autoFocus
+                            className="w-full resize-none rounded-lg border border-teal/40 px-3 py-2 text-[13px] text-navy outline-none focus:ring-2 focus:ring-teal/20"
+                          />
+                          <div className="flex flex-wrap items-center gap-2">
+                            <select value={editUrgency} onChange={e => setEditUrgency(e.target.value as TaskRow['urgency'])} className={SEL}>
+                              <option value="high">High urgency</option>
+                              <option value="medium">Medium urgency</option>
+                              <option value="low">Low urgency</option>
+                            </select>
+                            <select value={editCategory} onChange={e => setEditCategory(e.target.value as TaskRow['category'])} className={SEL}>
+                              <option value="Check-in">Check-in</option>
+                              <option value="Referral">Referral</option>
+                              <option value="Medical">Medical</option>
+                              <option value="Document">Document</option>
+                              <option value="Financial">Financial</option>
+                            </select>
+                            <input
+                              type="date"
+                              value={editDueDate}
+                              onChange={e => setEditDueDate(e.target.value)}
+                              min={new Date().toISOString().split('T')[0]}
+                              className={SEL}
+                            />
+                            <button
+                              onClick={() => handleSave(task.id)}
+                              disabled={isSaving || !editDesc.trim()}
+                              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-teal px-4 text-[13px] font-semibold text-white hover:bg-[#D45228] disabled:opacity-50 transition-colors"
+                            >
+                              {isSaving ? <Loader2 className="size-4 animate-spin" /> : 'Save'}
+                            </button>
+                            <button onClick={cancelEdit} className="h-9 rounded-lg border border-[#e2e8f0] px-4 text-[13px] font-medium text-[#6b7280] hover:bg-white transition-colors">
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3" />
+                    </tr>
+                  )
+                }
+
                 return (
-                  <tr key={task.id} className={`group hover:bg-[#f8fafc] transition-colors ${isCompleting ? 'opacity-50' : ''}`}>
+                  <tr key={task.id} className={`group hover:bg-[#f8fafc] transition-colors ${(isCompleting || isDeleting) ? 'opacity-40' : ''}`}>
                     <td className="px-4 py-3">
                       <button
                         onClick={() => handleComplete(task.id)}
-                        disabled={isCompleting}
+                        disabled={isCompleting || isDeleting}
                         title="Mark as complete"
                         className="text-[#d1d5db] hover:text-teal transition-colors disabled:opacity-50"
                       >
@@ -371,6 +677,27 @@ function ActiveTasksTab({ tasks, onCompleted }: { tasks: TaskRow[]; onCompleted:
 
                     <td className="px-4 py-3 hidden lg:table-cell whitespace-nowrap">
                       <span className="text-[12px] text-[#6b7280]">{formatVisitDate(task.visit_date)}</span>
+                    </td>
+
+                    {/* Edit / Delete actions */}
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => startEdit(task)}
+                          title="Edit task"
+                          className="p-1.5 text-[#9ca3af] hover:text-teal transition-colors rounded"
+                        >
+                          <Pencil className="size-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(task.id)}
+                          disabled={isDeleting}
+                          title="Delete task"
+                          className="p-1.5 text-[#9ca3af] hover:text-red-500 transition-colors rounded disabled:opacity-40"
+                        >
+                          {isDeleting ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 )
@@ -435,6 +762,9 @@ export default function TasksClient({
         <ActiveTasksTab
           tasks={tasks}
           onCompleted={(id) => setTasks((prev) => prev.filter((t) => t.id !== id))}
+          onUpdated={(id, updates) => setTasks((prev) => prev.map((t) => t.id === id ? { ...t, ...updates } : t))}
+          onDeleted={(id) => setTasks((prev) => prev.filter((t) => t.id !== id))}
+          onCreated={(task) => setTasks((prev) => [task, ...prev])}
         />
       )}
 
