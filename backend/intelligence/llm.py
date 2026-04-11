@@ -599,13 +599,32 @@ def call_llm(
             "Pass either task= or explicit model/provider/max_tokens/temperature, not both"
         )
     if task:
-        llm_config = get_llm_task_config(task)
-        model = llm_config["model"]
-        provider = llm_config["provider"]
-        max_tokens = llm_config["max_tokens"]
-        temperature = llm_config["temperature"]
-        response_format = llm_config["response_format"]
-        fallbacks = llm_config["fallbacks"]
+        try:
+            from .llm_router import get_db_task_config, TaskDisabledError
+            db_cfg = get_db_task_config(task)
+            model          = db_cfg["model"]
+            provider       = db_cfg["provider"]
+            max_tokens     = db_cfg["max_tokens"]
+            temperature    = db_cfg["temperature"]
+            response_format = db_cfg["response_format"]
+            fallbacks      = db_cfg["fallbacks"]
+            if db_cfg.get("system_prompt"):
+                system_prompt = db_cfg["system_prompt"]
+        except Exception as exc:
+            from .llm_router import TaskDisabledError
+            if isinstance(exc, TaskDisabledError):
+                raise
+            logger.warning(
+                "llm_router: DB config unavailable for task=%s, using static fallback: %s",
+                task, repr(exc),
+            )
+            llm_config      = get_llm_task_config(task)
+            model           = llm_config["model"]
+            provider        = llm_config["provider"]
+            max_tokens      = llm_config["max_tokens"]
+            temperature     = llm_config["temperature"]
+            response_format = llm_config["response_format"]
+            fallbacks       = llm_config["fallbacks"]
     if not all([model, provider, system_prompt, user_prompt]):
         raise ValueError("Missing required LLM parameters")
     response, actual_provider, actual_model = get_llm().call_with_fallback(
@@ -661,13 +680,32 @@ def call_llm_vision(
             "Pass either task= or explicit model/provider/max_tokens/temperature, not both"
         )
     if task:
-        cfg = get_llm_task_config(task)
-        model = cfg["model"]
-        provider = cfg["provider"]
-        max_tokens = cfg["max_tokens"]
-        temperature = cfg["temperature"]
-        response_format = cfg["response_format"]
-        fallbacks = cfg["fallbacks"]
+        try:
+            from .llm_router import get_db_task_config, TaskDisabledError
+            db_cfg = get_db_task_config(task)
+            model           = db_cfg["model"]
+            provider        = db_cfg["provider"]
+            max_tokens      = db_cfg["max_tokens"]
+            temperature     = db_cfg["temperature"]
+            response_format = db_cfg["response_format"]
+            fallbacks       = db_cfg["fallbacks"]
+            if db_cfg.get("system_prompt"):
+                system_prompt = db_cfg["system_prompt"]
+        except Exception as exc:
+            from .llm_router import TaskDisabledError
+            if isinstance(exc, TaskDisabledError):
+                raise
+            logger.warning(
+                "llm_router: DB config unavailable for task=%s (vision), using static fallback: %s",
+                task, repr(exc),
+            )
+            cfg             = get_llm_task_config(task)
+            model           = cfg["model"]
+            provider        = cfg["provider"]
+            max_tokens      = cfg["max_tokens"]
+            temperature     = cfg["temperature"]
+            response_format = cfg["response_format"]
+            fallbacks       = cfg["fallbacks"]
     else:
         response_format = "json"
     if not all([model, provider, system_prompt, user_prompt]):
@@ -708,10 +746,21 @@ def transcribe_audio(
     audio_mime_type: str,
 ) -> str:
     from .llm_config import AUDIO_TRANSCRIPTION
-    cfg = get_llm_task_config(AUDIO_TRANSCRIPTION)
-    primary_provider = cfg["provider"]
-    primary_model = cfg["model"]
-    audio_fallbacks: List[Tuple[str, str]] = cfg["fallbacks"]
+    try:
+        from .llm_router import get_db_task_config, TaskDisabledError
+        db_cfg = get_db_task_config(AUDIO_TRANSCRIPTION)
+        primary_provider = db_cfg["provider"]
+        primary_model    = db_cfg["model"]
+        audio_fallbacks: List[Tuple[str, str]] = db_cfg["fallbacks"]
+    except Exception as exc:
+        from .llm_router import TaskDisabledError
+        if isinstance(exc, TaskDisabledError):
+            raise
+        logger.warning("llm_router: DB config unavailable for audio task, using static: %s", repr(exc))
+        cfg = get_llm_task_config(AUDIO_TRANSCRIPTION)
+        primary_provider = cfg["provider"]
+        primary_model    = cfg["model"]
+        audio_fallbacks  = cfg["fallbacks"]
 
     attempts = [(primary_provider, primary_model)] + list(audio_fallbacks)
     errors = []

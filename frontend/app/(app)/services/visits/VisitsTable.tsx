@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 
 type VisitRow = {
   id: string
@@ -62,22 +63,20 @@ export default function VisitsTable({
             className="h-9 rounded-lg border-[#e2e8f0] bg-teal-tint text-[13px] placeholder:text-[#6b7280] focus-visible:border-teal focus-visible:ring-teal/20"
           />
         </div>
-        <select
+        <Select
           value={serviceFilter}
           onChange={(e) => setServiceFilter(e.target.value)}
-          className="h-9 rounded-lg border border-[#e2e8f0] bg-white px-2.5 text-[13px] text-[#1f2937] outline-none focus:border-teal"
         >
           <option value="">All service types</option>
           {serviceTypes.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-        <select
+        </Select>
+        <Select
           value={workerFilter}
           onChange={(e) => setWorkerFilter(e.target.value)}
-          className="h-9 rounded-lg border border-[#e2e8f0] bg-white px-2.5 text-[13px] text-[#1f2937] outline-none focus:border-teal"
         >
           <option value="">All case workers</option>
           {caseWorkers.map((w) => <option key={w} value={w}>{w}</option>)}
-        </select>
+        </Select>
       </div>
 
       <p className="text-[12px] text-[#6b7280]">

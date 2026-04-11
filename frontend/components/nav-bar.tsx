@@ -50,11 +50,7 @@ const APPOINTMENTS_NAV = [
 ]
 
 const ADMIN_NAV = [
-  { href: '/admin',             label: 'Overview',        icon: ShieldCheck },
-  { href: '/admin/users',       label: 'Users',           icon: UserCog },
-  { href: '/admin/settings',    label: 'Settings',        icon: Settings },
-  { href: '/admin/audit-log',   label: 'Audit Log',       icon: FileText },
-  { href: '/admin/reports',     label: 'Impact Reports',  icon: BarChart3 },
+  { href: '/admin', label: 'Settings', icon: ShieldCheck }
 ]
 
 export function NavBar({ profile }: { profile: Profile | null }) {
@@ -143,49 +139,30 @@ export function NavBar({ profile }: { profile: Profile | null }) {
         {/* Admin panel — collapsible, admin only */}
         {isAdmin && (
           <div className="mt-4">
-            <button
-              onClick={() => setAdminOpen((v) => !v)}
-              className="flex w-full items-center justify-between rounded px-3 py-2.5 text-[13px] font-medium text-[#9CA3AF] transition-colors hover:bg-[#1F2937] hover:text-white min-h-10"
-              aria-expanded={adminOpen}
-            >
-              <span className="flex items-center gap-2.5">
-                <ShieldCheck className="size-4 shrink-0" />
-                Admin Panel
-              </span>
-              <ChevronDown
+            <div className="mb-1 mt-5 px-2">
+          <span className="text-[9px] font-bold uppercase tracking-widest text-[#6B7280]">Admin</span>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          {ADMIN_NAV.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href || pathname.startsWith(href + '/')
+            return (
+              <Link
+                key={href}
+                href={href}
                 className={cn(
-                  'size-3.5 transition-transform duration-200',
-                  adminOpen && 'rotate-180'
+                  'flex items-center gap-3 rounded px-3 py-2.5 text-[13px] font-medium transition-colors min-h-10',
+                  active
+                    ? 'bg-teal text-white'
+                    : 'text-[#9CA3AF] hover:bg-[#1F2937] hover:text-white'
                 )}
-              />
-            </button>
-
-            {adminOpen && (
-              <div className="mt-0.5 ml-4 flex flex-col gap-0.5 border-l border-[#374151] pl-2">
-                {ADMIN_NAV.map(({ href, label, icon: Icon }) => {
-                  const active =
-                    href === '/admin'
-                      ? pathname === '/admin'
-                      : pathname.startsWith(href)
-                  return (
-                    <Link
-                      key={href}
-                      href={href}
-                      className={cn(
-                        'flex items-center gap-2.5 rounded px-3 py-2 text-[12px] font-medium transition-colors min-h-9',
-                        active
-                          ? 'bg-teal text-white'
-                          : 'text-[#9CA3AF] hover:bg-[#1F2937] hover:text-white'
-                      )}
-                    >
-                      <Icon className="size-3.5 shrink-0" />
-                      {label}
-                    </Link>
-                  )
-                })}
-              </div>
-            )}
-          </div>
+              >
+                <Icon className="size-4 shrink-0" />
+                {label}
+              </Link>
+            )
+          })}
+        </div>
+            </div>
         )}
       </nav>
 

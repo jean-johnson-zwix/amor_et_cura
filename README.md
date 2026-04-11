@@ -5,6 +5,20 @@ A lightweight, open-source client and case management platform any nonprofit can
 
 Built at [ASU WiCS × OHack Hackathon](https://www.ohack.dev) — March 28–29, 2026.
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management&root=frontend&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,NEXT_PUBLIC_AI_API_URL,NEXT_PUBLIC_ORG_NAME&envDescription=See%20README%20for%20details&envLink=https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management%23environment-variables)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/jean-johnson-zwix/nonprofit_client_and_case_management)
+
+---
+
+## 15-Minute Setup Checklist
+
+- [ ] **1 — Supabase** — Create a free project at [supabase.com](https://supabase.com). Copy your Project URL, anon key, and service_role key from **Settings → API**.
+- [ ] **2 — Run migrations** — In the Supabase SQL Editor, paste and run [`supabase/schema.sql`](./supabase/schema.sql) (single file, all tables + seed data).
+- [ ] **3 — Create your admin account** — Sign up at your Supabase Auth dashboard, then run: `update public.profiles set role = 'admin' where id = '<your-uuid>';`
+- [ ] **4 — Deploy backend** — Click "Deploy to Render" above. Add `GEMINI_API_KEY` and `GROQ_API_KEY` in the Environment section. Note your service URL (e.g. `https://amor-et-cura-backend.onrender.com`).
+- [ ] **5 — Deploy frontend** — Click "Deploy with Vercel" above. Fill in the 5 environment variables (Supabase keys + your Render URL). Click Deploy.
+- [ ] **6 — Configure your org** — Sign in as admin and complete the 5-step setup wizard at `/setup` (name, branding, services, intake fields, AI settings).
+
 ---
 
 ## The Problem
@@ -25,6 +39,41 @@ Built at [ASU WiCS × OHack Hackathon](https://www.ohack.dev) — March 28–29,
 | AI Backend | https://amor-et-cura-backend.onrender.com/health |
 
 **Demo credentials:** `demo@amorsetcura.org` / `Demo1234!`
+
+### Demo Walkthrough
+
+Follow these steps to showcase the full platform in ~10 minutes:
+
+#### 1 — Admin Setup (2 min)
+1. Log in as admin (`demo@amorsetcura.org` / `Demo1234!`)
+2. Navigate to **Admin → Settings** to show the org setup wizard results: custom branding colors, service types, intake field configuration
+3. Open **Admin → Settings → AI Lab** to show the AI orchestrator: per-task model chains, kill-switch toggles, and the live test-prompt panel
+
+#### 2 — Client Registration with AI Photo Scan (2 min)
+1. Go to **Clients → Register New Client**
+2. Click **"Scan a paper form"** and upload any photo (the `media/` folder has a sample intake form)
+3. Watch the AI extract fields into the form — review and confirm
+4. Submit to create the client
+
+#### 3 — Log a Visit with AI Voice Notes (2 min)
+1. Open the newly created client's profile
+2. Go to **Case Notes → Log a Visit**
+3. Click the microphone icon and record a short verbal description of the visit
+4. Watch Whisper transcribe and Llama 3.3 structure the note into a clinical Markdown format
+5. Submit the visit
+
+#### 4 — Client Handoff Summary (1 min)
+1. Still on the client profile, click **"Generate Summary"** in the Overview tab
+2. The AI pulls all case history and generates a structured handoff document (background, needs, risk factors, next steps)
+
+#### 5 — Funder Report (1 min)
+1. Go to **Admin → Reports**
+2. Select a date range and program filter
+3. Click **"Generate AI Report"** — the AI drafts a grant-ready narrative combining real service stats with prose
+
+#### 6 — Admin Audit Trail (30 sec)
+1. Go to **Admin → Audit Log**
+2. Filter by actor or event type — show every create/update/delete with full attribution
 
 ---
 
@@ -148,11 +197,11 @@ cp ../.env.example .env.local
 
 Fill in your Supabase credentials (see [Environment Variables](#environment-variables) below).
 
-### 3 — Apply database migrations
+### 3 — Apply the database schema
 
-In the Supabase SQL Editor, run each file in [`supabase/migrations/`](./supabase/migrations/) in numbered order, then run [`supabase/seed.sql`](./supabase/seed.sql) for default service types and starter custom fields.
+In the Supabase SQL Editor, paste and run [`supabase/schema.sql`](./supabase/schema.sql) — this single file creates all tables, RLS policies, triggers, and seeds default service types, custom fields, and AI model configurations.
 
-Optionally load [`supabase/demo_seed.sql`](./supabase/demo_seed.sql) for sample clients and visits.
+Optionally run [`supabase/seed.sql`](./supabase/seed.sql) to load 12 demo clients with visit history.
 
 ### 4 — Bootstrap first admin
 

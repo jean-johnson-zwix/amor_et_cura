@@ -1,91 +1,111 @@
 'use client'
 
-import { useActionState, useTransition } from 'react'
+import { useActionState, useTransition, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select } from '@/components/ui/select'
 import { addServiceType, toggleServiceTypeActive, type ServiceTypeFormState } from './actions'
 import type { ServiceType } from '@/types/database'
 
-function ServiceTypeRow({ st }: { st: ServiceType }) {
+const ADD_NEW = '__add_new__'
+
+function ServiceTypeChip({ st }: { st: ServiceType }) {
   const [isPending, startTransition] = useTransition()
 
   return (
-    <tr className={`border-t text-sm ${!st.is_active ? 'opacity-50' : ''}`}>
-      <td className="px-4 py-3 font-medium">{st.name}</td>
-      <td className="px-4 py-3">
-        {st.is_active ? (
-          <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">Active</span>
-        ) : (
-          <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">Inactive</span>
-        )}
-      </td>
-      <td className="px-4 py-3">
-        <button
-          onClick={() => startTransition(() => toggleServiceTypeActive(st.id, !st.is_active))}
-          disabled={isPending}
-          className="text-xs text-muted-foreground underline hover:text-foreground disabled:opacity-50"
-        >
-          {st.is_active ? 'Disable' : 'Enable'}
-        </button>
-      </td>
-    </tr>
+    <span className={`inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800 transition-opacity ${isPending ? 'opacity-50' : ''}`}>
+      {st.name}
+      <button
+        onClick={() => startTransition(() => toggleServiceTypeActive(st.id, false))}
+        disabled={isPending}
+        aria-label={`Disable ${st.name}`}
+        className="rounded-full hover:bg-green-200 p-0.5 leading-none disabled:cursor-not-allowed"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-3.5">
+          <path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z" />
+        </svg>
+      </button>
+    </span>
   )
 }
 
 const initialState: ServiceTypeFormState = {}
 
 export default function ServiceTypeManager({ serviceTypes }: { serviceTypes: ServiceType[] }) {
-  const [state, action, isPending] = useActionState(addServiceType, initialState)
+  const [state, action, isAdding] = useActionState(addServiceType, initialState)
+  const [reenablePending, startReenableTransition] = useTransition()
+  const [mode, setMode] = useState<'idle' | 'new'>('idle')
+
+  const activeTypes = serviceTypes.filter((st) => st.is_active)
+  const inactiveTypes = serviceTypes.filter((st) => !st.is_active)
+
+  function handleSelectChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const value = e.currentTarget.value
+    if (!value) return
+
+    if (value === ADD_NEW) {
+      setMode('new')
+      e.currentTarget.value = ''
+      return
+    }
+
+    e.currentTarget.value = ''
+    startReenableTransition(() => toggleServiceTypeActive(value, true))
+  }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="rounded-lg border overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-muted-foreground">
-            <tr>
-              <th className="px-4 py-2.5 text-left font-medium">Name</th>
-              <th className="px-4 py-2.5 text-left font-medium">Status</th>
-              <th className="px-4 py-2.5 text-left font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {serviceTypes.length === 0 ? (
-              <tr>
-                <td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">
-                  No service types defined.
-                </td>
-              </tr>
-            ) : (
-              serviceTypes.map((st) => <ServiceTypeRow key={st.id} st={st} />)
+    <div className="flex flex-col gap-4">
+      {/* Add / re-enable control */}
+      <div className="flex flex-col gap-2 max-w-sm">
+        <Label className="text-sm font-semibold">Add new service</Label>
+
+        {mode === 'new' ? (
+          <>
+            {state.error && (
+              <div className="rounded-lg border border-destructive/50 px-3 py-2 text-sm text-destructive">
+                {state.error}
+              </div>
             )}
-          </tbody>
-        </table>
+            {state.success && (
+              <div className="rounded-lg border border-green-500/50 bg-green-50 px-3 py-2 text-sm text-green-800">
+                Service type added.
+              </div>
+            )}
+            <form action={action} className="flex gap-2">
+              <Input id="st_name" name="name" placeholder="e.g. Financial Coaching" required autoFocus />
+              <Button type="submit" disabled={isAdding}>
+                {isAdding ? 'Adding…' : 'Add'}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setMode('idle')}>
+                Cancel
+              </Button>
+            </form>
+          </>
+        ) : (
+          <Select
+            defaultValue=""
+            disabled={reenablePending}
+            onChange={handleSelectChange}
+          >
+            <option value="" disabled>Select service type to add...</option>
+            {inactiveTypes.map((st) => (
+              <option key={st.id} value={st.id}>{st.name}</option>
+            ))}
+            <option value={ADD_NEW}>+ Create new…</option>
+          </Select>
+        )}
       </div>
 
-      <div className="rounded-lg border p-4 flex flex-col gap-4 max-w-sm">
-        <h3 className="text-sm font-semibold">Add service type</h3>
-
-        {state.error && (
-          <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-            {state.error}
-          </div>
-        )}
-        {state.success && (
-          <div className="rounded-lg border border-green-500/50 bg-green-50 px-3 py-2 text-sm text-green-800">
-            Service type added.
-          </div>
-        )}
-
-        <form action={action} className="flex gap-2">
-          <div className="flex-1 flex flex-col gap-1.5">
-            <Label htmlFor="st_name" className="sr-only">Service type name</Label>
-            <Input id="st_name" name="name" placeholder="e.g. Financial Coaching" required />
-          </div>
-          <Button type="submit" disabled={isPending}>
-            {isPending ? 'Adding…' : 'Add'}
-          </Button>
-        </form>
+      {/* Active chips */}
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap gap-2 min-h-10 rounded-lg p-3">
+          {activeTypes.length === 0 ? (
+            <span className="text-sm text-muted-foreground self-center">No active service types.</span>
+          ) : (
+            activeTypes.map((st) => <ServiceTypeChip key={st.id} st={st} />)
+          )}
+        </div>
       </div>
     </div>
   )

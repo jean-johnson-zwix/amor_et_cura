@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { ChevronUp, ChevronDown, ChevronsUpDown, Eye, Pencil } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 import { clientsToCsv, downloadCsv } from '@/lib/csv'
 import type { Client } from '@/types/database'
 
@@ -116,24 +117,22 @@ export default function ClientsTable({ clients }: { clients: Client[] }) {
           />
         </div>
 
-        <select
+        <Select
           value={programFilter}
           onChange={(e) => setProgramFilter(e.target.value)}
-          className="h-9 rounded-lg border border-[#e2e8f0] bg-white px-2.5 text-[13px] text-[#1f2937] outline-none focus:border-teal"
         >
-          <option value="">All programs</option>
+          <option value="">All services</option>
           {allPrograms.map((p) => <option key={p} value={p}>{p}</option>)}
-        </select>
+        </Select>
 
-        <select
+        <Select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as '' | 'active' | 'inactive')}
-          className="h-9 rounded-lg border border-[#e2e8f0] bg-white px-2.5 text-[13px] text-[#1f2937] outline-none focus:border-teal"
         >
           <option value="">All statuses</option>
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
-        </select>
+        </Select>
 
         <button
           onClick={handleExport}
@@ -170,7 +169,7 @@ export default function ClientsTable({ clients }: { clients: Client[] }) {
               </th>
               <th className="px-4 py-3 text-[11px] font-medium uppercase tracking-[0.05em] text-[#6b7280]">Phone</th>
               <th className={thClass} onClick={() => toggleSort('programs')}>
-                Programs <SortIcon col="programs" sortKey={sortKey} sortDir={sortDir} />
+                Services <SortIcon col="programs" sortKey={sortKey} sortDir={sortDir} />
               </th>
               <th className={thClass} onClick={() => toggleSort('status')}>
                 Status <SortIcon col="status" sortKey={sortKey} sortDir={sortDir} />

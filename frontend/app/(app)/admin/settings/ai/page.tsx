@@ -46,10 +46,9 @@ export default async function AdminAiSettingsPage() {
       />
       <div className="p-6 flex flex-col gap-4 max-w-4xl">
         <div>
-          <h1 className="text-[15px] font-semibold text-navy">AI Configuration</h1>
+          <h1 className="text-[15px] font-semibold text-navy">AI Features</h1>
           <p className="mt-0.5 text-[12px] text-[#6b7280]">
-            Manage which AI models power each feature, edit system prompts, and enable or disable tasks.
-            Changes take effect immediately — no redeployment required.
+            Manage all AI features including Models and System Prompts in one place.
           </p>
         </div>
 

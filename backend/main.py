@@ -2,7 +2,7 @@ import json
 import logging
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from models import EmbedRequest, ClientSummaryRequest, FunderReportRequest, ExtractFollowUpsRequest
+from models import EmbedRequest, ClientSummaryRequest, FunderReportRequest, ExtractFollowUpsRequest, TestPromptRequest
 from dotenv import load_dotenv
 load_dotenv()
 from intelligence.llm import call_llm, call_llm_vision, transcribe_audio
@@ -16,6 +16,7 @@ from intelligence.prompts import (
     FOLLOW_UP_EXTRACTION_SYSTEM_PROMPT,
 )
 from intelligence.embedding import embed_text
+from intelligence.llm_router import get_db_task_config, TaskDisabledError, invalidate_cache
 from data.supabase import fetch_client_context, fetch_report_context, insert_follow_ups
 
 # ── Logging setup (PII-safe: never log names/addresses) ──────────────────────
@@ -39,6 +40,8 @@ app.add_middleware(
 
 def _ai_error_message(exc: Exception) -> str:
     """Return a caseworker-friendly error message based on the exception."""
+    if isinstance(exc, TaskDisabledError):
+        return str(exc)
     msg = str(exc)
     if "429" in msg or "Too Many Requests" in msg:
         return (
@@ -432,6 +435,59 @@ async def extract_followups(req: ExtractFollowUpsRequest):
             raise HTTPException(status_code=502, detail="Failed to save follow-ups.")
 
     return {"inserted": len(follow_ups), "visit_id": req.visit_id}
+
+
+@app.post("/ai/test-prompt")
+async def test_prompt(req: TestPromptRequest):
+    """
+    Run a task's live DB config against a supplied prompt and return the raw response.
+    Used by the admin AI Lab "Test prompt" feature. Chat tasks only.
+    """
+    if not req.user_prompt.strip():
+        raise HTTPException(status_code=422, detail="user_prompt must not be empty.")
+
+    try:
+        cfg = get_db_task_config(req.task_slug)
+    except TaskDisabledError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=404, detail=f"Task '{req.task_slug}' not found or DB unavailable: {e}")
+
+    if not cfg.get("system_prompt"):
+        raise HTTPException(status_code=422, detail="This task has no system prompt configured.")
+
+    logger.info("test-prompt: task=%s model=%s", req.task_slug, cfg["model"])
+
+    try:
+        response = call_llm(
+            model=cfg["model"],
+            provider=cfg["provider"],
+            system_prompt=cfg["system_prompt"],
+            user_prompt=req.user_prompt.strip(),
+            max_tokens=min(cfg["max_tokens"], 1024),  # cap test responses
+            temperature=cfg["temperature"],
+            response_format=cfg["response_format"],
+            fallbacks=cfg["fallbacks"],
+        )
+    except Exception as e:
+        logger.error("test-prompt: LLM call failed: %s", repr(e))
+        raise HTTPException(status_code=503, detail=_ai_error_message(e))
+
+    return {
+        "response": response.strip(),
+        "model":    cfg["model"],
+        "provider": cfg["provider"],
+    }
+
+
+@app.post("/ai/invalidate-cache")
+async def invalidate_config_cache(task_slug: str | None = None):
+    """
+    Evict the in-memory config cache so the next request re-fetches from Supabase.
+    Pass ?task_slug=... to evict a single task, or omit to clear everything.
+    """
+    invalidate_cache(task_slug)
+    return {"invalidated": task_slug or "all"}
 
 
 @app.post("/ai/embed")

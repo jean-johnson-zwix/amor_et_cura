@@ -43,7 +43,7 @@ interface Props {
 const STEPS = [
   { number: 1, label: 'Identity' },
   { number: 2, label: 'Branding' },
-  { number: 3, label: 'Programs' },
+  { number: 3, label: 'Services' },
   { number: 4, label: 'Fields' },
   { number: 5, label: 'AI Features' },
 ]
@@ -374,7 +374,7 @@ function Step3({
           ))}
         </div>
       ) : (
-        <p className="text-xs text-gray-400 italic">No programs added yet. You can skip this step and add them later.</p>
+        <p className="text-xs text-gray-400 italic">No services added yet. You can skip this step and add them later.</p>
       )}
 
       {error && <ErrorMsg message={error} />}
@@ -583,7 +583,7 @@ function Step5({
 const STEP_TITLES: Record<number, { title: string; subtitle: string }> = {
   1: { title: 'Tell us about your organization',   subtitle: 'This information appears in reports and client documents.' },
   2: { title: 'Choose your brand colors',          subtitle: 'These colors will theme your entire app.' },
-  3: { title: 'Which programs do you offer?',      subtitle: 'Case workers will see these options when logging visits.' },
+  3: { title: 'Which services do you offer?',      subtitle: 'Case workers will see these options when logging visits.' },
   4: { title: 'Customize your intake form',        subtitle: 'Add extra fields to capture data your funders need.' },
   5: { title: 'Configure AI features',             subtitle: 'Choose which AI tools your staff can access.' },
 }

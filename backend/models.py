@@ -16,3 +16,7 @@ class ExtractFollowUpsRequest(BaseModel):
     visit_id: str
     client_id: str
     visit_text: str
+
+class TestPromptRequest(BaseModel):
+    task_slug: str
+    user_prompt: str

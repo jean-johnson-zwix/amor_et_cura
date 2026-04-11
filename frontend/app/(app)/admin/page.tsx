@@ -10,22 +10,17 @@ const ADMIN_SECTIONS: {
   description: string
   Icon: React.ComponentType<{ className?: string }>
 }[] = [
-  { href: '/admin/users',        title: 'User Management',   description: 'View all staff accounts, promote or demote roles.',              Icon: Users },
-  { href: '/admin/settings',     title: 'Settings',          description: 'Configure service types and custom intake fields.',              Icon: Settings },
-  { href: '/admin/settings/ai',  title: 'AI Configuration',  description: 'Swap models, edit prompts, and enable or disable AI features.', Icon: Brain },
+  { href: '/admin/users',        title: 'User Management',   description: 'View/Manage all user accounts.',              Icon: Users },
+  { href: '/admin/settings',     title: 'Manage Forms & Services',          description: 'Configure service types and forms.',              Icon: Settings },
+  { href: '/admin/settings/ai',  title: 'AI Configuration',  description: 'Manage AI features, models, and system prompts.', Icon: Brain },
   { href: '/admin/audit-log',    title: 'Audit Log',         description: 'Review all create, update, and delete actions.',                Icon: FileText },
-  { href: '/admin/reports',      title: 'Impact Reports',    description: 'Generate AI-assisted funder narratives from program data.',     Icon: BarChart3 },
+  { href: '/admin/reports',      title: 'Impact Reports',    description: 'Generate reports for funder reporting.',     Icon: BarChart3 },
 ]
 
 export default async function AdminPage() {
-  const profiles = await getAllProfiles()
-  const adminCount  = profiles.filter((p) => p.role === 'admin').length
-  const workerCount = profiles.filter((p) => p.role === 'case_worker').length
-  const viewerCount = profiles.filter((p) => p.role === 'viewer').length
-
   return (
     <>
-      <Topbar crumbs={[{ label: 'Admin' }, { label: 'Overview' }]} />
+      <Topbar crumbs={[{ label: 'Admin' }, { label: 'Settings' }]} />
 
       <div className="p-6 flex flex-col gap-5">
         {/* Section link cards */}
